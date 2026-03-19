@@ -234,6 +234,8 @@ export default function Dashboard() {
             ))
           )}
         </div>
+
+        <FavoritesSection />
       </div>
     </div>
   );
