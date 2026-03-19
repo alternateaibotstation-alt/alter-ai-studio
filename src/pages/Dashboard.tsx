@@ -35,7 +35,7 @@ export default function Dashboard() {
 
   const openCreate = () => {
     setEditingBot(null);
-    setForm({ name: "", description: "", persona: "", category: "wellness", is_public: true, price: 0 });
+    setForm({ name: "", description: "", persona: "", category: "wellness", is_public: true, price: 0, avatar_url: "" });
     setDialogOpen(true);
   };
 
