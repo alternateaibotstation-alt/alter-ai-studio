@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Bot as BotIcon, MessageSquare, DollarSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { AverageRating } from "@/components/BotReviews";
 import type { Bot } from "@/lib/api";
 
 export default function BotCard({ bot }: { bot: Bot }) {
