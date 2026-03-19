@@ -120,6 +120,12 @@ export const api = {
     });
   },
 
+  clearMessages: async (botId: string): Promise<void> => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    await supabase.from("messages").delete().eq("bot_id", botId).eq("user_id", user.id);
+  },
+
   // ── Purchases ──
   checkPurchase: async (botId: string): Promise<boolean> => {
     const { data, error } = await supabase.functions.invoke("check-bot-purchase", {

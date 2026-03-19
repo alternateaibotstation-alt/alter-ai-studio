@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { useParams, Link, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Send, Loader2, Sparkles, Lock, DollarSign, Mic, MicOff, Volume2, VolumeX } from "lucide-react";
+import { ArrowLeft, Send, Loader2, Sparkles, Lock, DollarSign, Mic, MicOff, Volume2, VolumeX, Trash2 } from "lucide-react";
 import { api, type Bot, type ChatMessage } from "@/lib/api";
 import { useVoiceChat } from "@/hooks/use-voice-chat";
 import BotReviews from "@/components/BotReviews";
@@ -295,6 +295,21 @@ export default function Chat() {
           <span className="text-xs font-medium text-accent flex items-center gap-1">
             <DollarSign className="w-3 h-3" />{bot.price}
           </span>
+        )}
+        {messages.length > 0 && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={async () => {
+              if (!botId) return;
+              await api.clearMessages(botId);
+              setMessages([]);
+              toast.success("Chat history cleared");
+            }}
+            title="Clear chat history"
+          >
+            <Trash2 className="w-4 h-4 text-muted-foreground" />
+          </Button>
         )}
         {voice.supportsTTS && (
           <Button
