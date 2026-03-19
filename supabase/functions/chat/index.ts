@@ -86,8 +86,8 @@ serve(async (req) => {
       });
     }
 
-    // Increment messages_count on the bot
-    try { await supabaseClient.rpc("increment_bot_messages", { bot_id_input: botId }); } catch (_) {}
+    // Increment messages_count on the bot (fire-and-forget)
+    supabaseClient.from("bots").update({ messages_count: (bot as any).messages_count ? (bot as any).messages_count + 1 : 1 }).eq("id", botId).then(() => {});
 
     return new Response(response.body, {
       headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
