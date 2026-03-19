@@ -113,6 +113,8 @@ export default function Navbar() {
               {l.label}
             </Link>
           ))}
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
           {user ? (
             <Link
               to="/profile"
