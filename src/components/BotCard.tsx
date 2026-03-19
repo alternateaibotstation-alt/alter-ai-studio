@@ -1,9 +1,10 @@
 import { Link } from "react-router-dom";
-import { Bot as BotIcon, MessageSquare, DollarSign, Heart } from "lucide-react";
+import { Bot as BotIcon, MessageSquare, DollarSign, Heart, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AverageRating } from "@/components/BotReviews";
 import type { Bot } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 interface BotCardProps {
   bot: Bot;
@@ -13,6 +14,16 @@ interface BotCardProps {
 
 export default function BotCard({ bot, isFavorite = false, onToggleFavorite }: BotCardProps) {
   const isFree = !bot.price || bot.price === 0;
+
+  const handleShare = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const url = `${window.location.origin}/chat/${bot.id}`;
+    navigator.clipboard.writeText(url).then(() => {
+      toast.success("Link copied to clipboard!");
+    }).catch(() => {
+      toast.error("Failed to copy link");
+    });
+  };
 
   return (
     <div className="rounded-lg border border-border bg-card p-5 card-hover flex flex-col gap-3">
@@ -26,7 +37,14 @@ export default function BotCard({ bot, isFavorite = false, onToggleFavorite }: B
             </div>
           )}
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
+          <button
+            onClick={handleShare}
+            className="p-1 rounded-md hover:bg-muted transition-colors"
+            aria-label="Share bot"
+          >
+            <Share2 className="w-4 h-4 text-muted-foreground hover:text-foreground transition-colors" />
+          </button>
           {onToggleFavorite && (
             <button
               onClick={(e) => { e.preventDefault(); onToggleFavorite(bot.id); }}
