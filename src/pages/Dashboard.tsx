@@ -11,7 +11,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Plus, Pencil, Trash2, MessageSquare, Loader2, Download, Upload, Heart } from "lucide-react";
+import { Plus, Pencil, Trash2, MessageSquare, Loader2, Download, Upload, Heart, Palette } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { api, type Bot } from "@/lib/api";
 import PersonalityTraitsBuilder from "@/components/PersonalityTraitsBuilder";
@@ -19,6 +19,7 @@ import BotAvatarUpload from "@/components/BotAvatarUpload";
 import BotImportExport from "@/components/BotImportExport";
 import FavoritesSection from "@/components/FavoritesSection";
 import SuggestedPromptsEditor from "@/components/SuggestedPromptsEditor";
+import ModelSelector from "@/components/ModelSelector";
 export default function Dashboard() {
   const [bots, setBots] = useState<Bot[]>([]);
   const [loading, setLoading] = useState(true);
