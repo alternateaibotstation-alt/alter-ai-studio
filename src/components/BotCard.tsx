@@ -37,7 +37,14 @@ export default function BotCard({ bot, isFavorite = false, onToggleFavorite }: B
             </div>
           )}
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
+          <button
+            onClick={handleShare}
+            className="p-1 rounded-md hover:bg-muted transition-colors"
+            aria-label="Share bot"
+          >
+            <Share2 className="w-4 h-4 text-muted-foreground hover:text-foreground transition-colors" />
+          </button>
           {onToggleFavorite && (
             <button
               onClick={(e) => { e.preventDefault(); onToggleFavorite(bot.id); }}
