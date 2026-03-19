@@ -1,5 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { ThemeProvider } from "next-themes";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -17,23 +18,25 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/marketplace" element={<Marketplace />} />
-          <Route path="/chat/:id" element={<Chat />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/auth" element={<Auth />} />
-          <Route path="/purchases" element={<Purchases />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/success" element={<Success />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
+    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/marketplace" element={<Marketplace />} />
+            <Route path="/chat/:id" element={<Chat />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/purchases" element={<Purchases />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/success" element={<Success />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </ThemeProvider>
   </QueryClientProvider>
 );
 
