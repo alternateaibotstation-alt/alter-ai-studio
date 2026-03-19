@@ -67,7 +67,7 @@ export default function Navbar() {
             </Link>
           ))}
           <Button size="sm" className="w-full" asChild>
-            <a href="/api/oauth/login">Get Started</a>
+            <Link to="/auth">Get Started</Link>
           </Button>
         </div>
       )}
