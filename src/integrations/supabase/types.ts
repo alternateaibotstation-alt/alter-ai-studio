@@ -14,7 +14,177 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      bots: {
+        Row: {
+          category: string | null
+          created_at: string
+          description: string | null
+          id: string
+          is_public: boolean | null
+          messages_count: number | null
+          model: string | null
+          name: string
+          persona: string | null
+          price: number | null
+          status: string | null
+          suggested_prompts: string[] | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_public?: boolean | null
+          messages_count?: number | null
+          model?: string | null
+          name: string
+          persona?: string | null
+          price?: number | null
+          status?: string | null
+          suggested_prompts?: string[] | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_public?: boolean | null
+          messages_count?: number | null
+          model?: string | null
+          name?: string
+          persona?: string | null
+          price?: number | null
+          status?: string | null
+          suggested_prompts?: string[] | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      favorites: {
+        Row: {
+          bot_id: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          bot_id: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          bot_id?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "favorites_bot_id_fkey"
+            columns: ["bot_id"]
+            isOneToOne: false
+            referencedRelation: "bots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          bot_id: string
+          content: string
+          created_at: string
+          id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          bot_id: string
+          content: string
+          created_at?: string
+          id?: string
+          role: string
+          user_id: string
+        }
+        Update: {
+          bot_id?: string
+          content?: string
+          created_at?: string
+          id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_bot_id_fkey"
+            columns: ["bot_id"]
+            isOneToOne: false
+            referencedRelation: "bots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          id: string
+          username: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          id: string
+          username?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          id?: string
+          username?: string | null
+        }
+        Relationships: []
+      }
+      purchases: {
+        Row: {
+          amount: number
+          bot_id: string
+          created_at: string
+          id: string
+          stripe_session_id: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          bot_id: string
+          created_at?: string
+          id?: string
+          stripe_session_id?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          bot_id?: string
+          created_at?: string
+          id?: string
+          stripe_session_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "purchases_bot_id_fkey"
+            columns: ["bot_id"]
+            isOneToOne: false
+            referencedRelation: "bots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
