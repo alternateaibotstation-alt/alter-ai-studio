@@ -40,6 +40,7 @@ export default function Navbar() {
   const links = [
     { to: "/", label: "Home" },
     { to: "/marketplace", label: "Marketplace" },
+    { to: "/art-studio", label: "Art Studio" },
     { to: "/dashboard", label: "Dashboard" },
     { to: "/purchases", label: "Purchases" },
   ];

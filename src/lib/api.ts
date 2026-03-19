@@ -71,9 +71,11 @@ export const api = {
         description: bot.description ?? null,
         persona: bot.persona ?? null,
         category: bot.category ?? "general",
+        model: bot.model ?? "google/gemini-3-flash-preview",
         is_public: bot.is_public ?? true,
         price: bot.price ?? 0,
         avatar_url: bot.avatar_url ?? null,
+        suggested_prompts: bot.suggested_prompts ?? [],
       })
       .select()
       .single();

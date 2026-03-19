@@ -178,6 +178,10 @@ export default function Dashboard() {
                     />
                   </div>
                 </div>
+                <ModelSelector
+                  value={form.model}
+                  onChange={(model) => setForm({ ...form, model })}
+                />
                 <SuggestedPromptsEditor
                   prompts={form.suggested_prompts}
                   onChange={(suggested_prompts) => setForm({ ...form, suggested_prompts })}
