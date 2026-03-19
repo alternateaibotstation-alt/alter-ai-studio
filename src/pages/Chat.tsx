@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowLeft, Send, Loader2, Sparkles, Lock, DollarSign, Mic, MicOff, Volume2, VolumeX, Trash2 } from "lucide-react";
 import { api, type Bot, type ChatMessage } from "@/lib/api";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { useVoiceChat } from "@/hooks/use-voice-chat";
 import BotReviews from "@/components/BotReviews";
 import { toast } from "sonner";
