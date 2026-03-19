@@ -190,7 +190,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      increment_bot_messages: {
+        Args: { bot_id_input: string }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

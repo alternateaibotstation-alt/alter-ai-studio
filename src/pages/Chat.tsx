@@ -4,6 +4,94 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowLeft, Send, Loader2, Sparkles } from "lucide-react";
 import { api, type Bot, type ChatMessage } from "@/lib/api";
+import { toast } from "sonner";
+
+const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`;
+
+type Msg = { role: "user" | "assistant"; content: string };
+
+async function streamChat({
+  botId,
+  messages,
+  onDelta,
+  onDone,
+}: {
+  botId: string;
+  messages: Msg[];
+  onDelta: (text: string) => void;
+  onDone: () => void;
+}) {
+  const resp = await fetch(CHAT_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+    },
+    body: JSON.stringify({ botId, messages }),
+  });
+
+  if (!resp.ok) {
+    const err = await resp.json().catch(() => ({ error: "Unknown error" }));
+    throw new Error(err.error || `Error ${resp.status}`);
+  }
+
+  if (!resp.body) throw new Error("No response body");
+
+  const reader = resp.body.getReader();
+  const decoder = new TextDecoder();
+  let textBuffer = "";
+  let streamDone = false;
+
+  while (!streamDone) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    textBuffer += decoder.decode(value, { stream: true });
+
+    let newlineIndex: number;
+    while ((newlineIndex = textBuffer.indexOf("\n")) !== -1) {
+      let line = textBuffer.slice(0, newlineIndex);
+      textBuffer = textBuffer.slice(newlineIndex + 1);
+
+      if (line.endsWith("\r")) line = line.slice(0, -1);
+      if (line.startsWith(":") || line.trim() === "") continue;
+      if (!line.startsWith("data: ")) continue;
+
+      const jsonStr = line.slice(6).trim();
+      if (jsonStr === "[DONE]") {
+        streamDone = true;
+        break;
+      }
+
+      try {
+        const parsed = JSON.parse(jsonStr);
+        const content = parsed.choices?.[0]?.delta?.content as string | undefined;
+        if (content) onDelta(content);
+      } catch {
+        textBuffer = line + "\n" + textBuffer;
+        break;
+      }
+    }
+  }
+
+  // Final flush
+  if (textBuffer.trim()) {
+    for (let raw of textBuffer.split("\n")) {
+      if (!raw) continue;
+      if (raw.endsWith("\r")) raw = raw.slice(0, -1);
+      if (raw.startsWith(":") || raw.trim() === "") continue;
+      if (!raw.startsWith("data: ")) continue;
+      const jsonStr = raw.slice(6).trim();
+      if (jsonStr === "[DONE]") continue;
+      try {
+        const parsed = JSON.parse(jsonStr);
+        const content = parsed.choices?.[0]?.delta?.content as string | undefined;
+        if (content) onDelta(content);
+      } catch { /* ignore */ }
+    }
+  }
+
+  onDone();
+}
 
 export default function Chat() {
   const { id: botId } = useParams<{ id: string }>();
@@ -28,43 +116,75 @@ export default function Chat() {
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim() || !botId) return;
+    if (!input.trim() || !botId || sending) return;
 
+    const userContent = input.trim();
     const userMsg: ChatMessage = {
       id: Date.now().toString(),
       role: "user",
-      content: input,
+      content: userContent,
       created_at: new Date().toISOString(),
     };
     setMessages((prev) => [...prev, userMsg]);
     setInput("");
     setSending(true);
 
+    // Save user message
+    api.saveMessage(botId, "user", userContent);
+
+    // Build conversation history for AI
+    const history: Msg[] = [
+      ...messages.map((m) => ({ role: m.role, content: m.content })),
+      { role: "user" as const, content: userContent },
+    ];
+
+    let assistantSoFar = "";
+    const upsertAssistant = (chunk: string) => {
+      assistantSoFar += chunk;
+      setMessages((prev) => {
+        const last = prev[prev.length - 1];
+        if (last?.role === "assistant" && last.id === "streaming") {
+          return prev.map((m, i) =>
+            i === prev.length - 1 ? { ...m, content: assistantSoFar } : m
+          );
+        }
+        return [
+          ...prev,
+          { id: "streaming", role: "assistant" as const, content: assistantSoFar, created_at: new Date().toISOString() },
+        ];
+      });
+    };
+
     try {
-      await api.saveMessage(botId, "user", input);
-      // TODO: Wire up AI edge function for real responses
-      const assistantContent = "AI responses coming soon! The AI chat engine will be built in Phase 2.";
+      await streamChat({
+        botId,
+        messages: history,
+        onDelta: upsertAssistant,
+        onDone: () => {
+          // Replace streaming id with a real id
+          setMessages((prev) =>
+            prev.map((m) =>
+              m.id === "streaming" ? { ...m, id: Date.now().toString() } : m
+            )
+          );
+          setSending(false);
+          // Save assistant message
+          if (assistantSoFar) {
+            api.saveMessage(botId, "assistant", assistantSoFar);
+          }
+        },
+      });
+    } catch (err: any) {
+      toast.error(err.message || "Failed to get AI response");
       setMessages((prev) => [
-        ...prev,
+        ...prev.filter((m) => m.id !== "streaming"),
         {
           id: (Date.now() + 1).toString(),
           role: "assistant",
-          content: assistantContent,
+          content: "Sorry, an error occurred. Please try again.",
           created_at: new Date().toISOString(),
         },
       ]);
-      await api.saveMessage(botId, "assistant", assistantContent);
-    } catch {
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: (Date.now() + 1).toString(),
-          role: "assistant",
-          content: "An error occurred. Please try again.",
-          created_at: new Date().toISOString(),
-        },
-      ]);
-    } finally {
       setSending(false);
     }
   };
@@ -105,6 +225,19 @@ export default function Chat() {
               <p className="text-sm text-muted-foreground mt-1 max-w-sm mx-auto">
                 {bot?.description || "Start a conversation"}
               </p>
+              {bot?.suggested_prompts && bot.suggested_prompts.length > 0 && (
+                <div className="mt-6 flex flex-wrap justify-center gap-2">
+                  {bot.suggested_prompts.map((prompt) => (
+                    <button
+                      key={prompt}
+                      onClick={() => setInput(prompt)}
+                      className="text-xs px-3 py-1.5 rounded-full border border-border bg-card text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors"
+                    >
+                      {prompt}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
@@ -114,7 +247,7 @@ export default function Chat() {
               className={`flex animate-fade-in ${msg.role === "user" ? "justify-end" : "justify-start"}`}
             >
               <div
-                className={`max-w-[75%] rounded-lg px-4 py-2.5 text-sm ${
+                className={`max-w-[75%] rounded-lg px-4 py-2.5 text-sm whitespace-pre-wrap ${
                   msg.role === "user"
                     ? "bg-primary text-primary-foreground"
                     : "bg-card border border-border text-foreground"
@@ -125,7 +258,7 @@ export default function Chat() {
             </div>
           ))}
 
-          {sending && (
+          {sending && messages[messages.length - 1]?.role !== "assistant" && (
             <div className="flex justify-start animate-fade-in">
               <div className="bg-card border border-border rounded-lg px-4 py-2.5">
                 <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
