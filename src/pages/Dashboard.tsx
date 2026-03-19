@@ -15,7 +15,7 @@ import Navbar from "@/components/Navbar";
 import { api, type Bot } from "@/lib/api";
 import PersonalityTraitsBuilder from "@/components/PersonalityTraitsBuilder";
 import BotAvatarUpload from "@/components/BotAvatarUpload";
-
+import BotImportExport from "@/components/BotImportExport";
 export default function Dashboard() {
   const [bots, setBots] = useState<Bot[]>([]);
   const [loading, setLoading] = useState(true);
