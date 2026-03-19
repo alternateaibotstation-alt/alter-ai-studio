@@ -296,6 +296,21 @@ export default function Chat() {
             <DollarSign className="w-3 h-3" />{bot.price}
           </span>
         )}
+        {messages.length > 0 && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={async () => {
+              if (!botId) return;
+              await api.clearMessages(botId);
+              setMessages([]);
+              toast.success("Chat history cleared");
+            }}
+            title="Clear chat history"
+          >
+            <Trash2 className="w-4 h-4 text-muted-foreground" />
+          </Button>
+        )}
         {voice.supportsTTS && (
           <Button
             variant="ghost"
