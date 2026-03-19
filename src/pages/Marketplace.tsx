@@ -108,15 +108,26 @@ export default function Marketplace() {
         <h1 className="text-3xl font-bold text-foreground">Marketplace</h1>
         <p className="text-muted-foreground mt-1">Discover AI bots built by the community</p>
 
-        {/* Search */}
-        <div className="mt-6 relative max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            placeholder="Search bots..."
-            className="pl-9 bg-card border-border"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
+        {/* Search & Favorites filter */}
+        <div className="mt-6 flex items-center gap-3">
+          <div className="relative max-w-md flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder="Search bots..."
+              className="pl-9 bg-card border-border"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+          <Button
+            variant={showFavorites ? "default" : "outline"}
+            size="sm"
+            onClick={() => setShowFavorites(!showFavorites)}
+            className="gap-1.5"
+          >
+            <Heart className={cn("w-4 h-4", showFavorites && "fill-current")} />
+            Favorites
+          </Button>
         </div>
 
         {search ? (
