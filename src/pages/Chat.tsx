@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, Link, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,6 +8,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useVoiceChat } from "@/hooks/use-voice-chat";
 import BotReviews from "@/components/BotReviews";
+import ChatSearchBar from "@/components/ChatSearchBar";
 import { toast } from "sonner";
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`;
@@ -108,6 +109,16 @@ export default function Chat() {
   const [checkingOut, setCheckingOut] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
   const lastSpokenRef = useRef<string>("");
+  const [highlightedMsgId, setHighlightedMsgId] = useState<string | null>(null);
+
+  const handleSearchHighlight = useCallback((msgId: string | null) => {
+    setHighlightedMsgId(msgId);
+    if (msgId) {
+      setTimeout(() => {
+        document.getElementById(`msg-${msgId}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 50);
+    }
+  }, []);
 
   const voice = useVoiceChat({
     onTranscript: (text) => {
@@ -293,6 +304,9 @@ export default function Chat() {
             <p className="text-xs text-muted-foreground capitalize">{bot.category}</p>
           )}
         </div>
+        {messages.length > 0 && (
+          <ChatSearchBar messages={messages} onHighlight={handleSearchHighlight} />
+        )}
         {isPaid && (
           <span className="text-xs font-medium text-accent flex items-center gap-1">
             <DollarSign className="w-3 h-3" />{bot.price}
@@ -393,10 +407,13 @@ export default function Chat() {
               {messages.map((msg) => (
                 <div
                   key={msg.id}
+                  id={`msg-${msg.id}`}
                   className={`flex animate-fade-in ${msg.role === "user" ? "justify-end" : "justify-start"}`}
                 >
                   <div
-                    className={`max-w-[75%] rounded-lg px-4 py-2.5 text-sm ${
+                    className={`max-w-[75%] rounded-lg px-4 py-2.5 text-sm transition-colors ${
+                      highlightedMsgId === msg.id ? "ring-2 ring-primary" : ""
+                    } ${
                       msg.role === "user"
                         ? "bg-primary text-primary-foreground whitespace-pre-wrap"
                         : "bg-card border border-border text-foreground"
