@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { AverageRating } from "@/components/BotReviews";
 import type { Bot } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 interface BotCardProps {
   bot: Bot;
