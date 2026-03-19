@@ -156,6 +156,21 @@ export default function Chat() {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // Auto-speak new bot responses
+  useEffect(() => {
+    if (!voice.ttsEnabled || messages.length === 0) return;
+    const last = messages[messages.length - 1];
+    if (
+      last?.role === "assistant" &&
+      last.id !== "streaming" &&
+      last.content &&
+      last.content !== lastSpokenRef.current
+    ) {
+      lastSpokenRef.current = last.content;
+      voice.speak(last.content);
+    }
+  }, [messages, voice]);
+
   const handleBuy = async () => {
     if (!botId) return;
     const user = await api.getUser();
