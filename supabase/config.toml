@@ -2,3 +2,9 @@ project_id = "celvxwiympkuceitdgxo"
 
 [functions.chat]
 verify_jwt = false
+
+[functions.create-bot-checkout]
+verify_jwt = false
+
+[functions.check-bot-purchase]
+verify_jwt = false
