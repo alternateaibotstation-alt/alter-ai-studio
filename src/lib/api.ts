@@ -144,6 +144,36 @@ export const api = {
     return data.url;
   },
 
+  // ── Favorites ──
+  getFavorites: async (): Promise<string[]> => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return [];
+    const { data, error } = await supabase
+      .from("favorites")
+      .select("bot_id")
+      .eq("user_id", user.id);
+    if (error) return [];
+    return (data ?? []).map((f) => f.bot_id);
+  },
+
+  toggleFavorite: async (botId: string): Promise<boolean> => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error("Not authenticated");
+    const { data: existing } = await supabase
+      .from("favorites")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("bot_id", botId)
+      .maybeSingle();
+    if (existing) {
+      await supabase.from("favorites").delete().eq("id", existing.id);
+      return false;
+    } else {
+      await supabase.from("favorites").insert({ user_id: user.id, bot_id: botId });
+      return true;
+    }
+  },
+
   // ── Auth ──
   getUser: async () => {
     const { data: { user } } = await supabase.auth.getUser();
