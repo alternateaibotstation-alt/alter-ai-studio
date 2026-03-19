@@ -392,10 +392,22 @@ export default function Chat() {
           <div className="shrink-0 border-t border-border/50 p-4">
             <form onSubmit={handleSend} className="max-w-[800px] mx-auto">
               <div className="glass-panel rounded-lg flex items-center gap-2 p-2">
+                {voice.supportsSTT && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={voice.toggleListening}
+                    className={voice.isListening ? "text-destructive animate-pulse" : "text-muted-foreground"}
+                    title={voice.isListening ? "Stop listening" : "Speak"}
+                  >
+                    {voice.isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+                  </Button>
+                )}
                 <Input
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder="Type a message..."
+                  placeholder={voice.isListening ? "Listening..." : "Type a message..."}
                   className="border-0 bg-transparent focus-visible:ring-0 text-sm"
                   disabled={sending}
                 />
