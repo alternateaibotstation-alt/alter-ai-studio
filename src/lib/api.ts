@@ -73,6 +73,7 @@ export const api = {
         category: bot.category ?? "general",
         is_public: bot.is_public ?? true,
         price: bot.price ?? 0,
+        avatar_url: bot.avatar_url ?? null,
       })
       .select()
       .single();
