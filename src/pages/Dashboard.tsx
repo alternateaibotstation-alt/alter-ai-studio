@@ -20,6 +20,7 @@ import BotImportExport from "@/components/BotImportExport";
 import FavoritesSection from "@/components/FavoritesSection";
 import SuggestedPromptsEditor from "@/components/SuggestedPromptsEditor";
 import ModelSelector from "@/components/ModelSelector";
+import BotAnalyticsPanel from "@/components/BotAnalyticsPanel";
 export default function Dashboard() {
   const [bots, setBots] = useState<Bot[]>([]);
   const [loading, setLoading] = useState(true);
