@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Sparkles, Zap, TrendingUp, Users, ArrowRight } from "lucide-react";
+import { Sparkles, Zap, TrendingUp, ArrowRight, Users, BarChart3, Check } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import BotCard from "@/components/BotCard";
 import { api, type Bot } from "@/lib/api";
@@ -16,16 +16,59 @@ const fadeUp = {
   }),
 };
 
+const stats = [
+  { value: "1000+", label: "Bots Created" },
+  { value: "50K+", label: "Active Users" },
+  { value: "$2M+", label: "Paid Out" },
+];
+
 const steps = [
-  { icon: Sparkles, title: "Create", desc: "Build AI bots with custom personas and instructions" },
-  { icon: Users, title: "Share", desc: "Publish bots to the marketplace for others to use" },
-  { icon: TrendingUp, title: "Monetize", desc: "Set a price and earn from every interaction" },
+  { icon: Sparkles, title: "Create Your Bot", desc: "Give your AI bot a name, personality, and custom instructions." },
+  { icon: Zap, title: "Publish to Marketplace", desc: "Make your bot public or keep it private. Set pricing and category." },
+  { icon: TrendingUp, title: "Earn Passive Income", desc: "Get paid every time someone uses your bot." },
+];
+
+const earnCards = [
+  {
+    icon: Users,
+    title: "Free Bots",
+    desc: "Build an audience and collect usage data. Upgrade to paid later.",
+    features: ["Unlimited usage", "Analytics included", "Upgrade anytime"],
+  },
+  {
+    icon: BarChart3,
+    title: "Paid Bots",
+    desc: "Charge per use or set a subscription model. We handle payments.",
+    features: ["Custom pricing", "Revenue tracking", "Instant payouts"],
+  },
+  {
+    icon: Zap,
+    title: "Revenue Share",
+    desc: "Keep 80% of revenue. We take 20% to cover infrastructure.",
+    features: ["Transparent pricing", "No hidden fees", "Weekly payouts"],
+  },
 ];
 
 const pricing = [
-  { name: "Free", price: "$0", features: ["3 bots", "Basic models", "Community support"] },
-  { name: "Pro", price: "$19/mo", features: ["Unlimited bots", "GPT-4o access", "Analytics dashboard", "Priority support"], highlight: true },
-  { name: "Enterprise", price: "Custom", features: ["Custom models", "API access", "Dedicated support", "SLA"] },
+  {
+    name: "Free",
+    subtitle: "Perfect to start",
+    price: "$0",
+    features: ["Create up to 3 bots", "Basic analytics", "Community support"],
+  },
+  {
+    name: "Pro",
+    subtitle: "For creators & businesses",
+    price: "$49",
+    features: ["Unlimited bots", "Advanced analytics", "Priority support", "Custom branding"],
+    highlight: true,
+  },
+  {
+    name: "Enterprise",
+    subtitle: "For teams at scale",
+    price: "Custom",
+    features: ["Custom models", "API access", "Dedicated support", "SLA guarantee"],
+  },
 ];
 
 export default function Home() {
@@ -42,29 +85,24 @@ export default function Home() {
       <Navbar />
 
       {/* Hero */}
-      <section className="hero-gradient pt-32 pb-20 px-4">
+      <section className="hero-gradient pt-32 pb-16 px-4">
         <div className="container mx-auto text-center max-w-3xl">
-          <motion.div initial="hidden" animate="visible" variants={fadeUp} custom={0}>
-            <span className="inline-flex items-center gap-2 text-xs font-medium text-primary bg-primary/10 px-3 py-1 rounded-full mb-6">
-              <Zap className="w-3 h-3" /> AI-Powered Bot Platform
-            </span>
-          </motion.div>
           <motion.h1
             className="text-4xl sm:text-6xl font-extrabold tracking-tight text-foreground leading-[1.1]"
-            initial="hidden" animate="visible" variants={fadeUp} custom={1}
+            initial="hidden" animate="visible" variants={fadeUp} custom={0}
           >
             Create, Use, and{" "}
             <span className="gradient-text">Monetize AI Bots</span>
           </motion.h1>
           <motion.p
             className="mt-5 text-lg text-muted-foreground max-w-xl mx-auto"
-            initial="hidden" animate="visible" variants={fadeUp} custom={2}
+            initial="hidden" animate="visible" variants={fadeUp} custom={1}
           >
-            Build custom AI bots, share them on the marketplace, and earn revenue from every conversation.
+            Turn ideas into income with AI-powered personalities. Build once, earn forever.
           </motion.p>
           <motion.div
             className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3"
-            initial="hidden" animate="visible" variants={fadeUp} custom={3}
+            initial="hidden" animate="visible" variants={fadeUp} custom={2}
           >
             <Button size="lg" asChild>
               <a href="/api/oauth/login">
@@ -75,26 +113,47 @@ export default function Home() {
               <Link to="/marketplace">Explore Bots</Link>
             </Button>
           </motion.div>
+
+          {/* Stats */}
+          <motion.div
+            className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4"
+            initial="hidden" animate="visible" variants={fadeUp} custom={3}
+          >
+            {stats.map((s) => (
+              <div
+                key={s.label}
+                className="flex flex-col items-center rounded-lg border border-border bg-card/50 px-8 py-4 min-w-[140px]"
+              >
+                <span className="text-xl font-bold gradient-text">{s.value}</span>
+                <span className="text-xs text-muted-foreground mt-1">{s.label}</span>
+              </div>
+            ))}
+          </motion.div>
         </div>
       </section>
 
       {/* How it works */}
       <section className="py-20 px-4 border-t border-border/50">
-        <div className="container mx-auto max-w-4xl">
+        <div className="container mx-auto max-w-5xl">
           <h2 className="text-2xl sm:text-3xl font-bold text-center text-foreground mb-12">
             How It Works
           </h2>
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-3 gap-6">
             {steps.map((s, i) => (
               <motion.div
                 key={s.title}
-                className="text-center"
+                className="relative rounded-lg border border-border bg-card p-6"
                 initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={i}
               >
-                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                  <s.icon className="w-6 h-6 text-primary" />
+                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
+                  <s.icon className="w-5 h-5 text-primary" />
                 </div>
-                <h3 className="font-semibold text-foreground">{s.title}</h3>
+                <h3 className="font-semibold text-foreground flex items-center gap-2">
+                  {s.title}
+                  {i < steps.length - 1 && (
+                    <ArrowRight className="w-4 h-4 text-muted-foreground hidden md:inline" />
+                  )}
+                </h3>
                 <p className="mt-2 text-sm text-muted-foreground">{s.desc}</p>
               </motion.div>
             ))}
@@ -103,52 +162,97 @@ export default function Home() {
       </section>
 
       {/* Featured Bots */}
-      {featuredBots.length > 0 && (
-        <section className="py-20 px-4 border-t border-border/50">
-          <div className="container mx-auto max-w-5xl">
-            <div className="flex items-center justify-between mb-8">
-              <h2 className="text-2xl sm:text-3xl font-bold text-foreground">Featured Bots</h2>
-              <Button variant="ghost" size="sm" asChild>
-                <Link to="/marketplace" className="text-muted-foreground">
-                  View all <ArrowRight className="w-4 h-4 ml-1" />
-                </Link>
-              </Button>
-            </div>
+      <section className="py-20 px-4 border-t border-border/50">
+        <div className="container mx-auto max-w-5xl">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-2xl sm:text-3xl font-bold text-foreground">Featured Bots</h2>
+            <Button variant="outline" size="sm" asChild>
+              <Link to="/marketplace">
+                View All <ArrowRight className="w-4 h-4 ml-1" />
+              </Link>
+            </Button>
+          </div>
+          {featuredBots.length > 0 ? (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {featuredBots.map((bot) => (
                 <BotCard key={bot.id} bot={bot} />
               ))}
             </div>
+          ) : (
+            <p className="text-center text-muted-foreground py-8">
+              No bots available yet. Be the first to create one!
+            </p>
+          )}
+        </div>
+      </section>
+
+      {/* Earn from Your Bots */}
+      <section className="py-20 px-4 border-t border-border/50">
+        <div className="container mx-auto max-w-5xl">
+          <h2 className="text-2xl sm:text-3xl font-bold text-center text-foreground mb-12">
+            Earn from Your Bots
+          </h2>
+          <div className="grid md:grid-cols-3 gap-6">
+            {earnCards.map((card, i) => (
+              <motion.div
+                key={card.title}
+                className="rounded-lg border border-border bg-card p-6 flex flex-col"
+                initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={i}
+              >
+                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
+                  <card.icon className="w-5 h-5 text-primary" />
+                </div>
+                <h3 className="font-semibold text-foreground">{card.title}</h3>
+                <p className="mt-2 text-sm text-muted-foreground">{card.desc}</p>
+                <ul className="mt-4 space-y-2 flex-1">
+                  {card.features.map((f) => (
+                    <li key={f} className="text-sm text-muted-foreground flex items-center gap-2">
+                      <Check className="w-3.5 h-3.5 text-accent" />
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+              </motion.div>
+            ))}
           </div>
-        </section>
-      )}
+        </div>
+      </section>
 
       {/* Pricing */}
       <section className="py-20 px-4 border-t border-border/50">
         <div className="container mx-auto max-w-4xl">
-          <h2 className="text-2xl sm:text-3xl font-bold text-center text-foreground mb-12">Pricing</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold text-center text-foreground mb-12">Simple Pricing</h2>
           <div className="grid md:grid-cols-3 gap-6">
             {pricing.map((plan) => (
               <div
                 key={plan.name}
-                className={`rounded-lg border p-6 flex flex-col ${
+                className={`relative rounded-lg border p-6 flex flex-col ${
                   plan.highlight
                     ? "border-primary bg-primary/5"
                     : "border-border bg-card"
                 }`}
               >
+                {plan.highlight && (
+                  <span className="absolute -top-3 right-4 text-xs font-semibold bg-primary text-primary-foreground px-3 py-1 rounded-full">
+                    Popular
+                  </span>
+                )}
                 <h3 className="font-semibold text-foreground">{plan.name}</h3>
-                <p className="text-3xl font-bold text-foreground mt-2">{plan.price}</p>
+                <p className="text-sm text-muted-foreground">{plan.subtitle}</p>
+                <p className="text-3xl font-bold text-foreground mt-4">
+                  {plan.price}
+                  {plan.price !== "Custom" && <span className="text-sm font-normal text-muted-foreground">/month</span>}
+                </p>
                 <ul className="mt-6 space-y-3 flex-1">
                   {plan.features.map((f) => (
                     <li key={f} className="text-sm text-muted-foreground flex items-center gap-2">
-                      <span className="w-1 h-1 rounded-full bg-primary" />
+                      <Check className="w-3.5 h-3.5 text-accent" />
                       {f}
                     </li>
                   ))}
                 </ul>
                 <Button className="mt-6" variant={plan.highlight ? "default" : "secondary"}>
-                  Get Started
+                  {plan.highlight ? "Start Free Trial" : "Get Started"}
                 </Button>
               </div>
             ))}
