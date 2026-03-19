@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { ArrowLeft, Send, Loader2, Sparkles, Lock, DollarSign, Mic, MicOff, Volume2, VolumeX } from "lucide-react";
 import { api, type Bot, type ChatMessage } from "@/lib/api";
 import { useVoiceChat } from "@/hooks/use-voice-chat";
+import BotReviews from "@/components/BotReviews";
 import { toast } from "sonner";
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`;
