@@ -249,6 +249,7 @@ export default function Dashboard() {
           )}
         </div>
 
+        <BotAnalyticsPanel bots={bots} />
         <FavoritesSection />
       </div>
     </div>
