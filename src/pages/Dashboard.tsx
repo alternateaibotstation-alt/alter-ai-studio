@@ -176,6 +176,10 @@ export default function Dashboard() {
                     />
                   </div>
                 </div>
+                <SuggestedPromptsEditor
+                  prompts={form.suggested_prompts}
+                  onChange={(suggested_prompts) => setForm({ ...form, suggested_prompts })}
+                />
                 <Button type="submit" className="w-full" disabled={saving}>
                   {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                   {editingBot ? "Save Changes" : "Create Bot"}
