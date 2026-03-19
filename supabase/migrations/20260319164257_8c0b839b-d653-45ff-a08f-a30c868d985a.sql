@@ -1,0 +1,20 @@
+-- Create storage bucket for user avatars
+INSERT INTO storage.buckets (id, name, public) VALUES ('user-avatars', 'user-avatars', true)
+ON CONFLICT (id) DO NOTHING;
+
+-- Storage policies for user-avatars
+CREATE POLICY "Authenticated users can upload user avatars"
+ON storage.objects FOR INSERT TO authenticated
+WITH CHECK (bucket_id = 'user-avatars');
+
+CREATE POLICY "Anyone can view user avatars"
+ON storage.objects FOR SELECT TO public
+USING (bucket_id = 'user-avatars');
+
+CREATE POLICY "Users can update own user avatars"
+ON storage.objects FOR UPDATE TO authenticated
+USING (bucket_id = 'user-avatars');
+
+CREATE POLICY "Users can delete own user avatars"
+ON storage.objects FOR DELETE TO authenticated
+USING (bucket_id = 'user-avatars');
