@@ -103,6 +103,10 @@ export default function Dashboard() {
                 </DialogTitle>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4">
+                <BotAvatarUpload
+                  avatarUrl={form.avatar_url || null}
+                  onUploaded={(url) => setForm({ ...form, avatar_url: url })}
+                />
                 <div>
                   <label className="text-sm text-muted-foreground">Name</label>
                   <Input
