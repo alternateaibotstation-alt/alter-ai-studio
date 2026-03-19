@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import type { Bot } from "@/lib/api";
 
 export default function BotCard({ bot }: { bot: Bot }) {
-  const isFree = !bot.price || parseFloat(bot.price) === 0;
+  const isFree = !bot.price || bot.price === 0;
 
   return (
     <div className="rounded-lg border border-border bg-card p-5 card-hover flex flex-col gap-3">
@@ -33,7 +33,7 @@ export default function BotCard({ bot }: { bot: Bot }) {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1 text-xs text-muted-foreground">
           <MessageSquare className="w-3 h-3" />
-          <span>{bot.messagesCount ?? 0}</span>
+          <span>{bot.messages_count ?? 0}</span>
           {bot.category && (
             <>
               <span className="mx-1">·</span>
