@@ -1,11 +1,40 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Sparkles, Menu, X } from "lucide-react";
-import { useState } from "react";
+import { Sparkles, Menu, X, User } from "lucide-react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+
+interface UserProfile {
+  avatar_url: string | null;
+  username: string | null;
+}
 
 export default function Navbar() {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [user, setUser] = useState<{ id: string } | null>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const { data: { user: u } } = await supabase.auth.getUser();
+      setUser(u ? { id: u.id } : null);
+      if (u) {
+        const { data } = await supabase
+          .from("profiles")
+          .select("avatar_url, username")
+          .eq("id", u.id)
+          .maybeSingle();
+        setProfile(data as UserProfile | null);
+      }
+    };
+    fetchUser();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
+      fetchUser();
+    });
+    return () => subscription.unsubscribe();
+  }, []);
 
   const links = [
     { to: "/", label: "Home" },
@@ -40,12 +69,27 @@ export default function Navbar() {
         </div>
 
         <div className="hidden md:flex items-center gap-3">
-          <Button variant="ghost" size="sm" className="text-muted-foreground" asChild>
-            <Link to="/auth">Log in</Link>
-          </Button>
-          <Button size="sm" asChild>
-            <Link to="/auth">Get Started</Link>
-          </Button>
+          {user ? (
+            <Link
+              to="/profile"
+              className="w-9 h-9 rounded-full bg-secondary border border-border flex items-center justify-center overflow-hidden hover:border-primary/40 transition-colors"
+            >
+              {profile?.avatar_url ? (
+                <img src={profile.avatar_url} alt="Profile" className="w-full h-full object-cover" />
+              ) : (
+                <User className="w-4 h-4 text-muted-foreground" />
+              )}
+            </Link>
+          ) : (
+            <>
+              <Button variant="ghost" size="sm" className="text-muted-foreground" asChild>
+                <Link to="/auth">Log in</Link>
+              </Button>
+              <Button size="sm" asChild>
+                <Link to="/auth">Get Started</Link>
+              </Button>
+            </>
+          )}
         </div>
 
         {/* Mobile toggle */}
@@ -67,9 +111,19 @@ export default function Navbar() {
               {l.label}
             </Link>
           ))}
-          <Button size="sm" className="w-full" asChild>
-            <Link to="/auth">Get Started</Link>
-          </Button>
+          {user ? (
+            <Link
+              to="/profile"
+              onClick={() => setMobileOpen(false)}
+              className="block text-sm font-medium text-muted-foreground hover:text-foreground"
+            >
+              Profile
+            </Link>
+          ) : (
+            <Button size="sm" className="w-full" asChild>
+              <Link to="/auth">Get Started</Link>
+            </Button>
+          )}
         </div>
       )}
     </nav>
