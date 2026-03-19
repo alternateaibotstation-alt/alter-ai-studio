@@ -11,6 +11,7 @@ export default function Navbar() {
     { to: "/", label: "Home" },
     { to: "/marketplace", label: "Marketplace" },
     { to: "/dashboard", label: "Dashboard" },
+    { to: "/purchases", label: "Purchases" },
   ];
 
   return (
