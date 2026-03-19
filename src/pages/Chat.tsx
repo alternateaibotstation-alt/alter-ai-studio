@@ -304,6 +304,9 @@ export default function Chat() {
             <p className="text-xs text-muted-foreground capitalize">{bot.category}</p>
           )}
         </div>
+        {messages.length > 0 && (
+          <ChatSearchBar messages={messages} onHighlight={handleSearchHighlight} />
+        )}
         {isPaid && (
           <span className="text-xs font-medium text-accent flex items-center gap-1">
             <DollarSign className="w-3 h-3" />{bot.price}
