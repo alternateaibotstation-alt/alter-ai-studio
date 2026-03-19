@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowLeft, Send, Loader2, Sparkles, Lock, DollarSign, Mic, MicOff, Volume2, VolumeX, Trash2 } from "lucide-react";
 import { api, type Bot, type ChatMessage } from "@/lib/api";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { useVoiceChat } from "@/hooks/use-voice-chat";
 import BotReviews from "@/components/BotReviews";
 import { toast } from "sonner";
@@ -388,13 +390,19 @@ export default function Chat() {
                   className={`flex animate-fade-in ${msg.role === "user" ? "justify-end" : "justify-start"}`}
                 >
                   <div
-                    className={`max-w-[75%] rounded-lg px-4 py-2.5 text-sm whitespace-pre-wrap ${
+                    className={`max-w-[75%] rounded-lg px-4 py-2.5 text-sm ${
                       msg.role === "user"
-                        ? "bg-primary text-primary-foreground"
+                        ? "bg-primary text-primary-foreground whitespace-pre-wrap"
                         : "bg-card border border-border text-foreground"
                     }`}
                   >
-                    {msg.content}
+                    {msg.role === "assistant" ? (
+                      <div className="prose prose-invert prose-sm max-w-none prose-p:my-1 prose-ul:my-1 prose-ol:my-1 prose-li:my-0.5 prose-pre:bg-background prose-pre:border prose-pre:border-border prose-code:text-accent prose-headings:text-foreground prose-a:text-primary">
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
+                      </div>
+                    ) : (
+                      msg.content
+                    )}
                   </div>
                 </div>
               ))}
