@@ -233,7 +233,7 @@ export default function Marketplace() {
                 </h2>
                 <div className="mt-4 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {bots.map((bot) => (
-                    <BotCard key={bot.id} bot={bot} />
+                    <BotCard key={bot.id} bot={bot} isFavorite={isFavorite(bot.id)} onToggleFavorite={toggleFavorite} />
                   ))}
                 </div>
               </>
