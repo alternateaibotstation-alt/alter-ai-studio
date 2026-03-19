@@ -228,6 +228,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_bot_analytics: {
+        Args: { owner_id: string }
+        Returns: {
+          bot_id: string
+          last_active: string
+          total_messages: number
+          unique_users: number
+        }[]
+      }
       increment_bot_messages: {
         Args: { bot_id_input: string }
         Returns: undefined
