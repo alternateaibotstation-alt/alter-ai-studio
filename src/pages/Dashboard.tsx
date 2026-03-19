@@ -215,10 +215,13 @@ export default function Dashboard() {
                   </div>
                 </div>
                 <div className="flex items-center gap-2 ml-4">
-                  <Button variant="ghost" size="icon" onClick={() => openEdit(bot)}>
+                  <Button variant="ghost" size="icon" onClick={() => openEdit(bot)} title="Edit">
                     <Pencil className="w-4 h-4" />
                   </Button>
-                  <Button variant="ghost" size="icon" onClick={() => handleDelete(bot.id)}>
+                  <Button variant="ghost" size="icon" onClick={() => importExport.handleExportSingle(bot)} title="Export">
+                    <Download className="w-4 h-4" />
+                  </Button>
+                  <Button variant="ghost" size="icon" onClick={() => handleDelete(bot.id)} title="Delete">
                     <Trash2 className="w-4 h-4 text-destructive" />
                   </Button>
                   <Button size="sm" variant="secondary" asChild>
