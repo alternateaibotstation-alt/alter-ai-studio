@@ -115,19 +115,20 @@ export default function Navbar() {
           ))}
           <div className="flex items-center gap-2">
             <ThemeToggle />
-          {user ? (
-            <Link
-              to="/profile"
-              onClick={() => setMobileOpen(false)}
-              className="block text-sm font-medium text-muted-foreground hover:text-foreground"
-            >
-              Profile
-            </Link>
-          ) : (
-            <Button size="sm" className="w-full" asChild>
-              <Link to="/auth">Get Started</Link>
-            </Button>
-          )}
+            {user ? (
+              <Link
+                to="/profile"
+                onClick={() => setMobileOpen(false)}
+                className="block text-sm font-medium text-muted-foreground hover:text-foreground"
+              >
+                Profile
+              </Link>
+            ) : (
+              <Button size="sm" className="w-full" asChild>
+                <Link to="/auth">Get Started</Link>
+              </Button>
+            )}
+          </div>
         </div>
       )}
     </nav>
