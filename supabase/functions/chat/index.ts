@@ -36,7 +36,7 @@ serve(async (req) => {
 
     const { data: bot, error: botError } = await supabaseClient
       .from("bots")
-      .select("name, persona, model")
+      .select("name, persona, model, messages_count")
       .eq("id", botId)
       .single();
 
