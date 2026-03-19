@@ -7,8 +7,19 @@ interface UseVoiceChatOptions {
 
 // Extend Window for vendor-prefixed SpeechRecognition
 interface SpeechWindow extends Window {
-  SpeechRecognition?: typeof SpeechRecognition;
-  webkitSpeechRecognition?: typeof SpeechRecognition;
+  SpeechRecognition?: new () => SpeechRecognition;
+  webkitSpeechRecognition?: new () => SpeechRecognition;
+}
+
+interface SpeechRecognition extends EventTarget {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  onresult: ((event: SpeechRecognitionEvent) => void) | null;
+  onerror: ((event: Event) => void) | null;
+  onend: (() => void) | null;
+  start(): void;
+  stop(): void;
 }
 
 export function useVoiceChat({ onTranscript, autoSpeak = true }: UseVoiceChatOptions) {
