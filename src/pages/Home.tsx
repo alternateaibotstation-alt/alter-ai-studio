@@ -105,9 +105,9 @@ export default function Home() {
             initial="hidden" animate="visible" variants={fadeUp} custom={2}
           >
             <Button size="lg" asChild>
-              <a href="/api/oauth/login">
+              <Link to="/auth">
                 Start Creating <ArrowRight className="w-4 h-4 ml-2" />
-              </a>
+              </Link>
             </Button>
             <Button size="lg" variant="secondary" asChild>
               <Link to="/marketplace">Explore Bots</Link>
@@ -270,7 +270,7 @@ export default function Home() {
             Join thousands of creators monetizing AI on Alter AI.
           </p>
           <Button size="lg" className="mt-6" asChild>
-            <a href="/api/oauth/login">Start Creating <ArrowRight className="w-4 h-4 ml-2" /></a>
+            <Link to="/auth">Start Creating <ArrowRight className="w-4 h-4 ml-2" /></Link>
           </Button>
         </div>
       </section>

@@ -40,10 +40,10 @@ export default function Navbar() {
 
         <div className="hidden md:flex items-center gap-3">
           <Button variant="ghost" size="sm" className="text-muted-foreground" asChild>
-            <a href="/api/oauth/login">Log in</a>
+            <Link to="/auth">Log in</Link>
           </Button>
           <Button size="sm" asChild>
-            <a href="/api/oauth/login">Get Started</a>
+            <Link to="/auth">Get Started</Link>
           </Button>
         </div>
 
@@ -67,7 +67,7 @@ export default function Navbar() {
             </Link>
           ))}
           <Button size="sm" className="w-full" asChild>
-            <a href="/api/oauth/login">Get Started</a>
+            <Link to="/auth">Get Started</Link>
           </Button>
         </div>
       )}
