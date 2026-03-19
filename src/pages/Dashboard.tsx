@@ -10,12 +10,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Plus, Pencil, Trash2, MessageSquare, Loader2 } from "lucide-react";
+import { Plus, Pencil, Trash2, MessageSquare, Loader2, Download, Upload } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { api, type Bot } from "@/lib/api";
 import PersonalityTraitsBuilder from "@/components/PersonalityTraitsBuilder";
 import BotAvatarUpload from "@/components/BotAvatarUpload";
-
+import BotImportExport from "@/components/BotImportExport";
 export default function Dashboard() {
   const [bots, setBots] = useState<Bot[]>([]);
   const [loading, setLoading] = useState(true);
@@ -30,6 +30,8 @@ export default function Dashboard() {
       .catch(() => setBots([]))
       .finally(() => setLoading(false));
   };
+
+  const importExport = BotImportExport({ bots, onImported: fetchBots });
 
   useEffect(() => { fetchBots(); }, []);
 
@@ -90,12 +92,22 @@ export default function Dashboard() {
             <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
             <p className="text-muted-foreground mt-1">Manage your AI bots</p>
           </div>
-          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-            <DialogTrigger asChild>
-              <Button onClick={openCreate}>
-                <Plus className="w-4 h-4 mr-2" /> New Bot
-              </Button>
-            </DialogTrigger>
+          <div className="flex items-center gap-2">
+            {importExport.ImportInput}
+            <Button variant="outline" size="sm" onClick={() => importExport.fileRef.current?.click()} disabled={importExport.importing}>
+              {importExport.importing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+              <span className="ml-1.5 hidden sm:inline">Import</span>
+            </Button>
+            <Button variant="outline" size="sm" onClick={importExport.handleExportAll} disabled={bots.length === 0}>
+              <Download className="w-4 h-4" />
+              <span className="ml-1.5 hidden sm:inline">Export All</span>
+            </Button>
+            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+              <DialogTrigger asChild>
+                <Button onClick={openCreate}>
+                  <Plus className="w-4 h-4 mr-2" /> New Bot
+                </Button>
+              </DialogTrigger>
             <DialogContent className="bg-card border-border">
               <DialogHeader>
                 <DialogTitle className="text-foreground">
@@ -167,6 +179,7 @@ export default function Dashboard() {
               </form>
             </DialogContent>
           </Dialog>
+          </div>
         </div>
 
         <div className="mt-8 space-y-3">
@@ -203,10 +216,13 @@ export default function Dashboard() {
                   </div>
                 </div>
                 <div className="flex items-center gap-2 ml-4">
-                  <Button variant="ghost" size="icon" onClick={() => openEdit(bot)}>
+                  <Button variant="ghost" size="icon" onClick={() => openEdit(bot)} title="Edit">
                     <Pencil className="w-4 h-4" />
                   </Button>
-                  <Button variant="ghost" size="icon" onClick={() => handleDelete(bot.id)}>
+                  <Button variant="ghost" size="icon" onClick={() => importExport.handleExportSingle(bot)} title="Export">
+                    <Download className="w-4 h-4" />
+                  </Button>
+                  <Button variant="ghost" size="icon" onClick={() => handleDelete(bot.id)} title="Delete">
                     <Trash2 className="w-4 h-4 text-destructive" />
                   </Button>
                   <Button size="sm" variant="secondary" asChild>
