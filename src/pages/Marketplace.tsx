@@ -1,17 +1,75 @@
 import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, ArrowLeft, Sparkles, Brain, Heart, Briefcase, TrendingUp, Star } from "lucide-react";
+import {
+  Search, ArrowLeft, Sparkles, Brain, Heart, Briefcase, TrendingUp, Star,
+  Sun, Leaf, MessageCircleHeart, Rocket, Dumbbell, ChevronRight,
+} from "lucide-react";
 import Navbar from "@/components/Navbar";
 import BotCard from "@/components/BotCard";
 import { api, type Bot } from "@/lib/api";
 
 const categories = [
-  { key: "spiritual", label: "Spiritual", icon: Sparkles, description: "Explore mindfulness, meditation & spiritual growth" },
-  { key: "mental health", label: "Mental Health", icon: Brain, description: "Support for anxiety, stress & emotional wellness" },
-  { key: "relationships", label: "Relationships", icon: Heart, description: "Navigate love, dating & interpersonal connections" },
-  { key: "business", label: "Business", icon: Briefcase, description: "Strategy, productivity & entrepreneurship tools" },
-  { key: "self improvement", label: "Self Improvement", icon: TrendingUp, description: "Level up your habits, goals & personal growth" },
+  {
+    key: "spiritual",
+    label: "Spiritual",
+    icon: Sparkles,
+    secondaryIcon: Sun,
+    description: "Explore mindfulness, meditation & spiritual growth",
+    gradient: "from-violet-500/20 to-indigo-500/20",
+    accentColor: "text-violet-400",
+    iconBg: "bg-violet-500/15 group-hover:bg-violet-500/25",
+    borderHover: "hover:border-violet-400/40",
+    glowColor: "hover:shadow-[0_0_40px_-10px_hsl(270_70%_60%/0.3)]",
+  },
+  {
+    key: "mental health",
+    label: "Mental Health",
+    icon: Brain,
+    secondaryIcon: Leaf,
+    description: "Support for anxiety, stress & emotional wellness",
+    gradient: "from-emerald-500/20 to-teal-500/20",
+    accentColor: "text-emerald-400",
+    iconBg: "bg-emerald-500/15 group-hover:bg-emerald-500/25",
+    borderHover: "hover:border-emerald-400/40",
+    glowColor: "hover:shadow-[0_0_40px_-10px_hsl(160_70%_50%/0.3)]",
+  },
+  {
+    key: "relationships",
+    label: "Relationships",
+    icon: Heart,
+    secondaryIcon: MessageCircleHeart,
+    description: "Navigate love, dating & interpersonal connections",
+    gradient: "from-rose-500/20 to-pink-500/20",
+    accentColor: "text-rose-400",
+    iconBg: "bg-rose-500/15 group-hover:bg-rose-500/25",
+    borderHover: "hover:border-rose-400/40",
+    glowColor: "hover:shadow-[0_0_40px_-10px_hsl(350_70%_55%/0.3)]",
+  },
+  {
+    key: "business",
+    label: "Business",
+    icon: Briefcase,
+    secondaryIcon: Rocket,
+    description: "Strategy, productivity & entrepreneurship tools",
+    gradient: "from-amber-500/20 to-orange-500/20",
+    accentColor: "text-amber-400",
+    iconBg: "bg-amber-500/15 group-hover:bg-amber-500/25",
+    borderHover: "hover:border-amber-400/40",
+    glowColor: "hover:shadow-[0_0_40px_-10px_hsl(40_80%_55%/0.3)]",
+  },
+  {
+    key: "self improvement",
+    label: "Self Improvement",
+    icon: TrendingUp,
+    secondaryIcon: Dumbbell,
+    description: "Level up your habits, goals & personal growth",
+    gradient: "from-cyan-500/20 to-blue-500/20",
+    accentColor: "text-cyan-400",
+    iconBg: "bg-cyan-500/15 group-hover:bg-cyan-500/25",
+    borderHover: "hover:border-cyan-400/40",
+    glowColor: "hover:shadow-[0_0_40px_-10px_hsl(190_80%_50%/0.3)]",
+  },
 ];
 
 export default function Marketplace() {
@@ -56,11 +114,10 @@ export default function Marketplace() {
           />
         </div>
 
-        {/* If searching, show results directly */}
         {search ? (
           <>
             <p className="mt-6 text-sm text-muted-foreground">
-              {filtered.length} result{filtered.length !== 1 ? "s" : ""} for "{search}"
+              {filtered.length} result{filtered.length !== 1 ? "s" : ""} for &ldquo;{search}&rdquo;
             </p>
             <div className="mt-4 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {filtered.map((bot) => (
@@ -74,7 +131,6 @@ export default function Marketplace() {
             )}
           </>
         ) : selectedCategory ? (
-          /* Category detail view */
           <>
             <Button
               variant="ghost"
@@ -105,32 +161,54 @@ export default function Marketplace() {
             )}
           </>
         ) : (
-          /* Category grid */
           <>
-            <div className="mt-8 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="mt-8 grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {categories.map((cat) => {
                 const Icon = cat.icon;
+                const SecondaryIcon = cat.secondaryIcon;
                 const count = botsInCategory(cat.key);
                 return (
                   <button
                     key={cat.key}
                     onClick={() => setSelectedCategory(cat.key)}
-                    className="group rounded-xl border border-border bg-card p-6 text-left transition-all duration-200 hover:border-primary/40 hover:shadow-[0_0_30px_-10px_hsl(var(--primary)/0.25)]"
+                    className={`group relative overflow-hidden rounded-xl border border-border bg-card text-left transition-all duration-300 ${cat.borderHover} ${cat.glowColor}`}
                   >
-                    <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
-                      <Icon className="w-6 h-6 text-primary" />
+                    {/* Gradient background accent */}
+                    <div className={`absolute inset-0 bg-gradient-to-br ${cat.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
+
+                    {/* Decorative floating icon */}
+                    <div className="absolute top-4 right-4 opacity-[0.07] group-hover:opacity-[0.12] transition-opacity duration-300">
+                      <SecondaryIcon className="w-20 h-20" />
                     </div>
-                    <h3 className="text-lg font-semibold text-foreground">{cat.label}</h3>
-                    <p className="text-sm text-muted-foreground mt-1">{cat.description}</p>
-                    <p className="text-xs text-muted-foreground mt-3">
-                      {loading ? "…" : `${count} bot${count !== 1 ? "s" : ""}`}
-                    </p>
+
+                    <div className="relative p-6">
+                      {/* Icon row */}
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className={`w-12 h-12 rounded-xl ${cat.iconBg} flex items-center justify-center transition-colors duration-300`}>
+                          <Icon className={`w-6 h-6 ${cat.accentColor}`} />
+                        </div>
+                        <div className={`w-8 h-8 rounded-lg ${cat.iconBg} flex items-center justify-center transition-colors duration-300 opacity-60`}>
+                          <SecondaryIcon className={`w-4 h-4 ${cat.accentColor}`} />
+                        </div>
+                      </div>
+
+                      <h3 className="text-lg font-semibold text-foreground">{cat.label}</h3>
+                      <p className="text-sm text-muted-foreground mt-1 leading-relaxed">{cat.description}</p>
+
+                      <div className="mt-4 flex items-center justify-between">
+                        <span className="text-xs text-muted-foreground">
+                          {loading ? "…" : `${count} bot${count !== 1 ? "s" : ""}`}
+                        </span>
+                        <span className={`flex items-center gap-1 text-xs font-medium ${cat.accentColor} opacity-0 group-hover:opacity-100 transition-opacity duration-300`}>
+                          Explore <ChevronRight className="w-3 h-3" />
+                        </span>
+                      </div>
+                    </div>
                   </button>
                 );
               })}
             </div>
 
-            {/* All bots preview */}
             {!loading && bots.length > 0 && (
               <>
                 <h2 className="text-xl font-bold text-foreground mt-12 flex items-center gap-2">
