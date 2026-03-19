@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Bot as BotIcon, MessageSquare, DollarSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { AverageRating } from "@/components/BotReviews";
 import type { Bot } from "@/lib/api";
 
 export default function BotCard({ bot }: { bot: Bot }) {
@@ -35,15 +36,12 @@ export default function BotCard({ bot }: { bot: Bot }) {
       </div>
 
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-1 text-xs text-muted-foreground">
-          <MessageSquare className="w-3 h-3" />
-          <span>{bot.messages_count ?? 0}</span>
-          {bot.category && (
-            <>
-              <span className="mx-1">·</span>
-              <span className="capitalize">{bot.category}</span>
-            </>
-          )}
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <AverageRating botId={bot.id} />
+          <span className="flex items-center gap-1">
+            <MessageSquare className="w-3 h-3" />
+            {bot.messages_count ?? 0}
+          </span>
         </div>
         <Button size="sm" variant="secondary" asChild>
           <Link to={`/chat/${bot.id}`}>Try Bot</Link>

@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { ArrowLeft, Send, Loader2, Sparkles, Lock, DollarSign, Mic, MicOff, Volume2, VolumeX } from "lucide-react";
 import { api, type Bot, type ChatMessage } from "@/lib/api";
 import { useVoiceChat } from "@/hooks/use-voice-chat";
+import BotReviews from "@/components/BotReviews";
 import { toast } from "sonner";
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`;
@@ -340,6 +341,7 @@ export default function Chat() {
         <>
           <div className="flex-1 overflow-y-auto">
             <div className="max-w-[800px] mx-auto px-4 py-6 space-y-4">
+
               {messages.length === 0 && (
                 <div className="text-center py-20">
                   <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
@@ -393,6 +395,7 @@ export default function Chat() {
             </div>
           </div>
 
+          {botId && <BotReviews botId={botId} />}
           <div className="shrink-0 border-t border-border/50 p-4">
             <form onSubmit={handleSend} className="max-w-[800px] mx-auto">
               <div className="glass-panel rounded-lg flex items-center gap-2 p-2">
