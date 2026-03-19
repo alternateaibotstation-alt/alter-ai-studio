@@ -8,6 +8,8 @@ import {
 import Navbar from "@/components/Navbar";
 import BotCard from "@/components/BotCard";
 import { api, type Bot } from "@/lib/api";
+import { useFavorites } from "@/hooks/use-favorites";
+import { cn } from "@/lib/utils";
 
 const categories = [
   {
@@ -77,6 +79,8 @@ export default function Marketplace() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [showFavorites, setShowFavorites] = useState(false);
+  const { isFavorite, toggleFavorite, favoriteIds } = useFavorites();
 
   useEffect(() => {
     api.getPublicBots()
@@ -91,7 +95,8 @@ export default function Marketplace() {
       bot.name.toLowerCase().includes(search.toLowerCase()) ||
       bot.description?.toLowerCase().includes(search.toLowerCase());
     const matchCat = !selectedCategory || bot.category === selectedCategory;
-    return matchSearch && matchCat;
+    const matchFav = !showFavorites || favoriteIds.includes(bot.id);
+    return matchSearch && matchCat && matchFav;
   });
 
   const botsInCategory = (cat: string) => bots.filter((b) => b.category === cat).length;
@@ -103,15 +108,26 @@ export default function Marketplace() {
         <h1 className="text-3xl font-bold text-foreground">Marketplace</h1>
         <p className="text-muted-foreground mt-1">Discover AI bots built by the community</p>
 
-        {/* Search */}
-        <div className="mt-6 relative max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            placeholder="Search bots..."
-            className="pl-9 bg-card border-border"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
+        {/* Search & Favorites filter */}
+        <div className="mt-6 flex items-center gap-3">
+          <div className="relative max-w-md flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder="Search bots..."
+              className="pl-9 bg-card border-border"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+          <Button
+            variant={showFavorites ? "default" : "outline"}
+            size="sm"
+            onClick={() => setShowFavorites(!showFavorites)}
+            className="gap-1.5"
+          >
+            <Heart className={cn("w-4 h-4", showFavorites && "fill-current")} />
+            Favorites
+          </Button>
         </div>
 
         {search ? (
@@ -121,7 +137,7 @@ export default function Marketplace() {
             </p>
             <div className="mt-4 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {filtered.map((bot) => (
-                <BotCard key={bot.id} bot={bot} />
+                <BotCard key={bot.id} bot={bot} isFavorite={isFavorite(bot.id)} onToggleFavorite={toggleFavorite} />
               ))}
             </div>
             {filtered.length === 0 && (
@@ -155,7 +171,7 @@ export default function Marketplace() {
             ) : (
               <div className="mt-6 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {filtered.map((bot) => (
-                  <BotCard key={bot.id} bot={bot} />
+                  <BotCard key={bot.id} bot={bot} isFavorite={isFavorite(bot.id)} onToggleFavorite={toggleFavorite} />
                 ))}
               </div>
             )}
@@ -217,7 +233,7 @@ export default function Marketplace() {
                 </h2>
                 <div className="mt-4 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {bots.map((bot) => (
-                    <BotCard key={bot.id} bot={bot} />
+                    <BotCard key={bot.id} bot={bot} isFavorite={isFavorite(bot.id)} onToggleFavorite={toggleFavorite} />
                   ))}
                 </div>
               </>
