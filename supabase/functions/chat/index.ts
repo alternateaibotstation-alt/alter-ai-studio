@@ -6,13 +6,26 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+const IMAGE_GEN_KEYWORDS = [
+  "generate an image", "create an image", "draw", "make an image",
+  "generate a picture", "create a picture", "make a picture",
+  "generate art", "create art", "make art",
+  "paint", "illustrate", "sketch", "design an image",
+  "generate a photo", "create a photo",
+];
+
+function isImageRequest(content: string): boolean {
+  const lower = content.toLowerCase();
+  return IMAGE_GEN_KEYWORDS.some((kw) => lower.includes(kw));
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { botId, messages } = await req.json();
+    const { botId, messages, generateImage } = await req.json();
     if (!botId || !messages) {
       return new Response(JSON.stringify({ error: "botId and messages are required" }), {
         status: 400,
@@ -28,7 +41,6 @@ serve(async (req) => {
       });
     }
 
-    // Fetch the bot's persona/system prompt from the database
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
@@ -48,6 +60,62 @@ serve(async (req) => {
     }
 
     const systemPrompt = bot.persona || `You are ${bot.name}, a helpful AI assistant. Be conversational, helpful, and engaging.`;
+    const lastUserMsg = messages[messages.length - 1]?.content;
+    const lastUserText = typeof lastUserMsg === "string" ? lastUserMsg : 
+      Array.isArray(lastUserMsg) ? lastUserMsg.find((p: any) => p.type === "text")?.text || "" : "";
+    
+    const shouldGenerateImage = generateImage || isImageRequest(lastUserText);
+
+    // ── Image Generation Mode ──
+    if (shouldGenerateImage) {
+      const imageResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${LOVABLE_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "google/gemini-2.5-flash-image",
+          messages: [
+            { role: "system", content: `You are ${bot.name}, an AI artist. Generate the requested image. Be creative and produce high quality results.` },
+            ...messages,
+          ],
+          modalities: ["image", "text"],
+        }),
+      });
+
+      if (!imageResponse.ok) {
+        if (imageResponse.status === 429) {
+          return new Response(JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment." }), {
+            status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+        if (imageResponse.status === 402) {
+          return new Response(JSON.stringify({ error: "AI credits exhausted. Please add funds." }), {
+            status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+        const t = await imageResponse.text();
+        console.error("Image gen error:", imageResponse.status, t);
+        return new Response(JSON.stringify({ error: "Image generation failed" }), {
+          status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const imageData = await imageResponse.json();
+      // Return as JSON (not streamed) with image data
+      supabaseClient.from("bots").update({ messages_count: (bot.messages_count || 0) + 1 }).eq("id", botId);
+      return new Response(JSON.stringify({ type: "image", data: imageData }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // ── Standard Chat Streaming Mode ──
+    // Build messages - support multimodal content (images/files as image_url parts)
+    const apiMessages = [
+      { role: "system", content: systemPrompt + "\n\nYou can analyze images and files that users share with you. Describe what you see and answer questions about them." },
+      ...messages,
+    ];
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -57,10 +125,7 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         model: bot.model || "google/gemini-3-flash-preview",
-        messages: [
-          { role: "system", content: systemPrompt },
-          ...messages,
-        ],
+        messages: apiMessages,
         stream: true,
       }),
     });
@@ -68,25 +133,21 @@ serve(async (req) => {
     if (!response.ok) {
       if (response.status === 429) {
         return new Response(JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment." }), {
-          status: 429,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
       if (response.status === 402) {
         return new Response(JSON.stringify({ error: "AI credits exhausted. Please add funds." }), {
-          status: 402,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
       const t = await response.text();
       console.error("AI gateway error:", response.status, t);
       return new Response(JSON.stringify({ error: "AI gateway error" }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // Increment messages_count on the bot (fire-and-forget)
     supabaseClient.from("bots").update({ messages_count: (bot.messages_count || 0) + 1 }).eq("id", botId);
 
     return new Response(response.body, {
