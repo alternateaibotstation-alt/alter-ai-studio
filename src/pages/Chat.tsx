@@ -291,6 +291,24 @@ export default function Chat() {
             <DollarSign className="w-3 h-3" />{bot.price}
           </span>
         )}
+        {voice.supportsTTS && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => {
+              voice.setTtsEnabled(!voice.ttsEnabled);
+              if (voice.isSpeaking) voice.stopSpeaking();
+            }}
+            className="relative"
+            title={voice.ttsEnabled ? "Mute bot voice" : "Enable bot voice"}
+          >
+            {voice.ttsEnabled ? (
+              <Volume2 className="w-4 h-4 text-accent" />
+            ) : (
+              <VolumeX className="w-4 h-4 text-muted-foreground" />
+            )}
+          </Button>
+        )}
       </header>
 
       {showPaywall ? (
