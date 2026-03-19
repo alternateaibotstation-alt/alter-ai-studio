@@ -1,6 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Sparkles, Menu, X, User } from "lucide-react";
+import ThemeToggle from "@/components/ThemeToggle";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -68,7 +69,8 @@ export default function Navbar() {
           ))}
         </div>
 
-        <div className="hidden md:flex items-center gap-3">
+        <div className="hidden md:flex items-center gap-2">
+          <ThemeToggle />
           {user ? (
             <Link
               to="/profile"
@@ -111,19 +113,22 @@ export default function Navbar() {
               {l.label}
             </Link>
           ))}
-          {user ? (
-            <Link
-              to="/profile"
-              onClick={() => setMobileOpen(false)}
-              className="block text-sm font-medium text-muted-foreground hover:text-foreground"
-            >
-              Profile
-            </Link>
-          ) : (
-            <Button size="sm" className="w-full" asChild>
-              <Link to="/auth">Get Started</Link>
-            </Button>
-          )}
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            {user ? (
+              <Link
+                to="/profile"
+                onClick={() => setMobileOpen(false)}
+                className="block text-sm font-medium text-muted-foreground hover:text-foreground"
+              >
+                Profile
+              </Link>
+            ) : (
+              <Button size="sm" className="w-full" asChild>
+                <Link to="/auth">Get Started</Link>
+              </Button>
+            )}
+          </div>
         </div>
       )}
     </nav>
