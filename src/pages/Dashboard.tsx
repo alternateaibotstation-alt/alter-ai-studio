@@ -24,6 +24,8 @@ export default function Dashboard() {
   const [form, setForm] = useState({ name: "", description: "", persona: "", category: "wellness", is_public: true, price: 0, avatar_url: "" });
   const [saving, setSaving] = useState(false);
 
+  const importExport = BotImportExport({ bots, onImported: fetchBots });
+
   const fetchBots = () => {
     api.getUserBots()
       .then((data) => setBots(Array.isArray(data) ? data : []))
