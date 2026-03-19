@@ -11,7 +11,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Plus, Pencil, Trash2, MessageSquare, Loader2, Download, Upload, Heart } from "lucide-react";
+import { Plus, Pencil, Trash2, MessageSquare, Loader2, Download, Upload, Heart, Palette } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { api, type Bot } from "@/lib/api";
 import PersonalityTraitsBuilder from "@/components/PersonalityTraitsBuilder";
@@ -19,12 +19,13 @@ import BotAvatarUpload from "@/components/BotAvatarUpload";
 import BotImportExport from "@/components/BotImportExport";
 import FavoritesSection from "@/components/FavoritesSection";
 import SuggestedPromptsEditor from "@/components/SuggestedPromptsEditor";
+import ModelSelector from "@/components/ModelSelector";
 export default function Dashboard() {
   const [bots, setBots] = useState<Bot[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingBot, setEditingBot] = useState<Bot | null>(null);
-  const [form, setForm] = useState({ name: "", description: "", persona: "", category: "wellness", is_public: true, price: 0, avatar_url: "", suggested_prompts: [] as string[] });
+  const [form, setForm] = useState({ name: "", description: "", persona: "", category: "wellness", is_public: true, price: 0, avatar_url: "", suggested_prompts: [] as string[], model: "google/gemini-3-flash-preview" });
   const [saving, setSaving] = useState(false);
 
   const fetchBots = () => {
@@ -40,7 +41,7 @@ export default function Dashboard() {
 
   const openCreate = () => {
     setEditingBot(null);
-    setForm({ name: "", description: "", persona: "", category: "wellness", is_public: true, price: 0, avatar_url: "", suggested_prompts: [] });
+    setForm({ name: "", description: "", persona: "", category: "wellness", is_public: true, price: 0, avatar_url: "", suggested_prompts: [], model: "google/gemini-3-flash-preview" });
     setDialogOpen(true);
   };
 
@@ -55,6 +56,7 @@ export default function Dashboard() {
       price: bot.price || 0,
       avatar_url: bot.avatar_url || "",
       suggested_prompts: bot.suggested_prompts || [],
+      model: bot.model || "google/gemini-3-flash-preview",
     });
     setDialogOpen(true);
   };
@@ -176,6 +178,10 @@ export default function Dashboard() {
                     />
                   </div>
                 </div>
+                <ModelSelector
+                  value={form.model}
+                  onChange={(model) => setForm({ ...form, model })}
+                />
                 <SuggestedPromptsEditor
                   prompts={form.suggested_prompts}
                   onChange={(suggested_prompts) => setForm({ ...form, suggested_prompts })}
