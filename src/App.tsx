@@ -7,6 +7,8 @@ import Home from "./pages/Home";
 import Marketplace from "./pages/Marketplace";
 import Chat from "./pages/Chat";
 import Dashboard from "./pages/Dashboard";
+import Auth from "./pages/Auth";
+import Success from "./pages/Success";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
