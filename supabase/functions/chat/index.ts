@@ -87,7 +87,7 @@ serve(async (req) => {
     }
 
     // Increment messages_count on the bot (fire-and-forget)
-    supabaseClient.from("bots").update({ messages_count: (bot as any).messages_count ? (bot as any).messages_count + 1 : 1 }).eq("id", botId).then(() => {});
+    supabaseClient.from("bots").update({ messages_count: (bot.messages_count || 0) + 1 }).eq("id", botId);
 
     return new Response(response.body, {
       headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
