@@ -395,6 +395,7 @@ export default function Chat() {
             </div>
           </div>
 
+          {botId && <BotReviews botId={botId} />}
           <div className="shrink-0 border-t border-border/50 p-4">
             <form onSubmit={handleSend} className="max-w-[800px] mx-auto">
               <div className="glass-panel rounded-lg flex items-center gap-2 p-2">
