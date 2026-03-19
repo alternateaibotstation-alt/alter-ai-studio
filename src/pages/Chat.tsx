@@ -105,7 +105,13 @@ export default function Chat() {
   useEffect(() => {
     if (!botId) return;
     api.getBotById(botId)
-      .then(setBot)
+      .then((b) => {
+        setBot(b);
+        // Auto-fill first suggested prompt for new conversations
+        if (b?.suggested_prompts && b.suggested_prompts.length > 0) {
+          setInput(b.suggested_prompts[0]);
+        }
+      })
       .catch(() => {})
       .finally(() => setLoading(false));
   }, [botId]);
