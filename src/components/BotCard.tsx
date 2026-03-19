@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Bot as BotIcon, MessageSquare, DollarSign, Heart } from "lucide-react";
+import { Bot as BotIcon, MessageSquare, DollarSign, Heart, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AverageRating } from "@/components/BotReviews";
 import type { Bot } from "@/lib/api";
