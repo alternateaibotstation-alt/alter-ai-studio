@@ -277,9 +277,13 @@ export default function Chat() {
         <Button variant="ghost" size="icon" asChild>
           <Link to="/marketplace"><ArrowLeft className="w-4 h-4" /></Link>
         </Button>
-        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-          <Sparkles className="w-4 h-4 text-primary" />
-        </div>
+        {bot?.avatar_url ? (
+          <img src={bot.avatar_url} alt={bot.name} className="w-8 h-8 rounded-lg object-cover" />
+        ) : (
+          <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+            <Sparkles className="w-4 h-4 text-primary" />
+          </div>
+        )}
         <div className="flex-1">
           <h1 className="text-sm font-semibold text-foreground">{bot?.name || "Bot"}</h1>
           {bot?.category && (

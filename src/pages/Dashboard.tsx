@@ -14,13 +14,14 @@ import { Plus, Pencil, Trash2, MessageSquare, Loader2 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { api, type Bot } from "@/lib/api";
 import PersonalityTraitsBuilder from "@/components/PersonalityTraitsBuilder";
+import BotAvatarUpload from "@/components/BotAvatarUpload";
 
 export default function Dashboard() {
   const [bots, setBots] = useState<Bot[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingBot, setEditingBot] = useState<Bot | null>(null);
-  const [form, setForm] = useState({ name: "", description: "", persona: "", category: "wellness", is_public: true, price: 0 });
+  const [form, setForm] = useState({ name: "", description: "", persona: "", category: "wellness", is_public: true, price: 0, avatar_url: "" });
   const [saving, setSaving] = useState(false);
 
   const fetchBots = () => {
@@ -34,7 +35,7 @@ export default function Dashboard() {
 
   const openCreate = () => {
     setEditingBot(null);
-    setForm({ name: "", description: "", persona: "", category: "wellness", is_public: true, price: 0 });
+    setForm({ name: "", description: "", persona: "", category: "wellness", is_public: true, price: 0, avatar_url: "" });
     setDialogOpen(true);
   };
 
@@ -47,6 +48,7 @@ export default function Dashboard() {
       category: bot.category || "wellness",
       is_public: bot.is_public,
       price: bot.price || 0,
+      avatar_url: bot.avatar_url || "",
     });
     setDialogOpen(true);
   };
@@ -101,6 +103,10 @@ export default function Dashboard() {
                 </DialogTitle>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4">
+                <BotAvatarUpload
+                  avatarUrl={form.avatar_url || null}
+                  onUploaded={(url) => setForm({ ...form, avatar_url: url })}
+                />
                 <div>
                   <label className="text-sm text-muted-foreground">Name</label>
                   <Input

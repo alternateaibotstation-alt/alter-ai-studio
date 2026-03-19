@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       bots: {
         Row: {
+          avatar_url: string | null
           category: string | null
           created_at: string
           description: string | null
@@ -32,6 +33,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          avatar_url?: string | null
           category?: string | null
           created_at?: string
           description?: string | null
@@ -48,6 +50,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          avatar_url?: string | null
           category?: string | null
           created_at?: string
           description?: string | null

@@ -13,6 +13,7 @@ export interface Bot {
   messages_count: number;
   user_id: string;
   suggested_prompts: string[];
+  avatar_url: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -72,6 +73,7 @@ export const api = {
         category: bot.category ?? "general",
         is_public: bot.is_public ?? true,
         price: bot.price ?? 0,
+        avatar_url: bot.avatar_url ?? null,
       })
       .select()
       .single();
