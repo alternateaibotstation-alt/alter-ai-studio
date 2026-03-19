@@ -2,8 +2,9 @@ import { useEffect, useState, useRef } from "react";
 import { useParams, Link, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Send, Loader2, Sparkles, Lock, DollarSign } from "lucide-react";
+import { ArrowLeft, Send, Loader2, Sparkles, Lock, DollarSign, Mic, MicOff, Volume2, VolumeX } from "lucide-react";
 import { api, type Bot, type ChatMessage } from "@/lib/api";
+import { useVoiceChat } from "@/hooks/use-voice-chat";
 import { toast } from "sonner";
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`;
@@ -103,7 +104,14 @@ export default function Chat() {
   const [hasAccess, setHasAccess] = useState<boolean | null>(null);
   const [checkingOut, setCheckingOut] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
+  const lastSpokenRef = useRef<string>("");
 
+  const voice = useVoiceChat({
+    onTranscript: (text) => {
+      setInput(text);
+    },
+    autoSpeak: true,
+  });
   useEffect(() => {
     if (!botId) return;
     api.getBotById(botId)
@@ -147,6 +155,21 @@ export default function Chat() {
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  // Auto-speak new bot responses
+  useEffect(() => {
+    if (!voice.ttsEnabled || messages.length === 0) return;
+    const last = messages[messages.length - 1];
+    if (
+      last?.role === "assistant" &&
+      last.id !== "streaming" &&
+      last.content &&
+      last.content !== lastSpokenRef.current
+    ) {
+      lastSpokenRef.current = last.content;
+      voice.speak(last.content);
+    }
+  }, [messages, voice]);
 
   const handleBuy = async () => {
     if (!botId) return;
@@ -268,6 +291,24 @@ export default function Chat() {
             <DollarSign className="w-3 h-3" />{bot.price}
           </span>
         )}
+        {voice.supportsTTS && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => {
+              voice.setTtsEnabled(!voice.ttsEnabled);
+              if (voice.isSpeaking) voice.stopSpeaking();
+            }}
+            className="relative"
+            title={voice.ttsEnabled ? "Mute bot voice" : "Enable bot voice"}
+          >
+            {voice.ttsEnabled ? (
+              <Volume2 className="w-4 h-4 text-accent" />
+            ) : (
+              <VolumeX className="w-4 h-4 text-muted-foreground" />
+            )}
+          </Button>
+        )}
       </header>
 
       {showPaywall ? (
@@ -351,10 +392,22 @@ export default function Chat() {
           <div className="shrink-0 border-t border-border/50 p-4">
             <form onSubmit={handleSend} className="max-w-[800px] mx-auto">
               <div className="glass-panel rounded-lg flex items-center gap-2 p-2">
+                {voice.supportsSTT && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={voice.toggleListening}
+                    className={voice.isListening ? "text-destructive animate-pulse" : "text-muted-foreground"}
+                    title={voice.isListening ? "Stop listening" : "Speak"}
+                  >
+                    {voice.isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+                  </Button>
+                )}
                 <Input
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder="Type a message..."
+                  placeholder={voice.isListening ? "Listening..." : "Type a message..."}
                   className="border-0 bg-transparent focus-visible:ring-0 text-sm"
                   disabled={sending}
                 />
