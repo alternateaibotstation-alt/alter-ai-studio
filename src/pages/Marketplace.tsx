@@ -95,7 +95,8 @@ export default function Marketplace() {
       bot.name.toLowerCase().includes(search.toLowerCase()) ||
       bot.description?.toLowerCase().includes(search.toLowerCase());
     const matchCat = !selectedCategory || bot.category === selectedCategory;
-    return matchSearch && matchCat;
+    const matchFav = !showFavorites || favoriteIds.includes(bot.id);
+    return matchSearch && matchCat && matchFav;
   });
 
   const botsInCategory = (cat: string) => bots.filter((b) => b.category === cat).length;
