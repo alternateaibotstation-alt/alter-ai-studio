@@ -109,9 +109,6 @@ export default function Chat() {
     api.getBotById(botId)
       .then(async (b) => {
         setBot(b);
-        if (b?.suggested_prompts && b.suggested_prompts.length > 0) {
-          setInput(b.suggested_prompts[0]);
-        }
         // Check access for paid bots
         const isFree = !b?.price || b.price === 0;
         if (isFree) {
@@ -121,14 +118,25 @@ export default function Chat() {
           if (!user) {
             setHasAccess(false);
           } else if (b && b.user_id === user.id) {
-            // Bot owner always has access
             setHasAccess(true);
           } else if (searchParams.get("purchased") === "true") {
-            // Just came back from checkout
             setHasAccess(true);
           } else {
             const purchased = await api.checkPurchase(botId);
             setHasAccess(purchased);
+          }
+        }
+        // Load user's own chat history (RLS ensures isolation per user)
+        try {
+          const history = await api.getMessages(botId);
+          if (history.length > 0) {
+            setMessages(history);
+          } else if (b?.suggested_prompts && b.suggested_prompts.length > 0) {
+            setInput(b.suggested_prompts[0]);
+          }
+        } catch {
+          if (b?.suggested_prompts && b.suggested_prompts.length > 0) {
+            setInput(b.suggested_prompts[0]);
           }
         }
       })
