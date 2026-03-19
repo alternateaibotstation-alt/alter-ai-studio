@@ -34,23 +34,26 @@ export default function Chat() {
       id: Date.now().toString(),
       role: "user",
       content: input,
-      timestamp: new Date(),
+      created_at: new Date().toISOString(),
     };
     setMessages((prev) => [...prev, userMsg]);
     setInput("");
     setSending(true);
 
     try {
-      const data = await api.sendMessage(botId, input);
+      await api.saveMessage(botId, "user", input);
+      // TODO: Wire up AI edge function for real responses
+      const assistantContent = "AI responses coming soon! The AI chat engine will be built in Phase 2.";
       setMessages((prev) => [
         ...prev,
         {
           id: (Date.now() + 1).toString(),
           role: "assistant",
-          content: data?.response || "Sorry, I couldn't respond.",
-          timestamp: new Date(),
+          content: assistantContent,
+          created_at: new Date().toISOString(),
         },
       ]);
+      await api.saveMessage(botId, "assistant", assistantContent);
     } catch {
       setMessages((prev) => [
         ...prev,
@@ -58,7 +61,7 @@ export default function Chat() {
           id: (Date.now() + 1).toString(),
           role: "assistant",
           content: "An error occurred. Please try again.",
-          timestamp: new Date(),
+          created_at: new Date().toISOString(),
         },
       ]);
     } finally {
@@ -76,7 +79,6 @@ export default function Chat() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* Header */}
       <header className="glass-panel border-b border-border/50 px-4 h-14 flex items-center gap-3 shrink-0">
         <Button variant="ghost" size="icon" asChild>
           <Link to="/marketplace"><ArrowLeft className="w-4 h-4" /></Link>
@@ -92,7 +94,6 @@ export default function Chat() {
         </div>
       </header>
 
-      {/* Messages */}
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-[800px] mx-auto px-4 py-6 space-y-4">
           {messages.length === 0 && (
@@ -135,7 +136,6 @@ export default function Chat() {
         </div>
       </div>
 
-      {/* Input */}
       <div className="shrink-0 border-t border-border/50 p-4">
         <form onSubmit={handleSend} className="max-w-[800px] mx-auto">
           <div className="glass-panel rounded-lg flex items-center gap-2 p-2">
