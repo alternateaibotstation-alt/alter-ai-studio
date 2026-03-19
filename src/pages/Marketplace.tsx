@@ -6,7 +6,7 @@ import Navbar from "@/components/Navbar";
 import BotCard from "@/components/BotCard";
 import { api, type Bot } from "@/lib/api";
 
-const categories = ["all", "wellness", "business", "relationships", "productivity", "creativity"];
+const categories = ["all", "spiritual", "mental health", "relationships", "business", "self improvement"];
 
 export default function Marketplace() {
   const [bots, setBots] = useState<Bot[]>([]);
