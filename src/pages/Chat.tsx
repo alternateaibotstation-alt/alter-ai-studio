@@ -109,6 +109,16 @@ export default function Chat() {
   const [checkingOut, setCheckingOut] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
   const lastSpokenRef = useRef<string>("");
+  const [highlightedMsgId, setHighlightedMsgId] = useState<string | null>(null);
+
+  const handleSearchHighlight = useCallback((msgId: string | null) => {
+    setHighlightedMsgId(msgId);
+    if (msgId) {
+      setTimeout(() => {
+        document.getElementById(`msg-${msgId}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 50);
+    }
+  }, []);
 
   const voice = useVoiceChat({
     onTranscript: (text) => {
