@@ -19,7 +19,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingBot, setEditingBot] = useState<Bot | null>(null);
-  const [form, setForm] = useState({ name: "", description: "", persona: "", category: "wellness", isPublic: true, price: "0" });
+  const [form, setForm] = useState({ name: "", description: "", persona: "", category: "wellness", is_public: true, price: 0 });
   const [saving, setSaving] = useState(false);
 
   const fetchBots = () => {
@@ -33,7 +33,7 @@ export default function Dashboard() {
 
   const openCreate = () => {
     setEditingBot(null);
-    setForm({ name: "", description: "", persona: "", category: "wellness", isPublic: true, price: "0" });
+    setForm({ name: "", description: "", persona: "", category: "wellness", is_public: true, price: 0 });
     setDialogOpen(true);
   };
 
@@ -44,8 +44,8 @@ export default function Dashboard() {
       description: bot.description || "",
       persona: bot.persona || "",
       category: bot.category || "wellness",
-      isPublic: bot.isPublic,
-      price: bot.price || "0",
+      is_public: bot.is_public,
+      price: bot.price || 0,
     });
     setDialogOpen(true);
   };
@@ -142,7 +142,7 @@ export default function Dashboard() {
                     <Input
                       type="number"
                       value={form.price}
-                      onChange={(e) => setForm({ ...form, price: e.target.value })}
+                      onChange={(e) => setForm({ ...form, price: parseFloat(e.target.value) || 0 })}
                       className="bg-secondary border-border mt-1"
                       min="0"
                       step="0.01"
@@ -158,7 +158,6 @@ export default function Dashboard() {
           </Dialog>
         </div>
 
-        {/* Bot list */}
         <div className="mt-8 space-y-3">
           {loading ? (
             Array.from({ length: 3 }).map((_, i) => (
@@ -184,7 +183,7 @@ export default function Dashboard() {
                     <span className="capitalize">{bot.category}</span>
                     <span>·</span>
                     <span className="flex items-center gap-1">
-                      <MessageSquare className="w-3 h-3" /> {bot.messagesCount ?? 0}
+                      <MessageSquare className="w-3 h-3" /> {bot.messages_count ?? 0}
                     </span>
                     <span>·</span>
                     <span className={bot.status === "active" ? "text-accent" : ""}>
