@@ -13,6 +13,7 @@ import {
 import { Plus, Pencil, Trash2, MessageSquare, Loader2 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { api, type Bot } from "@/lib/api";
+import PersonalityTraitsBuilder from "@/components/PersonalityTraitsBuilder";
 
 export default function Dashboard() {
   const [bots, setBots] = useState<Bot[]>([]);
@@ -118,8 +119,12 @@ export default function Dashboard() {
                     rows={2}
                   />
                 </div>
+                <PersonalityTraitsBuilder
+                  persona={form.persona}
+                  onPersonaChange={(persona) => setForm({ ...form, persona })}
+                />
                 <div>
-                  <label className="text-sm text-muted-foreground">Persona / System Prompt</label>
+                  <label className="text-sm text-muted-foreground">Custom Prompt (advanced)</label>
                   <Textarea
                     value={form.persona}
                     onChange={(e) => setForm({ ...form, persona: e.target.value })}
