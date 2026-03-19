@@ -156,6 +156,23 @@ export const api = {
     return (data ?? []).map((f) => f.bot_id);
   },
 
+  getFavoriteBots: async (): Promise<Bot[]> => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return [];
+    const { data: favs } = await supabase
+      .from("favorites")
+      .select("bot_id")
+      .eq("user_id", user.id);
+    if (!favs?.length) return [];
+    const ids = favs.map((f) => f.bot_id);
+    const { data, error } = await supabase
+      .from("bots")
+      .select("*")
+      .in("id", ids);
+    if (error) return [];
+    return (data ?? []) as unknown as Bot[];
+  },
+
   toggleFavorite: async (botId: string): Promise<boolean> => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error("Not authenticated");

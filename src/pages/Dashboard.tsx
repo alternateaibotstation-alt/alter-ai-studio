@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -10,12 +11,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Plus, Pencil, Trash2, MessageSquare, Loader2, Download, Upload } from "lucide-react";
+import { Plus, Pencil, Trash2, MessageSquare, Loader2, Download, Upload, Heart } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { api, type Bot } from "@/lib/api";
 import PersonalityTraitsBuilder from "@/components/PersonalityTraitsBuilder";
 import BotAvatarUpload from "@/components/BotAvatarUpload";
 import BotImportExport from "@/components/BotImportExport";
+import FavoritesSection from "@/components/FavoritesSection";
 export default function Dashboard() {
   const [bots, setBots] = useState<Bot[]>([]);
   const [loading, setLoading] = useState(true);
@@ -233,6 +235,8 @@ export default function Dashboard() {
             ))
           )}
         </div>
+
+        <FavoritesSection />
       </div>
     </div>
   );
