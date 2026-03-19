@@ -54,6 +54,7 @@ export default function Dashboard() {
       is_public: bot.is_public,
       price: bot.price || 0,
       avatar_url: bot.avatar_url || "",
+      suggested_prompts: bot.suggested_prompts || [],
     });
     setDialogOpen(true);
   };
