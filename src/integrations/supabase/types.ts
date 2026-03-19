@@ -29,7 +29,7 @@ export type Database = {
           status: string | null
           suggested_prompts: string[] | null
           updated_at: string
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           category?: string | null
@@ -45,7 +45,7 @@ export type Database = {
           status?: string | null
           suggested_prompts?: string[] | null
           updated_at?: string
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           category?: string | null
@@ -61,7 +61,7 @@ export type Database = {
           status?: string | null
           suggested_prompts?: string[] | null
           updated_at?: string
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: []
       }
