@@ -407,10 +407,13 @@ export default function Chat() {
               {messages.map((msg) => (
                 <div
                   key={msg.id}
+                  id={`msg-${msg.id}`}
                   className={`flex animate-fade-in ${msg.role === "user" ? "justify-end" : "justify-start"}`}
                 >
                   <div
-                    className={`max-w-[75%] rounded-lg px-4 py-2.5 text-sm ${
+                    className={`max-w-[75%] rounded-lg px-4 py-2.5 text-sm transition-colors ${
+                      highlightedMsgId === msg.id ? "ring-2 ring-primary" : ""
+                    } ${
                       msg.role === "user"
                         ? "bg-primary text-primary-foreground whitespace-pre-wrap"
                         : "bg-card border border-border text-foreground"
