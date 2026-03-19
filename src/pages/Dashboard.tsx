@@ -18,6 +18,7 @@ import PersonalityTraitsBuilder from "@/components/PersonalityTraitsBuilder";
 import BotAvatarUpload from "@/components/BotAvatarUpload";
 import BotImportExport from "@/components/BotImportExport";
 import FavoritesSection from "@/components/FavoritesSection";
+import SuggestedPromptsEditor from "@/components/SuggestedPromptsEditor";
 export default function Dashboard() {
   const [bots, setBots] = useState<Bot[]>([]);
   const [loading, setLoading] = useState(true);
