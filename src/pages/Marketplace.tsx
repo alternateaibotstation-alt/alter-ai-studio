@@ -171,7 +171,7 @@ export default function Marketplace() {
             ) : (
               <div className="mt-6 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {filtered.map((bot) => (
-                  <BotCard key={bot.id} bot={bot} />
+                  <BotCard key={bot.id} bot={bot} isFavorite={isFavorite(bot.id)} onToggleFavorite={toggleFavorite} />
                 ))}
               </div>
             )}
