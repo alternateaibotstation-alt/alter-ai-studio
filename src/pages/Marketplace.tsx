@@ -8,6 +8,8 @@ import {
 import Navbar from "@/components/Navbar";
 import BotCard from "@/components/BotCard";
 import { api, type Bot } from "@/lib/api";
+import { useFavorites } from "@/hooks/use-favorites";
+import { cn } from "@/lib/utils";
 
 const categories = [
   {
