@@ -373,7 +373,13 @@ export default function Chat() {
                       {bot.suggested_prompts.map((prompt) => (
                         <button
                           key={prompt}
-                          onClick={() => setInput(prompt)}
+                          onClick={() => {
+                            setInput(prompt);
+                            setTimeout(() => {
+                              const form = document.querySelector<HTMLFormElement>('form');
+                              form?.requestSubmit();
+                            }, 0);
+                          }}
                           className="text-xs px-3 py-1.5 rounded-full border border-border bg-card text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors"
                         >
                           {prompt}

@@ -18,12 +18,13 @@ import PersonalityTraitsBuilder from "@/components/PersonalityTraitsBuilder";
 import BotAvatarUpload from "@/components/BotAvatarUpload";
 import BotImportExport from "@/components/BotImportExport";
 import FavoritesSection from "@/components/FavoritesSection";
+import SuggestedPromptsEditor from "@/components/SuggestedPromptsEditor";
 export default function Dashboard() {
   const [bots, setBots] = useState<Bot[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingBot, setEditingBot] = useState<Bot | null>(null);
-  const [form, setForm] = useState({ name: "", description: "", persona: "", category: "wellness", is_public: true, price: 0, avatar_url: "" });
+  const [form, setForm] = useState({ name: "", description: "", persona: "", category: "wellness", is_public: true, price: 0, avatar_url: "", suggested_prompts: [] as string[] });
   const [saving, setSaving] = useState(false);
 
   const fetchBots = () => {
@@ -39,7 +40,7 @@ export default function Dashboard() {
 
   const openCreate = () => {
     setEditingBot(null);
-    setForm({ name: "", description: "", persona: "", category: "wellness", is_public: true, price: 0, avatar_url: "" });
+    setForm({ name: "", description: "", persona: "", category: "wellness", is_public: true, price: 0, avatar_url: "", suggested_prompts: [] });
     setDialogOpen(true);
   };
 
@@ -53,6 +54,7 @@ export default function Dashboard() {
       is_public: bot.is_public,
       price: bot.price || 0,
       avatar_url: bot.avatar_url || "",
+      suggested_prompts: bot.suggested_prompts || [],
     });
     setDialogOpen(true);
   };
@@ -174,6 +176,10 @@ export default function Dashboard() {
                     />
                   </div>
                 </div>
+                <SuggestedPromptsEditor
+                  prompts={form.suggested_prompts}
+                  onChange={(suggested_prompts) => setForm({ ...form, suggested_prompts })}
+                />
                 <Button type="submit" className="w-full" disabled={saving}>
                   {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                   {editingBot ? "Save Changes" : "Create Bot"}
