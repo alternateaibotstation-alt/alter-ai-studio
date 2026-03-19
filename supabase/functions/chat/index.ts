@@ -36,7 +36,7 @@ serve(async (req) => {
 
     const { data: bot, error: botError } = await supabaseClient
       .from("bots")
-      .select("name, persona, model")
+      .select("name, persona, model, messages_count")
       .eq("id", botId)
       .single();
 
@@ -86,8 +86,8 @@ serve(async (req) => {
       });
     }
 
-    // Increment messages_count on the bot
-    await supabaseClient.rpc("increment_bot_messages", { bot_id_input: botId }).catch(() => {});
+    // Increment messages_count on the bot (fire-and-forget)
+    supabaseClient.from("bots").update({ messages_count: (bot.messages_count || 0) + 1 }).eq("id", botId);
 
     return new Response(response.body, {
       headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
