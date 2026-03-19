@@ -92,12 +92,22 @@ export default function Dashboard() {
             <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
             <p className="text-muted-foreground mt-1">Manage your AI bots</p>
           </div>
-          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-            <DialogTrigger asChild>
-              <Button onClick={openCreate}>
-                <Plus className="w-4 h-4 mr-2" /> New Bot
-              </Button>
-            </DialogTrigger>
+          <div className="flex items-center gap-2">
+            {importExport.ImportInput}
+            <Button variant="outline" size="sm" onClick={() => importExport.fileRef.current?.click()} disabled={importExport.importing}>
+              {importExport.importing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+              <span className="ml-1.5 hidden sm:inline">Import</span>
+            </Button>
+            <Button variant="outline" size="sm" onClick={importExport.handleExportAll} disabled={bots.length === 0}>
+              <Download className="w-4 h-4" />
+              <span className="ml-1.5 hidden sm:inline">Export All</span>
+            </Button>
+            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+              <DialogTrigger asChild>
+                <Button onClick={openCreate}>
+                  <Plus className="w-4 h-4 mr-2" /> New Bot
+                </Button>
+              </DialogTrigger>
             <DialogContent className="bg-card border-border">
               <DialogHeader>
                 <DialogTitle className="text-foreground">
