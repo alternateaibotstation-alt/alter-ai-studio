@@ -104,7 +104,14 @@ export default function Chat() {
   const [hasAccess, setHasAccess] = useState<boolean | null>(null);
   const [checkingOut, setCheckingOut] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
+  const lastSpokenRef = useRef<string>("");
 
+  const voice = useVoiceChat({
+    onTranscript: (text) => {
+      setInput(text);
+    },
+    autoSpeak: true,
+  });
   useEffect(() => {
     if (!botId) return;
     api.getBotById(botId)
