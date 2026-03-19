@@ -9,6 +9,7 @@ import Chat from "./pages/Chat";
 import Dashboard from "./pages/Dashboard";
 import Auth from "./pages/Auth";
 import Success from "./pages/Success";
+import Purchases from "./pages/Purchases";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
