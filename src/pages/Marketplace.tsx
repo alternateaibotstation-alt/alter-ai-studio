@@ -79,6 +79,8 @@ export default function Marketplace() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [showFavorites, setShowFavorites] = useState(false);
+  const { isFavorite, toggleFavorite, favoriteIds } = useFavorites();
 
   useEffect(() => {
     api.getPublicBots()
