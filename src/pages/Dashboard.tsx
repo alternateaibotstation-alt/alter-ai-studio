@@ -13,6 +13,7 @@ import {
 import { Plus, Pencil, Trash2, MessageSquare, Loader2 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { api, type Bot } from "@/lib/api";
+import PersonalityTraitsBuilder from "@/components/PersonalityTraitsBuilder";
 
 export default function Dashboard() {
   const [bots, setBots] = useState<Bot[]>([]);
