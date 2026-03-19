@@ -56,6 +56,7 @@ export default function Dashboard() {
       price: bot.price || 0,
       avatar_url: bot.avatar_url || "",
       suggested_prompts: bot.suggested_prompts || [],
+      model: bot.model || "google/gemini-3-flash-preview",
     });
     setDialogOpen(true);
   };

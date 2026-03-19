@@ -9,22 +9,25 @@ import remarkGfm from "remark-gfm";
 import { useVoiceChat } from "@/hooks/use-voice-chat";
 import BotReviews from "@/components/BotReviews";
 import ChatSearchBar from "@/components/ChatSearchBar";
+import ChatFileUpload, { type UploadedFile } from "@/components/ChatFileUpload";
 import { toast } from "sonner";
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`;
 
-type Msg = { role: "user" | "assistant"; content: string };
+type Msg = { role: "user" | "assistant"; content: any };
 
-async function streamChat({
+async function sendChat({
   botId,
   messages,
   onDelta,
   onDone,
+  onImageResponse,
 }: {
   botId: string;
   messages: Msg[];
   onDelta: (text: string) => void;
   onDone: () => void;
+  onImageResponse: (text: string, imageUrl: string) => void;
 }) {
   const resp = await fetch(CHAT_URL, {
     method: "POST",
@@ -40,6 +43,22 @@ async function streamChat({
     throw new Error(err.error || `Error ${resp.status}`);
   }
 
+  const contentType = resp.headers.get("content-type") || "";
+
+  // Image generation returns JSON (not streamed)
+  if (contentType.includes("application/json")) {
+    const json = await resp.json();
+    if (json.type === "image") {
+      const imageUrl = json.data?.choices?.[0]?.message?.images?.[0]?.image_url?.url || "";
+      const text = json.data?.choices?.[0]?.message?.content || "Here's the generated image:";
+      onImageResponse(text, imageUrl);
+      return;
+    }
+    // Fallback - treat as error
+    throw new Error(json.error || "Unexpected response");
+  }
+
+  // SSE streaming
   if (!resp.body) throw new Error("No response body");
 
   const reader = resp.body.getReader();
@@ -107,6 +126,7 @@ export default function Chat() {
   const [sending, setSending] = useState(false);
   const [hasAccess, setHasAccess] = useState<boolean | null>(null);
   const [checkingOut, setCheckingOut] = useState(false);
+  const [attachedFiles, setAttachedFiles] = useState<UploadedFile[]>([]);
   const endRef = useRef<HTMLDivElement>(null);
   const lastSpokenRef = useRef<string>("");
   const [highlightedMsgId, setHighlightedMsgId] = useState<string | null>(null);
@@ -121,65 +141,46 @@ export default function Chat() {
   }, []);
 
   const voice = useVoiceChat({
-    onTranscript: (text) => {
-      setInput(text);
-    },
+    onTranscript: (text) => setInput(text),
     autoSpeak: true,
   });
+
   useEffect(() => {
     if (!botId) return;
     api.getBotById(botId)
       .then(async (b) => {
         setBot(b);
-        // Check access for paid bots
         const isFree = !b?.price || b.price === 0;
         if (isFree) {
           setHasAccess(true);
         } else {
           const user = await api.getUser();
-          if (!user) {
-            setHasAccess(false);
-          } else if (b && b.user_id === user.id) {
-            setHasAccess(true);
-          } else if (searchParams.get("purchased") === "true") {
-            setHasAccess(true);
-          } else {
+          if (!user) setHasAccess(false);
+          else if (b && b.user_id === user.id) setHasAccess(true);
+          else if (searchParams.get("purchased") === "true") setHasAccess(true);
+          else {
             const purchased = await api.checkPurchase(botId);
             setHasAccess(purchased);
           }
         }
-        // Load user's own chat history (RLS ensures isolation per user)
         try {
           const history = await api.getMessages(botId);
-          if (history.length > 0) {
-            setMessages(history);
-          } else if (b?.suggested_prompts && b.suggested_prompts.length > 0) {
-            setInput(b.suggested_prompts[0]);
-          }
+          if (history.length > 0) setMessages(history);
+          else if (b?.suggested_prompts?.length) setInput(b.suggested_prompts[0]);
         } catch {
-          if (b?.suggested_prompts && b.suggested_prompts.length > 0) {
-            setInput(b.suggested_prompts[0]);
-          }
+          if (b?.suggested_prompts?.length) setInput(b.suggested_prompts[0]);
         }
       })
       .catch(() => {})
       .finally(() => setLoading(false));
   }, [botId, searchParams]);
 
-  useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
 
-  // Auto-speak new bot responses
   useEffect(() => {
     if (!voice.ttsEnabled || messages.length === 0) return;
     const last = messages[messages.length - 1];
-    if (
-      last?.role === "assistant" &&
-      last.id !== "streaming" &&
-      last.content &&
-      last.content !== lastSpokenRef.current
-    ) {
+    if (last?.role === "assistant" && last.id !== "streaming" && last.content && last.content !== lastSpokenRef.current) {
       lastSpokenRef.current = last.content;
       voice.speak(last.content);
     }
@@ -188,10 +189,7 @@ export default function Chat() {
   const handleBuy = async () => {
     if (!botId) return;
     const user = await api.getUser();
-    if (!user) {
-      toast.error("Please sign in to purchase this bot");
-      return;
-    }
+    if (!user) { toast.error("Please sign in to purchase this bot"); return; }
     setCheckingOut(true);
     try {
       const url = await api.createBotCheckout(botId);
@@ -205,24 +203,56 @@ export default function Chat() {
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim() || !botId || sending) return;
+    if ((!input.trim() && attachedFiles.length === 0) || !botId || sending) return;
 
     const userContent = input.trim();
+    const files = [...attachedFiles];
+
+    // Build display content for the message
+    const displayParts: string[] = [];
+    if (files.length > 0) {
+      files.forEach((f) => {
+        if (f.type.startsWith("image/")) {
+          displayParts.push(`![${f.name}](${f.url})`);
+        } else {
+          displayParts.push(`📎 [${f.name}](${f.url})`);
+        }
+      });
+    }
+    if (userContent) displayParts.push(userContent);
+    const displayContent = displayParts.join("\n");
+
     const userMsg: ChatMessage = {
       id: Date.now().toString(),
       role: "user",
-      content: userContent,
+      content: displayContent,
       created_at: new Date().toISOString(),
     };
     setMessages((prev) => [...prev, userMsg]);
     setInput("");
+    setAttachedFiles([]);
     setSending(true);
 
-    api.saveMessage(botId, "user", userContent);
+    api.saveMessage(botId, "user", displayContent);
+
+    // Build API message content (multimodal if files attached)
+    let apiContent: any = userContent;
+    if (files.length > 0) {
+      const parts: any[] = [];
+      if (userContent) parts.push({ type: "text", text: userContent });
+      files.forEach((f) => {
+        if (f.type.startsWith("image/")) {
+          parts.push({ type: "image_url", image_url: { url: f.url } });
+        } else {
+          parts.push({ type: "text", text: `[Attached file: ${f.name}] URL: ${f.url}` });
+        }
+      });
+      apiContent = parts;
+    }
 
     const history: Msg[] = [
       ...messages.map((m) => ({ role: m.role, content: m.content })),
-      { role: "user" as const, content: userContent },
+      { role: "user" as const, content: apiContent },
     ];
 
     let assistantSoFar = "";
@@ -231,44 +261,37 @@ export default function Chat() {
       setMessages((prev) => {
         const last = prev[prev.length - 1];
         if (last?.role === "assistant" && last.id === "streaming") {
-          return prev.map((m, i) =>
-            i === prev.length - 1 ? { ...m, content: assistantSoFar } : m
-          );
+          return prev.map((m, i) => i === prev.length - 1 ? { ...m, content: assistantSoFar } : m);
         }
-        return [
-          ...prev,
-          { id: "streaming", role: "assistant" as const, content: assistantSoFar, created_at: new Date().toISOString() },
-        ];
+        return [...prev, { id: "streaming", role: "assistant" as const, content: assistantSoFar, created_at: new Date().toISOString() }];
       });
     };
 
     try {
-      await streamChat({
+      await sendChat({
         botId,
         messages: history,
         onDelta: upsertAssistant,
-        onDone: () => {
-          setMessages((prev) =>
-            prev.map((m) =>
-              m.id === "streaming" ? { ...m, id: Date.now().toString() } : m
-            )
-          );
+        onImageResponse: (text, imageUrl) => {
+          const content = imageUrl ? `${text}\n\n![Generated Image](${imageUrl})` : text;
+          setMessages((prev) => [
+            ...prev.filter((m) => m.id !== "streaming"),
+            { id: Date.now().toString(), role: "assistant", content, created_at: new Date().toISOString() },
+          ]);
           setSending(false);
-          if (assistantSoFar) {
-            api.saveMessage(botId, "assistant", assistantSoFar);
-          }
+          api.saveMessage(botId, "assistant", content);
+        },
+        onDone: () => {
+          setMessages((prev) => prev.map((m) => m.id === "streaming" ? { ...m, id: Date.now().toString() } : m));
+          setSending(false);
+          if (assistantSoFar) api.saveMessage(botId, "assistant", assistantSoFar);
         },
       });
     } catch (err: any) {
       toast.error(err.message || "Failed to get AI response");
       setMessages((prev) => [
         ...prev.filter((m) => m.id !== "streaming"),
-        {
-          id: (Date.now() + 1).toString(),
-          role: "assistant",
-          content: "Sorry, an error occurred. Please try again.",
-          created_at: new Date().toISOString(),
-        },
+        { id: (Date.now() + 1).toString(), role: "assistant", content: "Sorry, an error occurred. Please try again.", created_at: new Date().toISOString() },
       ]);
       setSending(false);
     }
@@ -300,49 +323,28 @@ export default function Chat() {
         )}
         <div className="flex-1">
           <h1 className="text-sm font-semibold text-foreground">{bot?.name || "Bot"}</h1>
-          {bot?.category && (
-            <p className="text-xs text-muted-foreground capitalize">{bot.category}</p>
-          )}
+          {bot?.category && <p className="text-xs text-muted-foreground capitalize">{bot.category}</p>}
         </div>
-        {messages.length > 0 && (
-          <ChatSearchBar messages={messages} onHighlight={handleSearchHighlight} />
-        )}
+        {messages.length > 0 && <ChatSearchBar messages={messages} onHighlight={handleSearchHighlight} />}
         {isPaid && (
           <span className="text-xs font-medium text-accent flex items-center gap-1">
             <DollarSign className="w-3 h-3" />{bot.price}
           </span>
         )}
         {messages.length > 0 && (
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={async () => {
-              if (!botId) return;
-              await api.clearMessages(botId);
-              setMessages([]);
-              toast.success("Chat history cleared");
-            }}
-            title="Clear chat history"
-          >
+          <Button variant="ghost" size="icon" onClick={async () => {
+            if (!botId) return;
+            await api.clearMessages(botId);
+            setMessages([]);
+            toast.success("Chat history cleared");
+          }} title="Clear chat history">
             <Trash2 className="w-4 h-4 text-muted-foreground" />
           </Button>
         )}
         {voice.supportsTTS && (
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => {
-              voice.setTtsEnabled(!voice.ttsEnabled);
-              if (voice.isSpeaking) voice.stopSpeaking();
-            }}
-            className="relative"
-            title={voice.ttsEnabled ? "Mute bot voice" : "Enable bot voice"}
-          >
-            {voice.ttsEnabled ? (
-              <Volume2 className="w-4 h-4 text-accent" />
-            ) : (
-              <VolumeX className="w-4 h-4 text-muted-foreground" />
-            )}
+          <Button variant="ghost" size="icon" onClick={() => { voice.setTtsEnabled(!voice.ttsEnabled); if (voice.isSpeaking) voice.stopSpeaking(); }}
+            className="relative" title={voice.ttsEnabled ? "Mute bot voice" : "Enable bot voice"}>
+            {voice.ttsEnabled ? <Volume2 className="w-4 h-4 text-accent" /> : <VolumeX className="w-4 h-4 text-muted-foreground" />}
           </Button>
         )}
       </header>
@@ -354,17 +356,11 @@ export default function Chat() {
               <Lock className="w-8 h-8 text-primary" />
             </div>
             <h2 className="text-xl font-bold text-foreground">Premium Bot</h2>
-            <p className="text-muted-foreground text-sm">
-              {bot?.description || "This bot requires a one-time purchase to access."}
-            </p>
+            <p className="text-muted-foreground text-sm">{bot?.description || "This bot requires a one-time purchase to access."}</p>
             <div className="text-2xl font-bold text-foreground">${bot?.price?.toFixed(2)}</div>
             <p className="text-xs text-muted-foreground">One-time payment · Instant access</p>
             <Button onClick={handleBuy} disabled={checkingOut} className="w-full">
-              {checkingOut ? (
-                <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Processing...</>
-              ) : (
-                <>Buy Now · ${bot?.price?.toFixed(2)}</>
-              )}
+              {checkingOut ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Processing...</> : <>Buy Now · ${bot?.price?.toFixed(2)}</>}
             </Button>
           </div>
         </div>
@@ -372,30 +368,22 @@ export default function Chat() {
         <>
           <div className="flex-1 overflow-y-auto">
             <div className="max-w-[800px] mx-auto px-4 py-6 space-y-4">
-
               {messages.length === 0 && (
                 <div className="text-center py-20">
                   <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
                     <Sparkles className="w-6 h-6 text-primary" />
                   </div>
                   <h2 className="text-lg font-semibold text-foreground">{bot?.name}</h2>
-                  <p className="text-sm text-muted-foreground mt-1 max-w-sm mx-auto">
-                    {bot?.description || "Start a conversation"}
-                  </p>
+                  <p className="text-sm text-muted-foreground mt-1 max-w-sm mx-auto">{bot?.description || "Start a conversation"}</p>
+                  <p className="text-xs text-muted-foreground/60 mt-2">📎 You can attach files · 🎨 Ask to generate images</p>
                   {bot?.suggested_prompts && bot.suggested_prompts.length > 0 && (
                     <div className="mt-6 flex flex-wrap justify-center gap-2">
                       {bot.suggested_prompts.map((prompt) => (
-                        <button
-                          key={prompt}
-                          onClick={() => {
-                            setInput(prompt);
-                            setTimeout(() => {
-                              const form = document.querySelector<HTMLFormElement>('form');
-                              form?.requestSubmit();
-                            }, 0);
-                          }}
-                          className="text-xs px-3 py-1.5 rounded-full border border-border bg-card text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors"
-                        >
+                        <button key={prompt} onClick={() => {
+                          setInput(prompt);
+                          setTimeout(() => { document.querySelector<HTMLFormElement>('form')?.requestSubmit(); }, 0);
+                        }}
+                          className="text-xs px-3 py-1.5 rounded-full border border-border bg-card text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors">
                           {prompt}
                         </button>
                       ))}
@@ -405,26 +393,18 @@ export default function Chat() {
               )}
 
               {messages.map((msg) => (
-                <div
-                  key={msg.id}
-                  id={`msg-${msg.id}`}
-                  className={`flex animate-fade-in ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-                >
-                  <div
-                    className={`max-w-[75%] rounded-lg px-4 py-2.5 text-sm transition-colors ${
-                      highlightedMsgId === msg.id ? "ring-2 ring-primary" : ""
-                    } ${
-                      msg.role === "user"
-                        ? "bg-primary text-primary-foreground whitespace-pre-wrap"
-                        : "bg-card border border-border text-foreground"
-                    }`}
-                  >
+                <div key={msg.id} id={`msg-${msg.id}`} className={`flex animate-fade-in ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+                  <div className={`max-w-[75%] rounded-lg px-4 py-2.5 text-sm transition-colors ${highlightedMsgId === msg.id ? "ring-2 ring-primary" : ""} ${
+                    msg.role === "user" ? "bg-primary text-primary-foreground" : "bg-card border border-border text-foreground"
+                  }`}>
                     {msg.role === "assistant" ? (
-                      <div className="prose dark:prose-invert prose-sm max-w-none prose-p:my-1 prose-ul:my-1 prose-ol:my-1 prose-li:my-0.5 prose-pre:bg-background prose-pre:border prose-pre:border-border prose-code:text-accent prose-headings:text-foreground prose-a:text-primary">
+                      <div className="prose dark:prose-invert prose-sm max-w-none prose-p:my-1 prose-ul:my-1 prose-ol:my-1 prose-li:my-0.5 prose-pre:bg-background prose-pre:border prose-pre:border-border prose-code:text-accent prose-headings:text-foreground prose-a:text-primary prose-img:rounded-lg prose-img:max-h-80">
                         <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
                       </div>
                     ) : (
-                      msg.content
+                      <div className="prose dark:prose-invert prose-sm max-w-none prose-img:rounded-lg prose-img:max-h-40 prose-p:my-0.5 whitespace-pre-wrap">
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
+                      </div>
                     )}
                   </div>
                 </div>
@@ -444,27 +424,40 @@ export default function Chat() {
           {botId && <BotReviews botId={botId} />}
           <div className="shrink-0 border-t border-border/50 p-4">
             <form onSubmit={handleSend} className="max-w-[800px] mx-auto">
+              {attachedFiles.length > 0 && (
+                <div className="flex flex-wrap gap-2 mb-2 px-2">
+                  {attachedFiles.map((f, i) => (
+                    <div key={i} className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg bg-secondary border border-border">
+                      {f.type.startsWith("image/") ? (
+                        <img src={f.url} alt={f.name} className="w-6 h-6 rounded object-cover" />
+                      ) : (
+                        <span className="text-muted-foreground">📎</span>
+                      )}
+                      <span className="max-w-[120px] truncate text-foreground">{f.name}</span>
+                      <button type="button" onClick={() => setAttachedFiles((prev) => prev.filter((_, idx) => idx !== i))}
+                        className="text-muted-foreground hover:text-destructive ml-1">×</button>
+                    </div>
+                  ))}
+                </div>
+              )}
               <div className="glass-panel rounded-lg flex items-center gap-2 p-2">
+                <ChatFileUpload
+                  onFilesReady={setAttachedFiles}
+                  files={attachedFiles}
+                  onClear={() => setAttachedFiles([])}
+                  disabled={sending}
+                />
                 {voice.supportsSTT && (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={voice.toggleListening}
+                  <Button type="button" variant="ghost" size="icon" onClick={voice.toggleListening}
                     className={voice.isListening ? "text-destructive animate-pulse" : "text-muted-foreground"}
-                    title={voice.isListening ? "Stop listening" : "Speak"}
-                  >
+                    title={voice.isListening ? "Stop listening" : "Speak"}>
                     {voice.isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
                   </Button>
                 )}
-                <Input
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
+                <Input value={input} onChange={(e) => setInput(e.target.value)}
                   placeholder={voice.isListening ? "Listening..." : "Type a message..."}
-                  className="border-0 bg-transparent focus-visible:ring-0 text-sm"
-                  disabled={sending}
-                />
-                <Button type="submit" size="icon" disabled={sending || !input.trim()}>
+                  className="border-0 bg-transparent focus-visible:ring-0 text-sm" disabled={sending} />
+                <Button type="submit" size="icon" disabled={sending || (!input.trim() && attachedFiles.length === 0)}>
                   <Send className="w-4 h-4" />
                 </Button>
               </div>
