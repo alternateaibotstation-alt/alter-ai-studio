@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { useParams, Link, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Send, Loader2, Sparkles, Lock, DollarSign, Mic, MicOff, Volume2, VolumeX } from "lucide-react";
+import { ArrowLeft, Send, Loader2, Sparkles, Lock, DollarSign, Mic, MicOff, Volume2, VolumeX, Trash2 } from "lucide-react";
 import { api, type Bot, type ChatMessage } from "@/lib/api";
 import { useVoiceChat } from "@/hooks/use-voice-chat";
 import BotReviews from "@/components/BotReviews";
