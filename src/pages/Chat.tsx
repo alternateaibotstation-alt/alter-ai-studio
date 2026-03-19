@@ -1,8 +1,8 @@
 import { useEffect, useState, useRef } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Send, Loader2, Sparkles } from "lucide-react";
+import { ArrowLeft, Send, Loader2, Sparkles, Lock, DollarSign } from "lucide-react";
 import { api, type Bot, type ChatMessage } from "@/lib/api";
 import { toast } from "sonner";
 
@@ -73,7 +73,6 @@ async function streamChat({
     }
   }
 
-  // Final flush
   if (textBuffer.trim()) {
     for (let raw of textBuffer.split("\n")) {
       if (!raw) continue;
@@ -95,30 +94,69 @@ async function streamChat({
 
 export default function Chat() {
   const { id: botId } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
   const [bot, setBot] = useState<Bot | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
+  const [hasAccess, setHasAccess] = useState<boolean | null>(null);
+  const [checkingOut, setCheckingOut] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!botId) return;
     api.getBotById(botId)
-      .then((b) => {
+      .then(async (b) => {
         setBot(b);
-        // Auto-fill first suggested prompt for new conversations
         if (b?.suggested_prompts && b.suggested_prompts.length > 0) {
           setInput(b.suggested_prompts[0]);
+        }
+        // Check access for paid bots
+        const isFree = !b?.price || b.price === 0;
+        if (isFree) {
+          setHasAccess(true);
+        } else {
+          const user = await api.getUser();
+          if (!user) {
+            setHasAccess(false);
+          } else if (b && b.user_id === user.id) {
+            // Bot owner always has access
+            setHasAccess(true);
+          } else if (searchParams.get("purchased") === "true") {
+            // Just came back from checkout
+            setHasAccess(true);
+          } else {
+            const purchased = await api.checkPurchase(botId);
+            setHasAccess(purchased);
+          }
         }
       })
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, [botId]);
+  }, [botId, searchParams]);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  const handleBuy = async () => {
+    if (!botId) return;
+    const user = await api.getUser();
+    if (!user) {
+      toast.error("Please sign in to purchase this bot");
+      return;
+    }
+    setCheckingOut(true);
+    try {
+      const url = await api.createBotCheckout(botId);
+      window.open(url, "_blank");
+    } catch (err: any) {
+      toast.error(err.message || "Checkout failed");
+    } finally {
+      setCheckingOut(false);
+    }
+  };
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -135,10 +173,8 @@ export default function Chat() {
     setInput("");
     setSending(true);
 
-    // Save user message
     api.saveMessage(botId, "user", userContent);
 
-    // Build conversation history for AI
     const history: Msg[] = [
       ...messages.map((m) => ({ role: m.role, content: m.content })),
       { role: "user" as const, content: userContent },
@@ -167,14 +203,12 @@ export default function Chat() {
         messages: history,
         onDelta: upsertAssistant,
         onDone: () => {
-          // Replace streaming id with a real id
           setMessages((prev) =>
             prev.map((m) =>
               m.id === "streaming" ? { ...m, id: Date.now().toString() } : m
             )
           );
           setSending(false);
-          // Save assistant message
           if (assistantSoFar) {
             api.saveMessage(botId, "assistant", assistantSoFar);
           }
@@ -203,6 +237,9 @@ export default function Chat() {
     );
   }
 
+  const isPaid = bot && bot.price && bot.price > 0;
+  const showPaywall = isPaid && hasAccess === false;
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <header className="glass-panel border-b border-border/50 px-4 h-14 flex items-center gap-3 shrink-0">
@@ -212,85 +249,115 @@ export default function Chat() {
         <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
           <Sparkles className="w-4 h-4 text-primary" />
         </div>
-        <div>
+        <div className="flex-1">
           <h1 className="text-sm font-semibold text-foreground">{bot?.name || "Bot"}</h1>
           {bot?.category && (
             <p className="text-xs text-muted-foreground capitalize">{bot.category}</p>
           )}
         </div>
+        {isPaid && (
+          <span className="text-xs font-medium text-accent flex items-center gap-1">
+            <DollarSign className="w-3 h-3" />{bot.price}
+          </span>
+        )}
       </header>
 
-      <div className="flex-1 overflow-y-auto">
-        <div className="max-w-[800px] mx-auto px-4 py-6 space-y-4">
-          {messages.length === 0 && (
-            <div className="text-center py-20">
-              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                <Sparkles className="w-6 h-6 text-primary" />
-              </div>
-              <h2 className="text-lg font-semibold text-foreground">{bot?.name}</h2>
-              <p className="text-sm text-muted-foreground mt-1 max-w-sm mx-auto">
-                {bot?.description || "Start a conversation"}
-              </p>
-              {bot?.suggested_prompts && bot.suggested_prompts.length > 0 && (
-                <div className="mt-6 flex flex-wrap justify-center gap-2">
-                  {bot.suggested_prompts.map((prompt) => (
-                    <button
-                      key={prompt}
-                      onClick={() => setInput(prompt)}
-                      className="text-xs px-3 py-1.5 rounded-full border border-border bg-card text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors"
-                    >
-                      {prompt}
-                    </button>
-                  ))}
-                </div>
+      {showPaywall ? (
+        <div className="flex-1 flex items-center justify-center px-4">
+          <div className="text-center max-w-sm space-y-4">
+            <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+              <Lock className="w-8 h-8 text-primary" />
+            </div>
+            <h2 className="text-xl font-bold text-foreground">Premium Bot</h2>
+            <p className="text-muted-foreground text-sm">
+              {bot?.description || "This bot requires a one-time purchase to access."}
+            </p>
+            <div className="text-2xl font-bold text-foreground">${bot?.price?.toFixed(2)}</div>
+            <p className="text-xs text-muted-foreground">One-time payment · Instant access</p>
+            <Button onClick={handleBuy} disabled={checkingOut} className="w-full">
+              {checkingOut ? (
+                <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Processing...</>
+              ) : (
+                <>Buy Now · ${bot?.price?.toFixed(2)}</>
               )}
-            </div>
-          )}
-
-          {messages.map((msg) => (
-            <div
-              key={msg.id}
-              className={`flex animate-fade-in ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-            >
-              <div
-                className={`max-w-[75%] rounded-lg px-4 py-2.5 text-sm whitespace-pre-wrap ${
-                  msg.role === "user"
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-card border border-border text-foreground"
-                }`}
-              >
-                {msg.content}
-              </div>
-            </div>
-          ))}
-
-          {sending && messages[messages.length - 1]?.role !== "assistant" && (
-            <div className="flex justify-start animate-fade-in">
-              <div className="bg-card border border-border rounded-lg px-4 py-2.5">
-                <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
-              </div>
-            </div>
-          )}
-          <div ref={endRef} />
-        </div>
-      </div>
-
-      <div className="shrink-0 border-t border-border/50 p-4">
-        <form onSubmit={handleSend} className="max-w-[800px] mx-auto">
-          <div className="glass-panel rounded-lg flex items-center gap-2 p-2">
-            <Input
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Type a message..."
-              className="border-0 bg-transparent focus-visible:ring-0 text-sm"
-              disabled={sending}
-            />
-            <Button type="submit" size="icon" disabled={sending || !input.trim()}>
-              <Send className="w-4 h-4" />
             </Button>
           </div>
-        </form>
-      </div>
+        </div>
+      ) : (
+        <>
+          <div className="flex-1 overflow-y-auto">
+            <div className="max-w-[800px] mx-auto px-4 py-6 space-y-4">
+              {messages.length === 0 && (
+                <div className="text-center py-20">
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                    <Sparkles className="w-6 h-6 text-primary" />
+                  </div>
+                  <h2 className="text-lg font-semibold text-foreground">{bot?.name}</h2>
+                  <p className="text-sm text-muted-foreground mt-1 max-w-sm mx-auto">
+                    {bot?.description || "Start a conversation"}
+                  </p>
+                  {bot?.suggested_prompts && bot.suggested_prompts.length > 0 && (
+                    <div className="mt-6 flex flex-wrap justify-center gap-2">
+                      {bot.suggested_prompts.map((prompt) => (
+                        <button
+                          key={prompt}
+                          onClick={() => setInput(prompt)}
+                          className="text-xs px-3 py-1.5 rounded-full border border-border bg-card text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors"
+                        >
+                          {prompt}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {messages.map((msg) => (
+                <div
+                  key={msg.id}
+                  className={`flex animate-fade-in ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+                >
+                  <div
+                    className={`max-w-[75%] rounded-lg px-4 py-2.5 text-sm whitespace-pre-wrap ${
+                      msg.role === "user"
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-card border border-border text-foreground"
+                    }`}
+                  >
+                    {msg.content}
+                  </div>
+                </div>
+              ))}
+
+              {sending && messages[messages.length - 1]?.role !== "assistant" && (
+                <div className="flex justify-start animate-fade-in">
+                  <div className="bg-card border border-border rounded-lg px-4 py-2.5">
+                    <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+                  </div>
+                </div>
+              )}
+              <div ref={endRef} />
+            </div>
+          </div>
+
+          <div className="shrink-0 border-t border-border/50 p-4">
+            <form onSubmit={handleSend} className="max-w-[800px] mx-auto">
+              <div className="glass-panel rounded-lg flex items-center gap-2 p-2">
+                <Input
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder="Type a message..."
+                  className="border-0 bg-transparent focus-visible:ring-0 text-sm"
+                  disabled={sending}
+                />
+                <Button type="submit" size="icon" disabled={sending || !input.trim()}>
+                  <Send className="w-4 h-4" />
+                </Button>
+              </div>
+            </form>
+          </div>
+        </>
+      )}
     </div>
   );
 }

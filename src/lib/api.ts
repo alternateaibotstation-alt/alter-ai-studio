@@ -118,6 +118,24 @@ export const api = {
     });
   },
 
+  // ── Purchases ──
+  checkPurchase: async (botId: string): Promise<boolean> => {
+    const { data, error } = await supabase.functions.invoke("check-bot-purchase", {
+      body: { botId },
+    });
+    if (error) return false;
+    return data?.purchased === true;
+  },
+
+  createBotCheckout: async (botId: string): Promise<string> => {
+    const { data, error } = await supabase.functions.invoke("create-bot-checkout", {
+      body: { botId },
+    });
+    if (error) throw new Error(error.message);
+    if (data?.error) throw new Error(data.error);
+    return data.url;
+  },
+
   // ── Auth ──
   getUser: async () => {
     const { data: { user } } = await supabase.auth.getUser();
