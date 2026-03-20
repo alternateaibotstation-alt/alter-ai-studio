@@ -22,7 +22,6 @@ function applyWatermark(canvas: HTMLCanvasElement): Promise<Blob> {
 
     ctx.drawImage(canvas, 0, 0);
 
-    // Watermark
     const text = "Remixed with Alter AI ✨";
     ctx.save();
     ctx.font = "bold 22px Inter, sans-serif";
@@ -31,7 +30,6 @@ function applyWatermark(canvas: HTMLCanvasElement): Promise<Blob> {
     const x = canvas.width - 20;
     const y = canvas.height - 16;
 
-    // Background pill
     const metrics = ctx.measureText(text);
     const pad = 10;
     ctx.fillStyle = "rgba(0,0,0,0.55)";
@@ -45,7 +43,6 @@ function applyWatermark(canvas: HTMLCanvasElement): Promise<Blob> {
     );
     ctx.fill();
 
-    // Text
     ctx.fillStyle = "#ffffff";
     ctx.fillText(text, x - pad, y);
     ctx.restore();
@@ -63,7 +60,6 @@ export default function GraffitiBottomBar({ canUndo, canRedo, onUndo, onRedo, on
     if (!dataUrl) return null;
 
     if (addWatermark) {
-      // We need the canvas element to apply watermark
       const img = new Image();
       return new Promise((resolve) => {
         img.onload = async () => {
@@ -122,23 +118,28 @@ export default function GraffitiBottomBar({ canUndo, canRedo, onUndo, onRedo, on
   };
 
   return (
-    <div className="h-14 bg-card/80 backdrop-blur-xl border-t border-border flex items-center justify-center gap-2 px-4">
-      <Button variant="ghost" size="sm" onClick={onUndo} disabled={!canUndo}>
-        <Undo2 className="w-4 h-4 mr-1" /> Undo
+    <div className="h-14 bg-card/80 backdrop-blur-xl border-t border-border flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 overflow-x-auto">
+      <Button variant="ghost" size="sm" onClick={onUndo} disabled={!canUndo} className="shrink-0">
+        <Undo2 className="w-4 h-4 sm:mr-1" />
+        <span className="hidden sm:inline">Undo</span>
       </Button>
-      <Button variant="ghost" size="sm" onClick={onRedo} disabled={!canRedo}>
-        <Redo2 className="w-4 h-4 mr-1" /> Redo
+      <Button variant="ghost" size="sm" onClick={onRedo} disabled={!canRedo} className="shrink-0">
+        <Redo2 className="w-4 h-4 sm:mr-1" />
+        <span className="hidden sm:inline">Redo</span>
       </Button>
-      <div className="w-px h-6 bg-border mx-2" />
-      <Button variant="ghost" size="sm" onClick={onClear} className="text-destructive hover:text-destructive">
-        <Trash2 className="w-4 h-4 mr-1" /> Clear
+      <div className="w-px h-6 bg-border mx-1 sm:mx-2 shrink-0" />
+      <Button variant="ghost" size="sm" onClick={onClear} className="text-destructive hover:text-destructive shrink-0">
+        <Trash2 className="w-4 h-4 sm:mr-1" />
+        <span className="hidden sm:inline">Clear</span>
       </Button>
-      <div className="w-px h-6 bg-border mx-2" />
-      <Button variant="ghost" size="sm" onClick={handleDownload}>
-        <Download className="w-4 h-4 mr-1" /> Download
+      <div className="w-px h-6 bg-border mx-1 sm:mx-2 shrink-0" />
+      <Button variant="ghost" size="sm" onClick={handleDownload} className="shrink-0">
+        <Download className="w-4 h-4 sm:mr-1" />
+        <span className="hidden sm:inline">Download</span>
       </Button>
-      <Button size="sm" onClick={handleShare} className="gap-1">
-        <Share2 className="w-4 h-4" /> Share
+      <Button size="sm" onClick={handleShare} className="gap-1 shrink-0">
+        <Share2 className="w-4 h-4" />
+        <span className="hidden sm:inline">Share</span>
       </Button>
     </div>
   );

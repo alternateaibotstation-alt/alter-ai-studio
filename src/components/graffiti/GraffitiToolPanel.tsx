@@ -36,7 +36,7 @@ export default function GraffitiToolPanel({ brush, setBrush, color, setColor, si
   };
 
   return (
-    <div className="w-56 shrink-0 bg-card/80 backdrop-blur-xl border-r border-border p-4 flex flex-col gap-6 overflow-y-auto">
+    <div className="w-full md:w-56 shrink-0 bg-card/80 backdrop-blur-xl md:border-r border-border p-4 flex flex-col gap-6 overflow-y-auto">
       {/* Brushes */}
       <div>
         <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-3">Brushes</h3>
@@ -102,8 +102,8 @@ export default function GraffitiToolPanel({ brush, setBrush, color, setColor, si
       </div>
 
       {/* Preview */}
-      <div className="flex-1 flex items-end">
-        <div className="w-full rounded-lg bg-secondary/50 border border-border p-4 flex items-center justify-center">
+      <div className="flex items-center justify-center py-2">
+        <div className="rounded-lg bg-secondary/50 border border-border p-4 flex items-center justify-center w-full max-w-[120px]">
           <div
             className="rounded-full transition-all"
             style={{
