@@ -213,7 +213,17 @@ export default function Chat() {
     e.preventDefault();
     if ((!input.trim() && attachedFiles.length === 0) || !botId || sending) return;
 
-    // Check usage limits before sending
+    // Check premium bot limits (free users only)
+    if (bot?.is_premium && tier === "free") {
+      const userMsgCount = messages.filter((m) => m.role === "user").length;
+      if (userMsgCount >= (bot.premium_free_messages || 2)) {
+        setPaywallReason("premium_bot");
+        setPaywallOpen(true);
+        return;
+      }
+    }
+
+    // Check general usage limits before sending
     if (!canSendMessage()) {
       setPaywallReason("messages");
       setPaywallOpen(true);
