@@ -56,11 +56,13 @@ export type Database = {
           created_at: string
           description: string | null
           id: string
+          is_premium: boolean
           is_public: boolean | null
           messages_count: number | null
           model: string | null
           name: string
           persona: string | null
+          premium_free_messages: number
           price: number | null
           status: string | null
           suggested_prompts: string[] | null
@@ -73,11 +75,13 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          is_premium?: boolean
           is_public?: boolean | null
           messages_count?: number | null
           model?: string | null
           name: string
           persona?: string | null
+          premium_free_messages?: number
           price?: number | null
           status?: string | null
           suggested_prompts?: string[] | null
@@ -90,11 +94,13 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          is_premium?: boolean
           is_public?: boolean | null
           messages_count?: number | null
           model?: string | null
           name?: string
           persona?: string | null
+          premium_free_messages?: number
           price?: number | null
           status?: string | null
           suggested_prompts?: string[] | null
