@@ -15,6 +15,7 @@ import Purchases from "./pages/Purchases";
 import Profile from "./pages/Profile";
 import ArtStudio from "./pages/ArtStudio";
 import Pricing from "./pages/Pricing";
+import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,6 +39,7 @@ const App = () => (
               <Route path="/success" element={<Success />} />
               <Route path="/art-studio" element={<ArtStudio />} />
               <Route path="/pricing" element={<Pricing />} />
+              <Route path="/admin" element={<AdminDashboard />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
