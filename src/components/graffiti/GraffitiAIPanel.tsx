@@ -78,7 +78,7 @@ export default function GraffitiAIPanel({ getCanvasDataUrl, loadImageToCanvas, o
   };
 
   return (
-    <div className="w-60 shrink-0 bg-card/80 backdrop-blur-xl border-l border-border p-4 flex flex-col gap-4 overflow-y-auto">
+    <div className="w-full md:w-60 shrink-0 bg-card/80 backdrop-blur-xl md:border-l border-border p-4 flex flex-col gap-4 overflow-y-auto">
       <div className="flex items-center justify-between">
         <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">AI Magic 🤖</h3>
         {isFree && (
