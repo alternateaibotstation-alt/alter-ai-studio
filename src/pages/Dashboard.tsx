@@ -55,6 +55,8 @@ export default function Dashboard() {
       persona: bot.persona || "",
       category: bot.category || "wellness",
       is_public: bot.is_public,
+      is_premium: bot.is_premium || false,
+      premium_free_messages: bot.premium_free_messages || 2,
       price: bot.price || 0,
       avatar_url: bot.avatar_url || "",
       suggested_prompts: bot.suggested_prompts || [],
