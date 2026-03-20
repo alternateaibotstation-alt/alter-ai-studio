@@ -80,9 +80,15 @@ export default function ArtStudio() {
       ]);
       toast.success("Image generated!");
     } catch (err: any) {
-      toast.error(err.message || "Failed to generate image");
+      const errMsg = err.message || "Failed to generate image";
+      if (errMsg === "LIMIT_IMAGES") {
+        setPaywallOpen(true);
+      } else {
+        toast.error(errMsg);
+      }
     } finally {
       setGenerating(false);
+      refreshSub();
     }
   };
 
