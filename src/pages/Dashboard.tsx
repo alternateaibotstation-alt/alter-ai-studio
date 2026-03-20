@@ -182,6 +182,33 @@ export default function Dashboard() {
                     />
                   </div>
                 </div>
+                {/* Premium Bot Toggle */}
+                <div className="rounded-lg border border-border bg-secondary/50 p-3 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Crown className="w-4 h-4 text-primary" />
+                      <label className="text-sm font-medium text-foreground">Premium Bot</label>
+                    </div>
+                    <Switch
+                      checked={form.is_premium}
+                      onCheckedChange={(checked) => setForm({ ...form, is_premium: checked })}
+                    />
+                  </div>
+                  {form.is_premium && (
+                    <div>
+                      <label className="text-xs text-muted-foreground">Free trial messages before paywall</label>
+                      <Input
+                        type="number"
+                        value={form.premium_free_messages}
+                        onChange={(e) => setForm({ ...form, premium_free_messages: Math.max(0, Math.min(10, parseInt(e.target.value) || 0)) })}
+                        className="bg-secondary border-border mt-1"
+                        min="0"
+                        max="10"
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">Users get this many free messages before needing a Pro/Power subscription</p>
+                    </div>
+                  )}
+                </div>
                 <ModelSelector
                   value={form.model}
                   onChange={(model) => setForm({ ...form, model })}
