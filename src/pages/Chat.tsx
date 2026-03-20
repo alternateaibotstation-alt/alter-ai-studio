@@ -495,6 +495,7 @@ export default function Chat() {
           </div>
         </>
       )}
+      <PaywallModal open={paywallOpen} onOpenChange={setPaywallOpen} reason={paywallReason} />
     </div>
   );
 }
