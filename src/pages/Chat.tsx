@@ -137,7 +137,7 @@ export default function Chat() {
   const [highlightedMsgId, setHighlightedMsgId] = useState<string | null>(null);
   const [paywallOpen, setPaywallOpen] = useState(false);
   const [paywallReason, setPaywallReason] = useState<"messages" | "images" | "premium_bot">("messages");
-  const { canSendMessage, refresh: refreshSub } = useSubscription();
+  const { canSendMessage, refresh: refreshSub, tier } = useSubscription();
 
   const handleSearchHighlight = useCallback((msgId: string | null) => {
     setHighlightedMsgId(msgId);
@@ -213,7 +213,17 @@ export default function Chat() {
     e.preventDefault();
     if ((!input.trim() && attachedFiles.length === 0) || !botId || sending) return;
 
-    // Check usage limits before sending
+    // Check premium bot limits (free users only)
+    if (bot?.is_premium && tier === "free") {
+      const userMsgCount = messages.filter((m) => m.role === "user").length;
+      if (userMsgCount >= (bot.premium_free_messages || 2)) {
+        setPaywallReason("premium_bot");
+        setPaywallOpen(true);
+        return;
+      }
+    }
+
+    // Check general usage limits before sending
     if (!canSendMessage()) {
       setPaywallReason("messages");
       setPaywallOpen(true);
@@ -351,7 +361,12 @@ export default function Chat() {
           </div>
         )}
         <div className="flex-1">
-          <h1 className="text-sm font-semibold text-foreground">{bot?.name || "Bot"}</h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-sm font-semibold text-foreground">{bot?.name || "Bot"}</h1>
+            {bot?.is_premium && tier === "free" && (
+              <span className="text-xs px-1.5 py-0.5 rounded bg-primary/10 text-primary font-medium">Premium</span>
+            )}
+          </div>
           {bot?.category && <p className="text-xs text-muted-foreground capitalize">{bot.category}</p>}
         </div>
         {messages.length > 0 && <ChatSearchBar messages={messages} onHighlight={handleSearchHighlight} />}

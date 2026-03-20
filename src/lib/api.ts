@@ -8,6 +8,8 @@ export interface Bot {
   category: string | null;
   model: string;
   is_public: boolean;
+  is_premium: boolean;
+  premium_free_messages: number;
   price: number;
   status: string;
   messages_count: number;

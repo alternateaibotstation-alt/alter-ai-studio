@@ -11,7 +11,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Plus, Pencil, Trash2, MessageSquare, Loader2, Download, Upload, Heart, Palette } from "lucide-react";
+import { Plus, Pencil, Trash2, MessageSquare, Loader2, Download, Upload, Heart, Palette, Crown } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import Navbar from "@/components/Navbar";
 import { api, type Bot } from "@/lib/api";
 import PersonalityTraitsBuilder from "@/components/PersonalityTraitsBuilder";
@@ -26,7 +27,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingBot, setEditingBot] = useState<Bot | null>(null);
-  const [form, setForm] = useState({ name: "", description: "", persona: "", category: "wellness", is_public: true, price: 0, avatar_url: "", suggested_prompts: [] as string[], model: "google/gemini-3-flash-preview" });
+  const [form, setForm] = useState({ name: "", description: "", persona: "", category: "wellness", is_public: true, is_premium: false, premium_free_messages: 2, price: 0, avatar_url: "", suggested_prompts: [] as string[], model: "google/gemini-3-flash-preview" });
   const [saving, setSaving] = useState(false);
 
   const fetchBots = () => {
@@ -42,7 +43,7 @@ export default function Dashboard() {
 
   const openCreate = () => {
     setEditingBot(null);
-    setForm({ name: "", description: "", persona: "", category: "wellness", is_public: true, price: 0, avatar_url: "", suggested_prompts: [], model: "google/gemini-3-flash-preview" });
+    setForm({ name: "", description: "", persona: "", category: "wellness", is_public: true, is_premium: false, premium_free_messages: 2, price: 0, avatar_url: "", suggested_prompts: [], model: "google/gemini-3-flash-preview" });
     setDialogOpen(true);
   };
 
@@ -54,6 +55,8 @@ export default function Dashboard() {
       persona: bot.persona || "",
       category: bot.category || "wellness",
       is_public: bot.is_public,
+      is_premium: bot.is_premium || false,
+      premium_free_messages: bot.premium_free_messages || 2,
       price: bot.price || 0,
       avatar_url: bot.avatar_url || "",
       suggested_prompts: bot.suggested_prompts || [],
@@ -178,6 +181,33 @@ export default function Dashboard() {
                       step="0.01"
                     />
                   </div>
+                </div>
+                {/* Premium Bot Toggle */}
+                <div className="rounded-lg border border-border bg-secondary/50 p-3 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Crown className="w-4 h-4 text-primary" />
+                      <label className="text-sm font-medium text-foreground">Premium Bot</label>
+                    </div>
+                    <Switch
+                      checked={form.is_premium}
+                      onCheckedChange={(checked) => setForm({ ...form, is_premium: checked })}
+                    />
+                  </div>
+                  {form.is_premium && (
+                    <div>
+                      <label className="text-xs text-muted-foreground">Free trial messages before paywall</label>
+                      <Input
+                        type="number"
+                        value={form.premium_free_messages}
+                        onChange={(e) => setForm({ ...form, premium_free_messages: Math.max(0, Math.min(10, parseInt(e.target.value) || 0)) })}
+                        className="bg-secondary border-border mt-1"
+                        min="0"
+                        max="10"
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">Users get this many free messages before needing a Pro/Power subscription</p>
+                    </div>
+                  )}
                 </div>
                 <ModelSelector
                   value={form.model}
