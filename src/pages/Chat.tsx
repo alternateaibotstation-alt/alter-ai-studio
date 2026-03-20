@@ -361,7 +361,12 @@ export default function Chat() {
           </div>
         )}
         <div className="flex-1">
-          <h1 className="text-sm font-semibold text-foreground">{bot?.name || "Bot"}</h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-sm font-semibold text-foreground">{bot?.name || "Bot"}</h1>
+            {bot?.is_premium && tier === "free" && (
+              <span className="text-xs px-1.5 py-0.5 rounded bg-primary/10 text-primary font-medium">Premium</span>
+            )}
+          </div>
           {bot?.category && <p className="text-xs text-muted-foreground capitalize">{bot.category}</p>}
         </div>
         {messages.length > 0 && <ChatSearchBar messages={messages} onHighlight={handleSearchHighlight} />}
