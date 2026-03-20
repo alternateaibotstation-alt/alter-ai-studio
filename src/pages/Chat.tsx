@@ -11,6 +11,9 @@ import BotReviews from "@/components/BotReviews";
 import ChatSearchBar from "@/components/ChatSearchBar";
 import ChatFileUpload, { type UploadedFile } from "@/components/ChatFileUpload";
 import { toast } from "sonner";
+import { useSubscription } from "@/contexts/SubscriptionContext";
+import PaywallModal from "@/components/PaywallModal";
+import UsageBadge from "@/components/UsageBadge";
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`;
 
@@ -40,7 +43,9 @@ async function sendChat({
 
   if (!resp.ok) {
     const err = await resp.json().catch(() => ({ error: "Unknown error" }));
-    throw new Error(err.error || `Error ${resp.status}`);
+    // Throw with special marker for limit errors
+    const errMsg = err.error || `Error ${resp.status}`;
+    throw new Error(errMsg);
   }
 
   const contentType = resp.headers.get("content-type") || "";
@@ -130,6 +135,9 @@ export default function Chat() {
   const endRef = useRef<HTMLDivElement>(null);
   const lastSpokenRef = useRef<string>("");
   const [highlightedMsgId, setHighlightedMsgId] = useState<string | null>(null);
+  const [paywallOpen, setPaywallOpen] = useState(false);
+  const [paywallReason, setPaywallReason] = useState<"messages" | "images" | "premium_bot">("messages");
+  const { canSendMessage, refresh: refreshSub } = useSubscription();
 
   const handleSearchHighlight = useCallback((msgId: string | null) => {
     setHighlightedMsgId(msgId);
@@ -204,6 +212,13 @@ export default function Chat() {
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
     if ((!input.trim() && attachedFiles.length === 0) || !botId || sending) return;
+
+    // Check usage limits before sending
+    if (!canSendMessage()) {
+      setPaywallReason("messages");
+      setPaywallOpen(true);
+      return;
+    }
 
     const userContent = input.trim();
     const files = [...attachedFiles];
@@ -288,12 +303,26 @@ export default function Chat() {
         },
       });
     } catch (err: any) {
-      toast.error(err.message || "Failed to get AI response");
-      setMessages((prev) => [
-        ...prev.filter((m) => m.id !== "streaming"),
-        { id: (Date.now() + 1).toString(), role: "assistant", content: "Sorry, an error occurred. Please try again.", created_at: new Date().toISOString() },
-      ]);
+      const errMsg = err.message || "Failed to get AI response";
+      // Handle limit errors by showing paywall
+      if (errMsg === "LIMIT_MESSAGES") {
+        setPaywallReason("messages");
+        setPaywallOpen(true);
+        // Remove the user message we just added
+        setMessages((prev) => prev.filter((m) => m.id !== userMsg.id && m.id !== "streaming"));
+      } else if (errMsg === "LIMIT_IMAGES") {
+        setPaywallReason("images");
+        setPaywallOpen(true);
+        setMessages((prev) => prev.filter((m) => m.id !== userMsg.id && m.id !== "streaming"));
+      } else {
+        toast.error(errMsg);
+        setMessages((prev) => [
+          ...prev.filter((m) => m.id !== "streaming"),
+          { id: (Date.now() + 1).toString(), role: "assistant", content: "Sorry, an error occurred. Please try again.", created_at: new Date().toISOString() },
+        ]);
+      }
       setSending(false);
+      refreshSub(); // Refresh usage counts
     }
   };
 
@@ -326,6 +355,7 @@ export default function Chat() {
           {bot?.category && <p className="text-xs text-muted-foreground capitalize">{bot.category}</p>}
         </div>
         {messages.length > 0 && <ChatSearchBar messages={messages} onHighlight={handleSearchHighlight} />}
+        <UsageBadge />
         {isPaid && (
           <span className="text-xs font-medium text-accent flex items-center gap-1">
             <DollarSign className="w-3 h-3" />{bot.price}
@@ -465,6 +495,7 @@ export default function Chat() {
           </div>
         </>
       )}
+      <PaywallModal open={paywallOpen} onOpenChange={setPaywallOpen} reason={paywallReason} />
     </div>
   );
 }

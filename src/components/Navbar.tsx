@@ -42,7 +42,7 @@ export default function Navbar() {
     { to: "/marketplace", label: "Marketplace" },
     { to: "/art-studio", label: "Art Studio" },
     { to: "/dashboard", label: "Dashboard" },
-    { to: "/purchases", label: "Purchases" },
+    { to: "/pricing", label: "Pricing" },
   ];
 
   return (

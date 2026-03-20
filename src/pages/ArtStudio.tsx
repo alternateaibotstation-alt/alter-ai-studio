@@ -11,6 +11,9 @@ import {
 import { Loader2, Download, Sparkles, Image as ImageIcon, Trash2 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { toast } from "sonner";
+import { useSubscription } from "@/contexts/SubscriptionContext";
+import PaywallModal from "@/components/PaywallModal";
+import UsageBadge from "@/components/UsageBadge";
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-image`;
 
@@ -33,9 +36,18 @@ export default function ArtStudio() {
   const [model, setModel] = useState("google/gemini-2.5-flash-image");
   const [generating, setGenerating] = useState(false);
   const [gallery, setGallery] = useState<GeneratedImage[]>([]);
+  const [paywallOpen, setPaywallOpen] = useState(false);
+  const { canGenerateImage, refresh: refreshSub } = useSubscription();
 
   const generate = async () => {
     if (!prompt.trim()) return;
+
+    // Check image generation limits
+    if (!canGenerateImage()) {
+      setPaywallOpen(true);
+      return;
+    }
+
     setGenerating(true);
     try {
       const resp = await fetch(CHAT_URL, {
@@ -68,9 +80,15 @@ export default function ArtStudio() {
       ]);
       toast.success("Image generated!");
     } catch (err: any) {
-      toast.error(err.message || "Failed to generate image");
+      const errMsg = err.message || "Failed to generate image";
+      if (errMsg === "LIMIT_IMAGES") {
+        setPaywallOpen(true);
+      } else {
+        toast.error(errMsg);
+      }
     } finally {
       setGenerating(false);
+      refreshSub();
     }
   };
 
@@ -96,9 +114,12 @@ export default function ArtStudio() {
             </div>
             Art Studio
           </h1>
-          <p className="text-muted-foreground mt-2">
-            Generate AI art and images using text prompts
-          </p>
+          <div className="flex items-center gap-3 mt-2">
+            <p className="text-muted-foreground">
+              Generate AI art and images using text prompts
+            </p>
+            <UsageBadge />
+          </div>
         </div>
 
         <div className="rounded-xl border border-border bg-card p-6 space-y-4">
@@ -176,6 +197,7 @@ export default function ArtStudio() {
           </div>
         )}
       </div>
+      <PaywallModal open={paywallOpen} onOpenChange={setPaywallOpen} reason="images" />
     </div>
   );
 }
