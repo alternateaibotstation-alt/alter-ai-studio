@@ -11,6 +11,9 @@ import {
 import { Loader2, Download, Sparkles, Image as ImageIcon, Trash2 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { toast } from "sonner";
+import { useSubscription } from "@/contexts/SubscriptionContext";
+import PaywallModal from "@/components/PaywallModal";
+import UsageBadge from "@/components/UsageBadge";
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-image`;
 
