@@ -114,9 +114,12 @@ export default function ArtStudio() {
             </div>
             Art Studio
           </h1>
-          <p className="text-muted-foreground mt-2">
-            Generate AI art and images using text prompts
-          </p>
+          <div className="flex items-center gap-3 mt-2">
+            <p className="text-muted-foreground">
+              Generate AI art and images using text prompts
+            </p>
+            <UsageBadge />
+          </div>
         </div>
 
         <div className="rounded-xl border border-border bg-card p-6 space-y-4">
