@@ -41,6 +41,7 @@ serve(async (req) => {
       customer_email: customerId ? undefined : user.email,
       line_items: [{ price: priceId, quantity: 1 }],
       mode: "subscription",
+      payment_method_collection: "if_required",
       success_url: `${req.headers.get("origin")}/success?subscription=true`,
       cancel_url: `${req.headers.get("origin")}/marketplace`,
     };

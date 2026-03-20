@@ -280,8 +280,8 @@ export default function Home() {
         <div className="container mx-auto flex items-center justify-between text-xs text-muted-foreground">
           <span>© 2026 Alter AI. All rights reserved.</span>
           <div className="flex gap-4">
-            <a href="#" className="hover:text-foreground transition-colors">Privacy</a>
-            <a href="#" className="hover:text-foreground transition-colors">Terms</a>
+            <a href="/privacy" className="hover:text-foreground transition-colors">Privacy</a>
+            <a href="/terms" className="hover:text-foreground transition-colors">Terms</a>
           </div>
         </div>
       </footer>
