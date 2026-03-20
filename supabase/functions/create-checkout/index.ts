@@ -21,7 +21,7 @@ serve(async (req) => {
   );
 
   try {
-    const { tier } = await req.json();
+    const { tier, coupon } = await req.json();
     const priceId = TIERS[tier];
     if (!priceId) throw new Error("Invalid tier");
 
