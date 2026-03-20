@@ -1,11 +1,14 @@
 import { useEffect, useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Camera, Loader2, User, LogOut } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Camera, Loader2, User, LogOut, Copy, Zap, Crown, Star, Gift } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import { useSubscription } from "@/contexts/SubscriptionContext";
+import { TIER_LIMITS } from "@/lib/tiers";
 
 interface Profile {
   id: string;
