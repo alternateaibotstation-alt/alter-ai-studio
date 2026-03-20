@@ -36,9 +36,18 @@ export default function ArtStudio() {
   const [model, setModel] = useState("google/gemini-2.5-flash-image");
   const [generating, setGenerating] = useState(false);
   const [gallery, setGallery] = useState<GeneratedImage[]>([]);
+  const [paywallOpen, setPaywallOpen] = useState(false);
+  const { canGenerateImage, refresh: refreshSub } = useSubscription();
 
   const generate = async () => {
     if (!prompt.trim()) return;
+
+    // Check image generation limits
+    if (!canGenerateImage()) {
+      setPaywallOpen(true);
+      return;
+    }
+
     setGenerating(true);
     try {
       const resp = await fetch(CHAT_URL, {
