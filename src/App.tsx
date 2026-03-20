@@ -18,6 +18,8 @@ import GraffitiStudio from "./pages/GraffitiStudio";
 import GraffitiGallery from "./pages/GraffitiGallery";
 import Pricing from "./pages/Pricing";
 import AdminDashboard from "./pages/AdminDashboard";
+import Privacy from "./pages/Privacy";
+import Terms from "./pages/Terms";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
