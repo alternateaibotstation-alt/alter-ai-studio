@@ -44,6 +44,10 @@ export default function ProfilePage() {
         setProfile(data as Profile);
         setUsername(data.username || "");
       }
+      // Load referral stats
+      const { data: refData } = await supabase.functions.invoke("referral", { body: { action: "stats" } });
+      if (refData?.code) setReferralCode(refData.code);
+      if (refData?.totalReferred) setTotalReferred(refData.totalReferred);
       setLoading(false);
     })();
   }, [navigate]);
