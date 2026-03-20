@@ -171,6 +171,63 @@ export default function ProfilePage() {
             Save Changes
           </Button>
 
+          {/* Subscription Info */}
+          <div className="rounded-xl border border-border bg-card p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium text-foreground flex items-center gap-2">
+                {tier === "power" ? <Crown className="w-4 h-4 text-primary" /> : tier === "pro" ? <Zap className="w-4 h-4 text-accent" /> : <Star className="w-4 h-4 text-muted-foreground" />}
+                {tier.charAt(0).toUpperCase() + tier.slice(1)} Plan
+              </span>
+              {tier === "free" && (
+                <Button size="sm" variant="default" asChild>
+                  <Link to="/pricing">Upgrade</Link>
+                </Button>
+              )}
+            </div>
+            {tier !== "power" && (
+              <div className="space-y-1 text-xs text-muted-foreground">
+                <p>Messages: {usage.messages_used_today} / {TIER_LIMITS[tier].messages === Infinity ? "∞" : TIER_LIMITS[tier].messages + usage.bonus_messages} today</p>
+                <p>Images: {usage.images_used_today} / {TIER_LIMITS[tier].images === Infinity ? "∞" : TIER_LIMITS[tier].images} today</p>
+                {usage.bonus_messages > 0 && <p className="text-primary">+{usage.bonus_messages} bonus messages from referrals</p>}
+              </div>
+            )}
+            {subscribed && subscriptionEnd && (
+              <p className="text-xs text-muted-foreground">
+                Renews: {new Date(subscriptionEnd).toLocaleDateString()}
+              </p>
+            )}
+          </div>
+
+          {/* Referral */}
+          <div className="rounded-xl border border-border bg-card p-4 space-y-3">
+            <div className="flex items-center gap-2">
+              <Gift className="w-4 h-4 text-primary" />
+              <span className="text-sm font-medium text-foreground">Invite Friends</span>
+            </div>
+            <p className="text-xs text-muted-foreground">Share your code. Both you and your friend get 20 bonus messages!</p>
+            {referralCode ? (
+              <div className="flex items-center gap-2">
+                <Input value={referralCode} readOnly className="bg-secondary border-border font-mono text-sm" />
+                <Button size="sm" variant="outline" onClick={() => {
+                  navigator.clipboard.writeText(referralCode);
+                  toast.success("Copied!");
+                }}>
+                  <Copy className="w-4 h-4" />
+                </Button>
+              </div>
+            ) : (
+              <Button size="sm" variant="outline" onClick={async () => {
+                const { data } = await supabase.functions.invoke("referral", { body: { action: "generate" } });
+                if (data?.code) setReferralCode(data.code);
+              }}>
+                Generate Referral Code
+              </Button>
+            )}
+            {totalReferred > 0 && (
+              <p className="text-xs text-muted-foreground">{totalReferred} friend(s) referred</p>
+            )}
+          </div>
+
           <Button variant="outline" onClick={handleSignOut} className="w-full text-destructive hover:text-destructive">
             <LogOut className="w-4 h-4 mr-2" /> Sign Out
           </Button>
