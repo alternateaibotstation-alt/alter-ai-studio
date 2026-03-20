@@ -251,8 +251,10 @@ export default function Home() {
                     </li>
                   ))}
                 </ul>
-                <Button className="mt-6" variant={plan.highlight ? "default" : "secondary"}>
-                  {plan.highlight ? "Start Free Trial" : "Get Started"}
+                <Button className="mt-6" variant={plan.highlight ? "default" : "secondary"} asChild>
+                  <Link to="/pricing">
+                    {plan.highlight ? "Start Free Trial" : "Get Started"}
+                  </Link>
                 </Button>
               </div>
             ))}
