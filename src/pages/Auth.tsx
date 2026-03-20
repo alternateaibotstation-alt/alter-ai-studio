@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Sparkles } from "lucide-react";
+import { Sparkles, Gift } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -11,9 +11,17 @@ export default function Auth() {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [referralCode, setReferralCode] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
+
+  // Pre-fill referral code from URL param (e.g. /auth?ref=ABC123)
+  useState(() => {
+    const ref = searchParams.get("ref");
+    if (ref) setReferralCode(ref);
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,12 +34,35 @@ export default function Auth() {
         toast({ title: "Welcome back!" });
         navigate("/dashboard");
       } else {
-        const { error } = await supabase.auth.signUp({
+        const { data: signUpData, error } = await supabase.auth.signUp({
           email,
           password,
           options: { emailRedirectTo: window.location.origin },
         });
         if (error) throw error;
+
+        // Redeem referral code if provided
+        const trimmedCode = referralCode.trim().toUpperCase();
+        if (trimmedCode && signUpData.user) {
+          try {
+            const { data: refData } = await supabase.functions.invoke("referral", {
+              body: {
+                action: "redeem",
+                referralCode: trimmedCode,
+                referredUserId: signUpData.user.id,
+              },
+            });
+            if (refData?.success) {
+              toast({
+                title: "Referral applied! 🎉",
+                description: `You got ${refData.bonus} bonus messages!`,
+              });
+            }
+          } catch {
+            // Don't block signup if referral fails
+          }
+        }
+
         toast({
           title: "Check your email",
           description: "We sent you a confirmation link to verify your account.",
@@ -85,6 +116,29 @@ export default function Auth() {
               minLength={6}
             />
           </div>
+
+          {!isLogin && (
+            <div className="space-y-2">
+              <Label htmlFor="referral" className="flex items-center gap-1.5">
+                <Gift className="w-3.5 h-3.5 text-primary" />
+                Referral Code
+                <span className="text-muted-foreground font-normal">(optional)</span>
+              </Label>
+              <Input
+                id="referral"
+                type="text"
+                placeholder="Enter a friend's code"
+                value={referralCode}
+                onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
+                maxLength={20}
+                className="font-mono uppercase tracking-wider"
+              />
+              <p className="text-xs text-muted-foreground">
+                Have a friend's code? You'll both get 20 bonus messages!
+              </p>
+            </div>
+          )}
+
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? "Please wait..." : isLogin ? "Sign In" : "Sign Up"}
           </Button>
