@@ -54,20 +54,20 @@ const pricing = [
     name: "Free",
     subtitle: "Perfect to start",
     price: "$0",
-    features: ["Create up to 3 bots", "Basic analytics", "Community support"],
+    features: ["15 messages/day", "2 image generations/day", "Basic AI models"],
   },
   {
     name: "Pro",
     subtitle: "For creators & businesses",
-    price: "$49",
-    features: ["Unlimited bots", "Advanced analytics", "Priority support", "Custom branding"],
+    price: "$9",
+    features: ["Unlimited messages", "20 image generations/day", "Higher-quality AI models", "Faster responses"],
     highlight: true,
   },
   {
-    name: "Enterprise",
-    subtitle: "For teams at scale",
-    price: "Custom",
-    features: ["Custom models", "API access", "Dedicated support", "SLA guarantee"],
+    name: "Power",
+    subtitle: "For power users",
+    price: "$29",
+    features: ["Unlimited messages", "Unlimited image generation", "Priority processing", "Access to best AI models"],
   },
 ];
 
@@ -251,8 +251,10 @@ export default function Home() {
                     </li>
                   ))}
                 </ul>
-                <Button className="mt-6" variant={plan.highlight ? "default" : "secondary"}>
-                  {plan.highlight ? "Start Free Trial" : "Get Started"}
+                <Button className="mt-6" variant={plan.highlight ? "default" : "secondary"} asChild>
+                  <Link to="/pricing">
+                    {plan.highlight ? "Start Free Trial" : "Get Started"}
+                  </Link>
                 </Button>
               </div>
             ))}
@@ -280,8 +282,8 @@ export default function Home() {
         <div className="container mx-auto flex items-center justify-between text-xs text-muted-foreground">
           <span>© 2026 Alter AI. All rights reserved.</span>
           <div className="flex gap-4">
-            <a href="/privacy" className="hover:text-foreground transition-colors">Privacy</a>
-            <a href="/terms" className="hover:text-foreground transition-colors">Terms</a>
+            <Link to="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
+            <Link to="/terms" className="hover:text-foreground transition-colors">Terms</Link>
           </div>
         </div>
       </footer>
