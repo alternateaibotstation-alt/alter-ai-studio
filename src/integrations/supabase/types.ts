@@ -223,6 +223,63 @@ export type Database = {
           },
         ]
       }
+      referrals: {
+        Row: {
+          created_at: string
+          id: string
+          referral_code: string
+          referred_id: string | null
+          referrer_id: string
+          rewarded: boolean
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          referral_code: string
+          referred_id?: string | null
+          referrer_id: string
+          rewarded?: boolean
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          referral_code?: string
+          referred_id?: string | null
+          referrer_id?: string
+          rewarded?: boolean
+        }
+        Relationships: []
+      }
+      user_usage: {
+        Row: {
+          bonus_messages: number
+          created_at: string
+          id: string
+          images_used_today: number
+          last_reset_date: string
+          messages_used_today: number
+          user_id: string
+        }
+        Insert: {
+          bonus_messages?: number
+          created_at?: string
+          id?: string
+          images_used_today?: number
+          last_reset_date?: string
+          messages_used_today?: number
+          user_id: string
+        }
+        Update: {
+          bonus_messages?: number
+          created_at?: string
+          id?: string
+          images_used_today?: number
+          last_reset_date?: string
+          messages_used_today?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -237,9 +294,45 @@ export type Database = {
           unique_users: number
         }[]
       }
+      get_or_reset_usage: {
+        Args: { p_user_id: string }
+        Returns: {
+          bonus_messages: number
+          created_at: string
+          id: string
+          images_used_today: number
+          last_reset_date: string
+          messages_used_today: number
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "user_usage"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       increment_bot_messages: {
         Args: { bot_id_input: string }
         Returns: undefined
+      }
+      increment_usage: {
+        Args: { p_type: string; p_user_id: string }
+        Returns: {
+          bonus_messages: number
+          created_at: string
+          id: string
+          images_used_today: number
+          last_reset_date: string
+          messages_used_today: number
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "user_usage"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
     }
     Enums: {
