@@ -21,7 +21,7 @@ serve(async (req) => {
   );
 
   try {
-    const { tier } = await req.json();
+    const { tier, coupon } = await req.json();
     const priceId = TIERS[tier];
     if (!priceId) throw new Error("Invalid tier");
 
@@ -36,14 +36,18 @@ serve(async (req) => {
     let customerId;
     if (customers.data.length > 0) customerId = customers.data[0].id;
 
-    const session = await stripe.checkout.sessions.create({
+    const sessionParams: any = {
       customer: customerId,
       customer_email: customerId ? undefined : user.email,
       line_items: [{ price: priceId, quantity: 1 }],
       mode: "subscription",
       success_url: `${req.headers.get("origin")}/success?subscription=true`,
       cancel_url: `${req.headers.get("origin")}/marketplace`,
-    });
+    };
+    if (coupon) {
+      sessionParams.discounts = [{ coupon }];
+    }
+    const session = await stripe.checkout.sessions.create(sessionParams);
 
     return new Response(JSON.stringify({ url: session.url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 const tiers = [
   {
@@ -43,7 +43,9 @@ const tiers = [
 export default function Pricing() {
   const { tier } = useSubscription();
   const [loadingTier, setLoadingTier] = useState<string | null>(null);
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const coupon = searchParams.get("coupon");
 
   const handleUpgrade = async (selectedTier: "pro" | "power") => {
     const { data: { session } } = await supabase.auth.getSession();
@@ -56,7 +58,7 @@ export default function Pricing() {
     setLoadingTier(selectedTier);
     try {
       const { data, error } = await supabase.functions.invoke("create-checkout", {
-        body: { tier: selectedTier },
+        body: { tier: selectedTier, coupon: coupon || undefined },
       });
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
