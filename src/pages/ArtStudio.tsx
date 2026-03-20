@@ -197,6 +197,7 @@ export default function ArtStudio() {
           </div>
         )}
       </div>
+      <PaywallModal open={paywallOpen} onOpenChange={setPaywallOpen} reason="images" />
     </div>
   );
 }
