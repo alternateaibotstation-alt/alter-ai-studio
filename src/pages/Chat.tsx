@@ -137,7 +137,7 @@ export default function Chat() {
   const [highlightedMsgId, setHighlightedMsgId] = useState<string | null>(null);
   const [paywallOpen, setPaywallOpen] = useState(false);
   const [paywallReason, setPaywallReason] = useState<"messages" | "images" | "premium_bot">("messages");
-  const { canSendMessage, refresh: refreshSub } = useSubscription();
+  const { canSendMessage, refresh: refreshSub, tier } = useSubscription();
 
   const handleSearchHighlight = useCallback((msgId: string | null) => {
     setHighlightedMsgId(msgId);
