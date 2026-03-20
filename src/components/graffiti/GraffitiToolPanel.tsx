@@ -1,13 +1,12 @@
-import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { SprayCan, Pen, Lightbulb, Droplets } from "lucide-react";
+import { SprayCan, Pen, Lightbulb, Droplets, Lock } from "lucide-react";
 import type { BrushType } from "@/hooks/use-graffiti-canvas";
 
-const BRUSHES: { type: BrushType; label: string; icon: React.ElementType }[] = [
-  { type: "spray", label: "Spray Paint", icon: SprayCan },
-  { type: "marker", label: "Marker", icon: Pen },
-  { type: "neon", label: "Neon Brush", icon: Lightbulb },
-  { type: "drip", label: "Drip Effect", icon: Droplets },
+const BRUSHES: { type: BrushType; label: string; icon: React.ElementType; premium: boolean }[] = [
+  { type: "spray", label: "Spray Paint", icon: SprayCan, premium: false },
+  { type: "marker", label: "Marker", icon: Pen, premium: false },
+  { type: "neon", label: "Neon Brush", icon: Lightbulb, premium: true },
+  { type: "drip", label: "Drip Effect", icon: Droplets, premium: true },
 ];
 
 const PALETTE = [
@@ -23,9 +22,19 @@ interface Props {
   setColor: (c: string) => void;
   size: number;
   setSize: (s: number) => void;
+  isFree: boolean;
+  onPaywall: () => void;
 }
 
-export default function GraffitiToolPanel({ brush, setBrush, color, setColor, size, setSize }: Props) {
+export default function GraffitiToolPanel({ brush, setBrush, color, setColor, size, setSize, isFree, onPaywall }: Props) {
+  const handleBrushClick = (b: typeof BRUSHES[number]) => {
+    if (b.premium && isFree) {
+      onPaywall();
+      return;
+    }
+    setBrush(b.type);
+  };
+
   return (
     <div className="w-56 shrink-0 bg-card/80 backdrop-blur-xl border-r border-border p-4 flex flex-col gap-6 overflow-y-auto">
       {/* Brushes */}
@@ -35,15 +44,18 @@ export default function GraffitiToolPanel({ brush, setBrush, color, setColor, si
           {BRUSHES.map((b) => (
             <button
               key={b.type}
-              onClick={() => setBrush(b.type)}
+              onClick={() => handleBrushClick(b)}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
                 brush === b.type
                   ? "bg-primary/20 text-primary border border-primary/30"
+                  : b.premium && isFree
+                  ? "text-muted-foreground/50 border border-transparent cursor-not-allowed"
                   : "text-muted-foreground hover:bg-secondary hover:text-foreground border border-transparent"
               }`}
             >
               <b.icon className="w-4 h-4" />
               {b.label}
+              {b.premium && isFree && <Lock className="w-3 h-3 ml-auto text-muted-foreground/40" />}
             </button>
           ))}
         </div>

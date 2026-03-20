@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Sparkles, RefreshCw, Drama, Building2, Gem, Loader2 } from "lucide-react";
+import { Sparkles, RefreshCw, Drama, Building2, Gem, Loader2, Lock } from "lucide-react";
 import { useState } from "react";
 
 const AI_ACTIONS = [
@@ -15,13 +15,22 @@ interface Props {
   loadImageToCanvas: (url: string) => void;
   onError: (msg: string) => void;
   onSuccess: (msg: string) => void;
+  isFree: boolean;
+  remixesLeft: number;
+  onPaywall: () => void;
+  onRemixUsed: () => void;
 }
 
-export default function GraffitiAIPanel({ getCanvasDataUrl, loadImageToCanvas, onError, onSuccess }: Props) {
+export default function GraffitiAIPanel({ getCanvasDataUrl, loadImageToCanvas, onError, onSuccess, isFree, remixesLeft, onPaywall, onRemixUsed }: Props) {
   const [loading, setLoading] = useState<string | null>(null);
   const [feedback, setFeedback] = useState("Draw something and let AI enhance it! 🎨");
 
   const handleAIAction = async (actionId: string, prompt: string) => {
+    if (isFree && remixesLeft <= 0) {
+      onPaywall();
+      return;
+    }
+
     const dataUrl = getCanvasDataUrl();
     if (!dataUrl) return;
 
@@ -44,6 +53,10 @@ export default function GraffitiAIPanel({ getCanvasDataUrl, loadImageToCanvas, o
 
       if (!resp.ok) {
         const err = await resp.json().catch(() => ({ error: "Unknown error" }));
+        if (err.error === "LIMIT_IMAGES") {
+          onPaywall();
+          return;
+        }
         throw new Error(err.error || `Error ${resp.status}`);
       }
 
@@ -52,6 +65,7 @@ export default function GraffitiAIPanel({ getCanvasDataUrl, loadImageToCanvas, o
       if (!imageUrl) throw new Error("No image returned from AI");
 
       loadImageToCanvas(imageUrl);
+      onRemixUsed();
       setFeedback("🔥 AI remix complete! Looking fire.");
       onSuccess("AI enhancement applied!");
     } catch (err: any) {
@@ -65,19 +79,30 @@ export default function GraffitiAIPanel({ getCanvasDataUrl, loadImageToCanvas, o
 
   return (
     <div className="w-60 shrink-0 bg-card/80 backdrop-blur-xl border-l border-border p-4 flex flex-col gap-4 overflow-y-auto">
-      <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">AI Magic 🤖</h3>
+      <div className="flex items-center justify-between">
+        <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">AI Magic 🤖</h3>
+        {isFree && (
+          <span className="text-xs font-medium text-primary">
+            {remixesLeft > 0 ? `${remixesLeft} left` : "0 left"}
+          </span>
+        )}
+      </div>
 
       <div className="space-y-2">
         {AI_ACTIONS.map((action) => (
           <Button
             key={action.id}
             variant="secondary"
-            className="w-full justify-start gap-2 h-auto py-3 text-left"
+            className={`w-full justify-start gap-2 h-auto py-3 text-left ${
+              isFree && remixesLeft <= 0 ? "opacity-60" : ""
+            }`}
             disabled={loading !== null}
             onClick={() => handleAIAction(action.id, action.prompt)}
           >
             {loading === action.id ? (
               <Loader2 className="w-4 h-4 animate-spin shrink-0" />
+            ) : isFree && remixesLeft <= 0 ? (
+              <Lock className="w-4 h-4 shrink-0 text-muted-foreground" />
             ) : (
               <action.icon className="w-4 h-4 shrink-0" />
             )}
@@ -85,6 +110,15 @@ export default function GraffitiAIPanel({ getCanvasDataUrl, loadImageToCanvas, o
           </Button>
         ))}
       </div>
+
+      {isFree && remixesLeft <= 0 && (
+        <button
+          onClick={onPaywall}
+          className="text-xs text-primary hover:underline text-left"
+        >
+          Upgrade for unlimited remixes →
+        </button>
+      )}
 
       {/* AI Feedback */}
       <div className="mt-auto">
