@@ -211,6 +211,13 @@ export default function Chat() {
     e.preventDefault();
     if ((!input.trim() && attachedFiles.length === 0) || !botId || sending) return;
 
+    // Check usage limits before sending
+    if (!canSendMessage()) {
+      setPaywallReason("messages");
+      setPaywallOpen(true);
+      return;
+    }
+
     const userContent = input.trim();
     const files = [...attachedFiles];
 
