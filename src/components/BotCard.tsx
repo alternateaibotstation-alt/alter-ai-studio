@@ -60,13 +60,18 @@ export default function BotCard({ bot, isFavorite = false, onToggleFavorite }: B
               />
             </button>
           )}
+          {bot.is_premium && (
+            <Badge className="gap-1 text-xs bg-primary/10 text-primary border-primary/20">
+              <Crown className="w-3 h-3" /> Premium
+            </Badge>
+          )}
           {!isFree ? (
             <span className="flex items-center gap-1 text-xs font-medium text-accent">
               <DollarSign className="w-3 h-3" />{bot.price}
             </span>
-          ) : (
+          ) : !bot.is_premium ? (
             <span className="text-xs font-medium text-accent">Free</span>
-          )}
+          ) : null}
         </div>
       </div>
 
