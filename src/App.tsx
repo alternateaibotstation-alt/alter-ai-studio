@@ -15,6 +15,7 @@ import Purchases from "./pages/Purchases";
 import Profile from "./pages/Profile";
 import ArtStudio from "./pages/ArtStudio";
 import Pricing from "./pages/Pricing";
+import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
