@@ -54,20 +54,20 @@ const pricing = [
     name: "Free",
     subtitle: "Perfect to start",
     price: "$0",
-    features: ["Create up to 3 bots", "Basic analytics", "Community support"],
+    features: ["15 messages/day", "2 image generations/day", "Basic AI models"],
   },
   {
     name: "Pro",
     subtitle: "For creators & businesses",
-    price: "$49",
-    features: ["Unlimited bots", "Advanced analytics", "Priority support", "Custom branding"],
+    price: "$9",
+    features: ["Unlimited messages", "20 image generations/day", "Higher-quality AI models", "Faster responses"],
     highlight: true,
   },
   {
-    name: "Enterprise",
-    subtitle: "For teams at scale",
-    price: "Custom",
-    features: ["Custom models", "API access", "Dedicated support", "SLA guarantee"],
+    name: "Power",
+    subtitle: "For power users",
+    price: "$29",
+    features: ["Unlimited messages", "Unlimited image generation", "Priority processing", "Access to best AI models"],
   },
 ];
 
