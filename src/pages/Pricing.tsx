@@ -58,7 +58,7 @@ export default function Pricing() {
     setLoadingTier(selectedTier);
     try {
       const { data, error } = await supabase.functions.invoke("create-checkout", {
-        body: { tier: selectedTier },
+        body: { tier: selectedTier, coupon: coupon || undefined },
       });
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
