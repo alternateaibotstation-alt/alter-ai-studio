@@ -22,8 +22,11 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [username, setUsername] = useState("");
+  const [referralCode, setReferralCode] = useState<string | null>(null);
+  const [totalReferred, setTotalReferred] = useState(0);
   const fileRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
+  const { tier, usage, subscribed, subscriptionEnd } = useSubscription();
 
   useEffect(() => {
     (async () => {
