@@ -138,6 +138,62 @@ export type Database = {
           },
         ]
       }
+      graffiti: {
+        Row: {
+          created_at: string
+          id: string
+          image_url: string
+          likes_count: number
+          title: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          image_url: string
+          likes_count?: number
+          title?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          image_url?: string
+          likes_count?: number
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      graffiti_likes: {
+        Row: {
+          created_at: string
+          graffiti_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          graffiti_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          graffiti_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "graffiti_likes_graffiti_id_fkey"
+            columns: ["graffiti_id"]
+            isOneToOne: false
+            referencedRelation: "graffiti"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       messages: {
         Row: {
           bot_id: string
