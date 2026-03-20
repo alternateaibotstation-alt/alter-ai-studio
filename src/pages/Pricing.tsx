@@ -43,7 +43,9 @@ const tiers = [
 export default function Pricing() {
   const { tier } = useSubscription();
   const [loadingTier, setLoadingTier] = useState<string | null>(null);
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const coupon = searchParams.get("coupon");
 
   const handleUpgrade = async (selectedTier: "pro" | "power") => {
     const { data: { session } } = await supabase.auth.getSession();
