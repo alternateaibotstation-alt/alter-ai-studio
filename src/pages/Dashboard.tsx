@@ -43,7 +43,7 @@ export default function Dashboard() {
 
   const openCreate = () => {
     setEditingBot(null);
-    setForm({ name: "", description: "", persona: "", category: "wellness", is_public: true, price: 0, avatar_url: "", suggested_prompts: [], model: "google/gemini-3-flash-preview" });
+    setForm({ name: "", description: "", persona: "", category: "wellness", is_public: true, is_premium: false, premium_free_messages: 2, price: 0, avatar_url: "", suggested_prompts: [], model: "google/gemini-3-flash-preview" });
     setDialogOpen(true);
   };
 
