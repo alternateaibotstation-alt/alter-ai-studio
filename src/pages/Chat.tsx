@@ -43,7 +43,9 @@ async function sendChat({
 
   if (!resp.ok) {
     const err = await resp.json().catch(() => ({ error: "Unknown error" }));
-    throw new Error(err.error || `Error ${resp.status}`);
+    // Throw with special marker for limit errors
+    const errMsg = err.error || `Error ${resp.status}`;
+    throw new Error(errMsg);
   }
 
   const contentType = resp.headers.get("content-type") || "";
