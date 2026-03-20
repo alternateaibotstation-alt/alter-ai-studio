@@ -303,12 +303,26 @@ export default function Chat() {
         },
       });
     } catch (err: any) {
-      toast.error(err.message || "Failed to get AI response");
-      setMessages((prev) => [
-        ...prev.filter((m) => m.id !== "streaming"),
-        { id: (Date.now() + 1).toString(), role: "assistant", content: "Sorry, an error occurred. Please try again.", created_at: new Date().toISOString() },
-      ]);
+      const errMsg = err.message || "Failed to get AI response";
+      // Handle limit errors by showing paywall
+      if (errMsg === "LIMIT_MESSAGES") {
+        setPaywallReason("messages");
+        setPaywallOpen(true);
+        // Remove the user message we just added
+        setMessages((prev) => prev.filter((m) => m.id !== userMsg.id && m.id !== "streaming"));
+      } else if (errMsg === "LIMIT_IMAGES") {
+        setPaywallReason("images");
+        setPaywallOpen(true);
+        setMessages((prev) => prev.filter((m) => m.id !== userMsg.id && m.id !== "streaming"));
+      } else {
+        toast.error(errMsg);
+        setMessages((prev) => [
+          ...prev.filter((m) => m.id !== "streaming"),
+          { id: (Date.now() + 1).toString(), role: "assistant", content: "Sorry, an error occurred. Please try again.", created_at: new Date().toISOString() },
+        ]);
+      }
       setSending(false);
+      refreshSub(); // Refresh usage counts
     }
   };
 
