@@ -139,6 +139,18 @@ export default function Chat() {
   const [paywallOpen, setPaywallOpen] = useState(false);
   const [paywallReason, setPaywallReason] = useState<"messages" | "images" | "premium_bot">("messages");
   const { canSendMessage, refresh: refreshSub, tier } = useSubscription();
+  const [voiceConfig, setVoiceConfig] = useState<VoiceConfig>(() => {
+    try {
+      const saved = localStorage.getItem("alter-voice-config");
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return { enabled: true, voiceId: "browser-default" };
+  });
+
+  const handleVoiceConfigChange = useCallback((config: VoiceConfig) => {
+    setVoiceConfig(config);
+    localStorage.setItem("alter-voice-config", JSON.stringify(config));
+  }, []);
 
   const handleSearchHighlight = useCallback((msgId: string | null) => {
     setHighlightedMsgId(msgId);
@@ -151,7 +163,9 @@ export default function Chat() {
 
   const voice = useVoiceChat({
     onTranscript: (text) => setInput(text),
-    autoSpeak: true,
+    autoSpeak: voiceConfig.enabled,
+    voiceId: voiceConfig.voiceId,
+    customVoiceUrl: voiceConfig.customVoiceUrl,
   });
 
   useEffect(() => {
