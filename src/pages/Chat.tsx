@@ -401,10 +401,11 @@ export default function Chat() {
             <Trash2 className="w-4 h-4 text-muted-foreground" />
           </Button>
         )}
+        <VoiceSettingsPanel config={voiceConfig} onChange={handleVoiceConfigChange} />
         {voice.supportsTTS && (
-          <Button variant="ghost" size="icon" onClick={() => { voice.setTtsEnabled(!voice.ttsEnabled); if (voice.isSpeaking) voice.stopSpeaking(); }}
-            className="relative" title={voice.ttsEnabled ? "Mute bot voice" : "Enable bot voice"}>
-            {voice.ttsEnabled ? <Volume2 className="w-4 h-4 text-accent" /> : <VolumeX className="w-4 h-4 text-muted-foreground" />}
+          <Button variant="ghost" size="icon" onClick={() => { handleVoiceConfigChange({ ...voiceConfig, enabled: !voiceConfig.enabled }); if (voice.isSpeaking) voice.stopSpeaking(); }}
+            className="relative" title={voiceConfig.enabled ? "Mute bot voice" : "Enable bot voice"}>
+            {voiceConfig.enabled ? <Volume2 className="w-4 h-4 text-accent" /> : <VolumeX className="w-4 h-4 text-muted-foreground" />}
           </Button>
         )}
       </header>
