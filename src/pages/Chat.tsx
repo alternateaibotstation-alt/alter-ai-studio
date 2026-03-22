@@ -201,13 +201,13 @@ export default function Chat() {
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
 
   useEffect(() => {
-    if (!voice.ttsEnabled || messages.length === 0) return;
+    if (!voiceConfig.enabled || messages.length === 0) return;
     const last = messages[messages.length - 1];
     if (last?.role === "assistant" && last.id !== "streaming" && last.content && last.content !== lastSpokenRef.current) {
       lastSpokenRef.current = last.content;
       voice.speak(last.content);
     }
-  }, [messages, voice]);
+  }, [messages, voice, voiceConfig.enabled]);
 
   const handleBuy = async () => {
     if (!botId) return;
