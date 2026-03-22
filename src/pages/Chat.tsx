@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import PaywallModal from "@/components/PaywallModal";
 import UsageBadge from "@/components/UsageBadge";
+import VoiceSettingsPanel, { type VoiceConfig } from "@/components/VoiceSettingsPanel";
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`;
 
