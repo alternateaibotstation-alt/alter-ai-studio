@@ -26,11 +26,21 @@ export default function Terms() {
           
           <h2 className="text-xl font-semibold text-foreground mt-8">6. AI-Generated Content</h2>
           <p>AI responses and generated images are provided as-is. We do not guarantee accuracy, appropriateness, or fitness for any particular purpose.</p>
-          
-          <h2 className="text-xl font-semibold text-foreground mt-8">7. Limitation of Liability</h2>
+
+          <h2 className="text-xl font-semibold text-foreground mt-8">7. Voice Features</h2>
+          <p>Alter AI provides optional voice interaction features:</p>
+          <ul className="list-disc pl-6 space-y-1">
+            <li><strong className="text-foreground">Speech-to-Text:</strong> You may use your device microphone to dictate messages. This uses your browser's built-in speech recognition and does not transmit audio to Alter AI servers.</li>
+            <li><strong className="text-foreground">Text-to-Speech:</strong> Bot responses can be read aloud using your browser's speech synthesis. You may select from available system voices or upload a custom audio sample.</li>
+            <li><strong className="text-foreground">Custom Voice Uploads:</strong> Any voice sample you upload is processed locally in your browser and is not stored on our servers. You represent that you have the right to use any voice sample you upload and that it does not infringe on any third-party rights, including personality or publicity rights.</li>
+            <li><strong className="text-foreground">No Voice Cloning:</strong> Alter AI does not perform AI voice cloning. Custom voice uploads are played as reference audio alongside text-to-speech output, not used to synthesize new speech.</li>
+          </ul>
+          <p>You are responsible for ensuring that your use of voice features complies with applicable laws, including consent and recording laws in your jurisdiction.</p>
+
+          <h2 className="text-xl font-semibold text-foreground mt-8">8. Limitation of Liability</h2>
           <p>Alter AI is provided "as is" without warranties. We are not liable for any indirect, incidental, or consequential damages arising from your use of the platform.</p>
           
-          <h2 className="text-xl font-semibold text-foreground mt-8">8. Changes to Terms</h2>
+          <h2 className="text-xl font-semibold text-foreground mt-8">9. Changes to Terms</h2>
           <p>We may update these terms at any time. Continued use of the platform after changes constitutes acceptance of the new terms.</p>
         </div>
       </div>

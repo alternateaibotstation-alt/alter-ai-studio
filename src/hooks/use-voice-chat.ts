@@ -3,6 +3,8 @@ import { useState, useRef, useCallback, useEffect } from "react";
 interface UseVoiceChatOptions {
   onTranscript: (text: string) => void;
   autoSpeak?: boolean;
+  voiceId?: string;
+  customVoiceUrl?: string;
 }
 
 // Extend Window for vendor-prefixed SpeechRecognition
@@ -22,12 +24,13 @@ interface SpeechRecognition extends EventTarget {
   stop(): void;
 }
 
-export function useVoiceChat({ onTranscript, autoSpeak = true }: UseVoiceChatOptions) {
+export function useVoiceChat({ onTranscript, autoSpeak = true, voiceId = "browser-default", customVoiceUrl }: UseVoiceChatOptions) {
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [ttsEnabled, setTtsEnabled] = useState(true);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const customAudioRef = useRef<HTMLAudioElement | null>(null);
 
   const supportsSTT =
     typeof window !== "undefined" &&
@@ -85,7 +88,20 @@ export function useVoiceChat({ onTranscript, autoSpeak = true }: UseVoiceChatOpt
 
   const speak = useCallback(
     (text: string) => {
-      if (!supportsTTS || !ttsEnabled || !autoSpeak) return;
+      if (!ttsEnabled || !autoSpeak) return;
+
+      // Custom uploaded voice: play the audio sample
+      if (voiceId === "custom-upload" && customVoiceUrl) {
+        setIsSpeaking(true);
+        const audio = new Audio(customVoiceUrl);
+        customAudioRef.current = audio;
+        audio.onended = () => setIsSpeaking(false);
+        audio.onerror = () => setIsSpeaking(false);
+        audio.play().catch(() => setIsSpeaking(false));
+        return;
+      }
+
+      if (!supportsTTS) return;
 
       // Cancel any ongoing speech
       window.speechSynthesis.cancel();
@@ -95,6 +111,15 @@ export function useVoiceChat({ onTranscript, autoSpeak = true }: UseVoiceChatOpt
       utterance.pitch = 1;
       utterance.volume = 1;
 
+      // Apply selected voice
+      if (voiceId !== "browser-default") {
+        const voices = window.speechSynthesis.getVoices();
+        const match = voices.find(
+          (v) => v.name === voiceId || v.name.includes(voiceId)
+        );
+        if (match) utterance.voice = match;
+      }
+
       utterance.onstart = () => setIsSpeaking(true);
       utterance.onend = () => setIsSpeaking(false);
       utterance.onerror = () => setIsSpeaking(false);
@@ -102,14 +127,19 @@ export function useVoiceChat({ onTranscript, autoSpeak = true }: UseVoiceChatOpt
       utteranceRef.current = utterance;
       window.speechSynthesis.speak(utterance);
     },
-    [supportsTTS, ttsEnabled, autoSpeak]
+    [supportsTTS, ttsEnabled, autoSpeak, voiceId, customVoiceUrl]
   );
 
   const stopSpeaking = useCallback(() => {
     if (supportsTTS) {
       window.speechSynthesis.cancel();
-      setIsSpeaking(false);
     }
+    if (customAudioRef.current) {
+      customAudioRef.current.pause();
+      customAudioRef.current.currentTime = 0;
+      customAudioRef.current = null;
+    }
+    setIsSpeaking(false);
   }, [supportsTTS]);
 
   // Cleanup on unmount
@@ -117,6 +147,10 @@ export function useVoiceChat({ onTranscript, autoSpeak = true }: UseVoiceChatOpt
     return () => {
       recognitionRef.current?.stop();
       if (supportsTTS) window.speechSynthesis.cancel();
+      if (customAudioRef.current) {
+        customAudioRef.current.pause();
+        customAudioRef.current = null;
+      }
     };
   }, [supportsTTS]);
 
