@@ -18,6 +18,8 @@ import GraffitiStudio from "./pages/GraffitiStudio";
 import GraffitiGallery from "./pages/GraffitiGallery";
 import Pricing from "./pages/Pricing";
 import AdminDashboard from "./pages/AdminDashboard";
+import Companions from "./pages/Companions";
+import CompanionProfile from "./pages/CompanionProfile";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import NotFound from "./pages/NotFound";
@@ -46,6 +48,8 @@ const App = () => (
               <Route path="/gallery" element={<GraffitiGallery />} />
               <Route path="/pricing" element={<Pricing />} />
               <Route path="/admin" element={<AdminDashboard />} />
+              <Route path="/companions" element={<Companions />} />
+              <Route path="/companion/:id" element={<CompanionProfile />} />
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/terms" element={<Terms />} />
               <Route path="*" element={<NotFound />} />
