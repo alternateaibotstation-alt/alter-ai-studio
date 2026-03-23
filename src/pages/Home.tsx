@@ -187,6 +187,9 @@ export default function Home() {
         </div>
       </section>
 
+      {/* AI Companions */}
+      <CompanionSection />
+
       {/* Earn from Your Bots */}
       <section className="py-20 px-4 border-t border-border/50">
         <div className="container mx-auto max-w-5xl">
