@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Sparkles, Zap, TrendingUp, ArrowRight, Users, BarChart3, Check } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import BotCard from "@/components/BotCard";
+import CompanionSection from "@/components/CompanionSection";
 import { api, type Bot } from "@/lib/api";
 
 const fadeUp = {
@@ -185,6 +186,9 @@ export default function Home() {
           )}
         </div>
       </section>
+
+      {/* AI Companions */}
+      <CompanionSection />
 
       {/* Earn from Your Bots */}
       <section className="py-20 px-4 border-t border-border/50">
