@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Sparkles, Zap, TrendingUp, ArrowRight, Users, BarChart3, Check } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import BotCard from "@/components/BotCard";
+import CompanionSection from "@/components/CompanionSection";
 import { api, type Bot } from "@/lib/api";
 
 const fadeUp = {
