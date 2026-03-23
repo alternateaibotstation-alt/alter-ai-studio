@@ -39,6 +39,7 @@ export default function Navbar() {
 
   const links = [
     { to: "/", label: "Home" },
+    { to: "/companions", label: "Companions" },
     { to: "/marketplace", label: "Marketplace" },
     { to: "/art-studio", label: "Art Studio" },
     { to: "/graffiti", label: "Graffiti Studio" },

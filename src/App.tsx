@@ -48,6 +48,8 @@ const App = () => (
               <Route path="/gallery" element={<GraffitiGallery />} />
               <Route path="/pricing" element={<Pricing />} />
               <Route path="/admin" element={<AdminDashboard />} />
+              <Route path="/companions" element={<Companions />} />
+              <Route path="/companion/:id" element={<CompanionProfile />} />
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/terms" element={<Terms />} />
               <Route path="*" element={<NotFound />} />
