@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
 
 const corsHeaders = {
@@ -23,14 +24,14 @@ serve(async (req) => {
     const { data: userData, error: userError } = await supabase.auth.getUser(token);
     if (userError) throw new Error(`Auth error: ${userError.message}`);
     const user = userData.user;
-    if (!user) throw new Error("Not authenticated");
+    if (!user?.email) throw new Error("Not authenticated");
 
-    // Read from subscriptions table instead of Stripe API
+    // Try DB first (fast path)
     const { data: sub } = await supabase
       .from("subscriptions")
       .select("*")
       .eq("user_id", user.id)
-      .eq("status", "active")
+      .in("status", ["active", "trialing"])
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle();
@@ -44,9 +45,44 @@ serve(async (req) => {
       subscribed = true;
       subscriptionEnd = sub.current_period_end;
       productId = sub.product_id;
-
       if (productId === "prod_UBEJiRN7lDcB4u") tier = "power";
       else if (productId === "prod_UBEIVHEtYoy7QP") tier = "pro";
+    } else {
+      // Fallback: query Stripe directly
+      const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
+      if (stripeKey) {
+        const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
+        const customers = await stripe.customers.list({ email: user.email, limit: 1 });
+
+        if (customers.data.length > 0) {
+          const customerId = customers.data[0].id;
+          const subs = await stripe.subscriptions.list({ customer: customerId, status: "active", limit: 1 });
+
+          if (subs.data.length > 0) {
+            const stripeSub = subs.data[0];
+            subscribed = true;
+            subscriptionEnd = new Date(stripeSub.current_period_end * 1000).toISOString();
+            productId = stripeSub.items.data[0].price.product as string;
+
+            if (productId === "prod_UBEJiRN7lDcB4u") tier = "power";
+            else if (productId === "prod_UBEIVHEtYoy7QP") tier = "pro";
+
+            // Backfill DB so future checks are fast
+            await supabase.from("subscriptions").upsert({
+              user_id: user.id,
+              stripe_customer_id: customerId,
+              stripe_subscription_id: stripeSub.id,
+              status: stripeSub.status,
+              price_id: stripeSub.items.data[0].price.id,
+              product_id: productId,
+              current_period_start: new Date(stripeSub.current_period_start * 1000).toISOString(),
+              current_period_end: subscriptionEnd,
+              cancel_at_period_end: stripeSub.cancel_at_period_end,
+              updated_at: new Date().toISOString(),
+            }, { onConflict: "stripe_subscription_id" });
+          }
+        }
+      }
     }
 
     const { data: usage } = await supabase.rpc("get_or_reset_usage", { p_user_id: user.id });
