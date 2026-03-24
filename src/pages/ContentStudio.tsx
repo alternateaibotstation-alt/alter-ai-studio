@@ -382,6 +382,15 @@ export default function ContentStudio() {
                   </CardContent>
                 </Card>
               </TabsContent>
+              {/* Generate Video Tab */}
+              <TabsContent value="generate" className="mt-4">
+                <VideoCompiler
+                  scenes={content.scenes}
+                  imagePrompts={content.image_prompts}
+                  hook={content.hook}
+                  existingImages={generatedImages}
+                />
+              </TabsContent>
             </Tabs>
           </div>
         )}
