@@ -114,7 +114,7 @@ export default function ContentStudio() {
       className="h-7 w-7 shrink-0"
       onClick={() => copyToClipboard(text, field)}
     >
-      {copiedField === field ? <Check className="w-3.5 h-3.5 text-green-500" /> : <Copy className="w-3.5 h-3.5" />}
+      {copiedField === field ? <Check className="w-3.5 h-3.5 text-primary" /> : <Copy className="w-3.5 h-3.5" />}
     </Button>
   );
 
