@@ -90,9 +90,13 @@ export default function ContentStudio() {
       });
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
-      if (data?.image) {
-        setGeneratedImages((prev) => [...prev, { scene_number: sceneNumber, url: data.image }]);
+      // Extract image from AI gateway response format
+      const imageUrl = data?.choices?.[0]?.message?.images?.[0]?.image_url?.url || data?.image;
+      if (imageUrl) {
+        setGeneratedImages((prev) => [...prev, { scene_number: sceneNumber, url: imageUrl }]);
         toast.success(`Image for Scene ${sceneNumber} generated!`);
+      } else {
+        throw new Error("No image returned from AI");
       }
     } catch (err: any) {
       toast.error(err.message || "Failed to generate image");
