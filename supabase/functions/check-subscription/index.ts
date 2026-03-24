@@ -59,13 +59,17 @@ serve(async (req) => {
           const subs = await stripe.subscriptions.list({ customer: customerId, status: "active", limit: 1 });
 
           if (subs.data.length > 0) {
-            const stripeSub = subs.data[0];
+            const stripeSub = subs.data[0] as any;
             subscribed = true;
-            subscriptionEnd = new Date(stripeSub.current_period_end * 1000).toISOString();
             productId = stripeSub.items.data[0].price.product as string;
 
             if (productId === "prod_UBEJiRN7lDcB4u") tier = "power";
             else if (productId === "prod_UBEIVHEtYoy7QP") tier = "pro";
+
+            const periodEnd = stripeSub.current_period_end;
+            const periodStart = stripeSub.current_period_start;
+            subscriptionEnd = periodEnd ? new Date(periodEnd * 1000).toISOString() : null;
+            const periodStartISO = periodStart ? new Date(periodStart * 1000).toISOString() : null;
 
             // Backfill DB so future checks are fast
             await supabase.from("subscriptions").upsert({
@@ -75,7 +79,7 @@ serve(async (req) => {
               status: stripeSub.status,
               price_id: stripeSub.items.data[0].price.id,
               product_id: productId,
-              current_period_start: new Date(stripeSub.current_period_start * 1000).toISOString(),
+              current_period_start: periodStartISO,
               current_period_end: subscriptionEnd,
               cancel_at_period_end: stripeSub.cancel_at_period_end,
               updated_at: new Date().toISOString(),
