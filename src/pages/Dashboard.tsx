@@ -118,13 +118,13 @@ export default function Dashboard() {
                   <Plus className="w-4 h-4 mr-2" /> New Bot
                 </Button>
               </DialogTrigger>
-            <DialogContent className="bg-card border-border">
-              <DialogHeader>
-                <DialogTitle className="text-foreground">
-                  {editingBot ? "Edit Bot" : "Create Bot"}
-                </DialogTitle>
-              </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4">
+            <DialogContent className="bg-card border-border max-h-[85vh] overflow-y-auto">
+               <DialogHeader>
+                 <DialogTitle className="text-foreground">
+                   {editingBot ? "Edit Bot" : "Create Bot"}
+                 </DialogTitle>
+               </DialogHeader>
+               <form onSubmit={handleSubmit} className="space-y-4">
                 <BotAvatarUpload
                   avatarUrl={form.avatar_url || null}
                   onUploaded={(url) => setForm({ ...form, avatar_url: url })}
