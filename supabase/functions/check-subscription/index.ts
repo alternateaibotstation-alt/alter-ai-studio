@@ -7,6 +7,19 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+const toIsoOrNull = (value: unknown) => {
+  if (typeof value === "number" && Number.isFinite(value) && value > 0) {
+    return new Date(value * 1000).toISOString();
+  }
+
+  if (typeof value === "string") {
+    const parsed = Date.parse(value);
+    return Number.isNaN(parsed) ? null : new Date(parsed).toISOString();
+  }
+
+  return null;
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
@@ -68,8 +81,8 @@ serve(async (req) => {
 
             const periodEnd = stripeSub.current_period_end;
             const periodStart = stripeSub.current_period_start;
-            subscriptionEnd = periodEnd ? new Date(periodEnd * 1000).toISOString() : null;
-            const periodStartISO = periodStart ? new Date(periodStart * 1000).toISOString() : null;
+            subscriptionEnd = toIsoOrNull(periodEnd);
+            const periodStartISO = toIsoOrNull(periodStart);
 
             // Backfill DB so future checks are fast
             await supabase.from("subscriptions").upsert({
