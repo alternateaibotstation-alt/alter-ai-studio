@@ -7,9 +7,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Clapperboard, Copy, Check, Loader2, Download, ImageIcon, Sparkles,
-  Film, Type, Camera, Hash, MessageSquare, Zap
+  Film, Type, Camera, Hash, MessageSquare, Zap, Video
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import VideoCompiler from "@/components/VideoCompiler";
 import { toast } from "sonner";
 
 interface Scene {
