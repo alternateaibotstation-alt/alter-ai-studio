@@ -7,9 +7,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Clapperboard, Copy, Check, Loader2, Download, ImageIcon, Sparkles,
-  Film, Type, Camera, Hash, MessageSquare, Zap
+  Film, Type, Camera, Hash, MessageSquare, Zap, Video
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import VideoCompiler from "@/components/VideoCompiler";
 import { toast } from "sonner";
 
 interface Scene {
@@ -89,9 +90,13 @@ export default function ContentStudio() {
       });
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
-      if (data?.image) {
-        setGeneratedImages((prev) => [...prev, { scene_number: sceneNumber, url: data.image }]);
+      // Extract image from AI gateway response format
+      const imageUrl = data?.choices?.[0]?.message?.images?.[0]?.image_url?.url || data?.image;
+      if (imageUrl) {
+        setGeneratedImages((prev) => [...prev, { scene_number: sceneNumber, url: imageUrl }]);
         toast.success(`Image for Scene ${sceneNumber} generated!`);
+      } else {
+        throw new Error("No image returned from AI");
       }
     } catch (err: any) {
       toast.error(err.message || "Failed to generate image");
@@ -218,12 +223,13 @@ export default function ContentStudio() {
             </div>
 
             <Tabs defaultValue="overview" className="w-full">
-              <TabsList className="grid w-full grid-cols-5">
+              <TabsList className="grid w-full grid-cols-6">
                 <TabsTrigger value="overview"><Zap className="w-3.5 h-3.5 mr-1 hidden sm:inline" /> Overview</TabsTrigger>
                 <TabsTrigger value="scenes"><Film className="w-3.5 h-3.5 mr-1 hidden sm:inline" /> Scenes</TabsTrigger>
                 <TabsTrigger value="images"><ImageIcon className="w-3.5 h-3.5 mr-1 hidden sm:inline" /> Images</TabsTrigger>
                 <TabsTrigger value="video"><Camera className="w-3.5 h-3.5 mr-1 hidden sm:inline" /> Video</TabsTrigger>
                 <TabsTrigger value="editing"><Type className="w-3.5 h-3.5 mr-1 hidden sm:inline" /> Editing</TabsTrigger>
+                <TabsTrigger value="generate" className="text-primary"><Video className="w-3.5 h-3.5 mr-1 hidden sm:inline" /> Generate</TabsTrigger>
               </TabsList>
 
               {/* Overview Tab */}
@@ -375,6 +381,15 @@ export default function ContentStudio() {
                     ))}
                   </CardContent>
                 </Card>
+              </TabsContent>
+              {/* Generate Video Tab */}
+              <TabsContent value="generate" className="mt-4">
+                <VideoCompiler
+                  scenes={content.scenes}
+                  imagePrompts={content.image_prompts}
+                  hook={content.hook}
+                  existingImages={generatedImages}
+                />
               </TabsContent>
             </Tabs>
           </div>
