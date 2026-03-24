@@ -22,6 +22,7 @@ import Companions from "./pages/Companions";
 import CompanionProfile from "./pages/CompanionProfile";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
+import ContentStudio from "./pages/ContentStudio";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -50,6 +51,7 @@ const App = () => (
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/companions" element={<Companions />} />
               <Route path="/companion/:id" element={<CompanionProfile />} />
+              <Route path="/content-studio" element={<ContentStudio />} />
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/terms" element={<Terms />} />
               <Route path="*" element={<NotFound />} />
