@@ -36,13 +36,24 @@ serve(async (req) => {
     let customerId;
     if (customers.data.length > 0) customerId = customers.data[0].id;
 
-    const sessionParams: any = {
+    const sessionParams: Stripe.Checkout.SessionCreateParams = {
       customer: customerId,
       customer_email: customerId ? undefined : user.email,
+      client_reference_id: user.id,
       line_items: [{ price: priceId, quantity: 1 }],
       mode: "subscription",
       success_url: `${req.headers.get("origin")}/success?subscription=true`,
       cancel_url: `${req.headers.get("origin")}/marketplace`,
+      metadata: {
+        user_id: user.id,
+        tier,
+      },
+      subscription_data: {
+        metadata: {
+          user_id: user.id,
+          tier,
+        },
+      },
     };
     if (coupon) {
       sessionParams.discounts = [{ coupon }];
