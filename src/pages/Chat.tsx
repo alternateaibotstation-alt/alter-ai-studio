@@ -144,7 +144,7 @@ export default function Chat() {
       const saved = localStorage.getItem("alter-voice-config");
       if (saved) return JSON.parse(saved);
     } catch {}
-    return { enabled: true, voiceId: "browser-default" };
+    return { enabled: false, voiceId: "browser-default" };
   });
 
   const handleVoiceConfigChange = useCallback((config: VoiceConfig) => {
