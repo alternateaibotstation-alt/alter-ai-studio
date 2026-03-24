@@ -2,7 +2,7 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, Link, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Send, Loader2, Sparkles, Lock, DollarSign, Mic, MicOff, Volume2, VolumeX, Trash2 } from "lucide-react";
+import { ArrowLeft, Send, Loader2, Sparkles, Lock, DollarSign, Mic, MicOff, Trash2 } from "lucide-react";
 import { api, type Bot, type ChatMessage } from "@/lib/api";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -14,7 +14,6 @@ import { toast } from "sonner";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import PaywallModal from "@/components/PaywallModal";
 import UsageBadge from "@/components/UsageBadge";
-import VoiceSettingsPanel, { type VoiceConfig } from "@/components/VoiceSettingsPanel";
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`;
 
@@ -134,23 +133,10 @@ export default function Chat() {
   const [checkingOut, setCheckingOut] = useState(false);
   const [attachedFiles, setAttachedFiles] = useState<UploadedFile[]>([]);
   const endRef = useRef<HTMLDivElement>(null);
-  const lastSpokenRef = useRef<string>("");
   const [highlightedMsgId, setHighlightedMsgId] = useState<string | null>(null);
   const [paywallOpen, setPaywallOpen] = useState(false);
   const [paywallReason, setPaywallReason] = useState<"messages" | "images" | "premium_bot">("messages");
   const { canSendMessage, refresh: refreshSub, tier } = useSubscription();
-  const [voiceConfig, setVoiceConfig] = useState<VoiceConfig>(() => {
-    try {
-      const saved = localStorage.getItem("alter-voice-config");
-      if (saved) return JSON.parse(saved);
-    } catch {}
-    return { enabled: false, voiceId: "browser-default" };
-  });
-
-  const handleVoiceConfigChange = useCallback((config: VoiceConfig) => {
-    setVoiceConfig(config);
-    localStorage.setItem("alter-voice-config", JSON.stringify(config));
-  }, []);
 
   const handleSearchHighlight = useCallback((msgId: string | null) => {
     setHighlightedMsgId(msgId);
@@ -163,10 +149,26 @@ export default function Chat() {
 
   const voice = useVoiceChat({
     onTranscript: (text) => setInput(text),
-    autoSpeak: voiceConfig.enabled,
-    voiceId: voiceConfig.voiceId,
-    customVoiceUrl: voiceConfig.customVoiceUrl,
   });
+
+  useEffect(() => {
+    voice.stopSpeaking();
+
+    try {
+      const saved = localStorage.getItem("alter-voice-config");
+      if (!saved) return;
+
+      const parsed = JSON.parse(saved);
+      if (parsed?.enabled) {
+        localStorage.setItem(
+          "alter-voice-config",
+          JSON.stringify({ ...parsed, enabled: false })
+        );
+      }
+    } catch {
+      // ignore invalid stored voice preferences
+    }
+  }, [voice.stopSpeaking]);
 
   useEffect(() => {
     if (!botId) return;
@@ -199,15 +201,6 @@ export default function Chat() {
   }, [botId, searchParams]);
 
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
-
-  useEffect(() => {
-    if (!voiceConfig.enabled || messages.length === 0) return;
-    const last = messages[messages.length - 1];
-    if (last?.role === "assistant" && last.id !== "streaming" && last.content && last.content !== lastSpokenRef.current) {
-      lastSpokenRef.current = last.content;
-      voice.speak(last.content);
-    }
-  }, [messages, voice, voiceConfig.enabled]);
 
   const handleBuy = async () => {
     if (!botId) return;
@@ -399,13 +392,6 @@ export default function Chat() {
             toast.success("Chat history cleared");
           }} title="Clear chat history">
             <Trash2 className="w-4 h-4 text-muted-foreground" />
-          </Button>
-        )}
-        <VoiceSettingsPanel config={voiceConfig} onChange={handleVoiceConfigChange} />
-        {voice.supportsTTS && (
-          <Button variant="ghost" size="icon" onClick={() => { handleVoiceConfigChange({ ...voiceConfig, enabled: !voiceConfig.enabled }); if (voice.isSpeaking) voice.stopSpeaking(); }}
-            className="relative" title={voiceConfig.enabled ? "Mute bot voice" : "Enable bot voice"}>
-            {voiceConfig.enabled ? <Volume2 className="w-4 h-4 text-accent" /> : <VolumeX className="w-4 h-4 text-muted-foreground" />}
           </Button>
         )}
       </header>
