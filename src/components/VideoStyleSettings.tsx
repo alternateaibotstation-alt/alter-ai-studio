@@ -193,6 +193,9 @@ export default function VideoStyleSettings({ style, onChange }: Props) {
 
   return (
     <div className="space-y-4">
+      {/* Live Preview */}
+      <VideoStylePreview style={style} />
+
       {/* Preset Themes */}
       <Card className="border-border/50">
         <CardHeader className="pb-3">
