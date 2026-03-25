@@ -148,7 +148,7 @@ export default function ContentStudio() {
   const deleteTemplate = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     try {
-      const { error } = await supabase.from("content_templates").delete().eq("id", id);
+      const { error } = await (supabase.from as any)("content_templates").delete().eq("id", id);
       if (error) throw error;
       setTemplates(prev => prev.filter(t => t.id !== id));
       toast.success("Template deleted");
