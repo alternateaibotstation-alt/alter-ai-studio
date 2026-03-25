@@ -281,6 +281,10 @@ export default function VideoCompiler({ scenes, imagePrompts, hook, existingImag
       }
 
       recorder.stop();
+      // Stop audio
+      if (audioSource) { try { audioSource.stop(); } catch {} }
+      if (audioCtx) { try { audioCtx.close(); } catch {} }
+
       const url = await videoReady;
       setVideoUrl(url);
       setPhase("done");
@@ -293,7 +297,7 @@ export default function VideoCompiler({ scenes, imagePrompts, hook, existingImag
       setStatusText(err.message || "Failed to generate video");
       toast.error("Video generation failed");
     }
-  }, [scenes, imagePrompts, hook, existingImages, style]);
+  }, [scenes, imagePrompts, hook, existingImages, style, music]);
 
   const downloadVideo = () => {
     if (!videoUrl) return;
