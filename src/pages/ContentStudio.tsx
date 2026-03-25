@@ -2,12 +2,14 @@ import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Clapperboard, Copy, Check, Loader2, Download, ImageIcon, Sparkles,
-  Film, Type, Camera, Hash, MessageSquare, Zap, Video, FastForward
+  Film, Type, Camera, Hash, MessageSquare, Zap, FastForward, Pencil,
+  Video
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import VideoCompiler from "@/components/VideoCompiler";
@@ -59,6 +61,65 @@ interface StorySegment {
   images: GeneratedImage[];
 }
 
+// Inline editable text component
+function EditableText({ value, onChange, multiline = false, className = "" }: {
+  value: string;
+  onChange: (val: string) => void;
+  multiline?: boolean;
+  className?: string;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(value);
+
+  const startEdit = () => { setDraft(value); setEditing(true); };
+  const save = () => { onChange(draft); setEditing(false); };
+  const cancel = () => setEditing(false);
+
+  if (editing) {
+    return multiline ? (
+      <div className="space-y-2">
+        <Textarea
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          className="bg-background border-border text-sm min-h-[60px]"
+          autoFocus
+          onKeyDown={(e) => { if (e.key === "Escape") cancel(); }}
+        />
+        <div className="flex gap-2">
+          <Button size="sm" variant="default" onClick={save}>Save</Button>
+          <Button size="sm" variant="ghost" onClick={cancel}>Cancel</Button>
+        </div>
+      </div>
+    ) : (
+      <div className="flex gap-2 items-center w-full">
+        <Input
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          className="bg-background border-border text-sm h-8 flex-1"
+          autoFocus
+          onKeyDown={(e) => {
+            if (e.key === "Enter") save();
+            if (e.key === "Escape") cancel();
+          }}
+        />
+        <Button size="sm" variant="default" onClick={save} className="h-8">Save</Button>
+        <Button size="sm" variant="ghost" onClick={cancel} className="h-8">Cancel</Button>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className={`group cursor-pointer rounded px-1 -mx-1 hover:bg-muted/50 ${className}`}
+      onClick={startEdit}
+      title="Click to edit"
+    >
+      <span>{value}</span>
+      <Pencil className="w-3 h-3 text-muted-foreground ml-2 inline opacity-0 group-hover:opacity-100" />
+    </div>
+  );
+}
+
 export default function ContentStudio() {
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
@@ -74,6 +135,39 @@ export default function ContentStudio() {
   const [continuing, setContinuing] = useState(false);
 
   const hasStoryProfile = storyProfile.characters.length > 0 || storyProfile.visualStyle || storyProfile.mood || storyProfile.setting;
+
+  // Updaters for inline editing
+  const updateHook = (val: string) => setContent(prev => prev ? { ...prev, hook: val } : prev);
+  const updateCaption = (val: string) => setContent(prev => prev ? { ...prev, caption: val } : prev);
+  const updateCta = (val: string) => setContent(prev => prev ? { ...prev, cta: val } : prev);
+  const updateSceneText = (idx: number, val: string) => setContent(prev => {
+    if (!prev) return prev;
+    const scenes = [...prev.scenes];
+    scenes[idx] = { ...scenes[idx], text: val };
+    return { ...prev, scenes };
+  });
+  const updateSceneDuration = (idx: number, val: number) => setContent(prev => {
+    if (!prev) return prev;
+    const scenes = [...prev.scenes];
+    scenes[idx] = { ...scenes[idx], duration_seconds: Math.max(1, val) };
+    return { ...prev, scenes };
+  });
+  const updateImagePrompt = (idx: number, val: string) => setContent(prev => {
+    if (!prev) return prev;
+    const prompts = [...prev.image_prompts];
+    prompts[idx] = { ...prompts[idx], prompt: val };
+    return { ...prev, image_prompts: prompts };
+  });
+  const updateVideoScene = (idx: number, val: string) => setContent(prev => {
+    if (!prev) return prev;
+    const vs = [...prev.video_scenes];
+    vs[idx] = { ...vs[idx], description: val };
+    return { ...prev, video_scenes: vs };
+  });
+  const updateEditing = (key: string, val: string) => setContent(prev => {
+    if (!prev) return prev;
+    return { ...prev, editing: { ...prev.editing, [key]: val } };
+  });
 
   const handleGenerate = async () => {
     if (!prompt.trim()) return;
@@ -104,13 +198,8 @@ export default function ContentStudio() {
     setContinuing(true);
 
     try {
-      // Collect all scenes across segments for context
       const allScenes = storySegments.flatMap(seg => seg.content.scenes);
-
-      const body: any = {
-        prompt: continuePrompt.trim(),
-        previousScenes: allScenes,
-      };
+      const body: any = { prompt: continuePrompt.trim(), previousScenes: allScenes };
       if (hasStoryProfile) body.storyProfile = storyProfile;
 
       const { data, error } = await supabase.functions.invoke("content-studio", { body });
@@ -120,7 +209,6 @@ export default function ContentStudio() {
       const newContent = data.content as GeneratedContent;
       setStorySegments(prev => [...prev, { content: newContent, images: [] }]);
 
-      // Merge into combined content for video generation
       setContent(prev => {
         if (!prev) return newContent;
         return {
@@ -299,15 +387,18 @@ export default function ContentStudio() {
               </Button>
             </div>
 
+            <div className="text-xs text-muted-foreground flex items-center gap-1.5">
+              <Pencil className="w-3 h-3" /> Click any text to edit it before generating your video
+            </div>
+
             <Tabs defaultValue="overview" className="w-full">
-              <TabsList className="grid w-full grid-cols-7">
+              <TabsList className="grid w-full grid-cols-6">
                 <TabsTrigger value="overview"><Zap className="w-3.5 h-3.5 mr-1 hidden sm:inline" /> Overview</TabsTrigger>
                 <TabsTrigger value="scenes"><Film className="w-3.5 h-3.5 mr-1 hidden sm:inline" /> Scenes</TabsTrigger>
                 <TabsTrigger value="images"><ImageIcon className="w-3.5 h-3.5 mr-1 hidden sm:inline" /> Images</TabsTrigger>
-                <TabsTrigger value="video"><Camera className="w-3.5 h-3.5 mr-1 hidden sm:inline" /> Video</TabsTrigger>
                 <TabsTrigger value="editing"><Type className="w-3.5 h-3.5 mr-1 hidden sm:inline" /> Editing</TabsTrigger>
                 <TabsTrigger value="continue" className="text-accent"><FastForward className="w-3.5 h-3.5 mr-1 hidden sm:inline" /> Continue</TabsTrigger>
-                <TabsTrigger value="generate" className="text-primary"><Video className="w-3.5 h-3.5 mr-1 hidden sm:inline" /> Generate</TabsTrigger>
+                <TabsTrigger value="video" className="text-primary"><Video className="w-3.5 h-3.5 mr-1 hidden sm:inline" /> Video</TabsTrigger>
               </TabsList>
 
               {/* Overview Tab */}
@@ -320,7 +411,11 @@ export default function ContentStudio() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-lg font-semibold text-foreground">{content.hook}</p>
+                    <EditableText
+                      value={content.hook}
+                      onChange={updateHook}
+                      className="text-lg font-semibold text-foreground"
+                    />
                   </CardContent>
                 </Card>
 
@@ -332,7 +427,11 @@ export default function ContentStudio() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-foreground">{content.caption}</p>
+                    <EditableText
+                      value={content.caption}
+                      onChange={updateCaption}
+                      className="text-foreground"
+                    />
                   </CardContent>
                 </Card>
 
@@ -344,7 +443,11 @@ export default function ContentStudio() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-foreground">{content.cta}</p>
+                    <EditableText
+                      value={content.cta}
+                      onChange={updateCta}
+                      className="text-foreground"
+                    />
                   </CardContent>
                 </Card>
 
@@ -368,7 +471,6 @@ export default function ContentStudio() {
               {/* Scenes Tab */}
               <TabsContent value="scenes" className="space-y-3 mt-4">
                 {content.scenes.map((scene, idx) => {
-                  // Find which segment this scene belongs to
                   let segIdx = 0;
                   let count = 0;
                   for (let s = 0; s < storySegments.length; s++) {
@@ -379,14 +481,30 @@ export default function ContentStudio() {
                     <Card key={`${scene.number}-${idx}`}>
                       <CardContent className="pt-4">
                         <div className="flex items-start justify-between gap-3">
-                          <div className="flex items-start gap-3">
+                          <div className="flex items-start gap-3 flex-1">
                             <Badge variant="outline" className="shrink-0 mt-0.5">{scene.number}</Badge>
                             {storySegments.length > 1 && (
                               <Badge variant="secondary" className="shrink-0 mt-0.5 text-xs">Part {segIdx + 1}</Badge>
                             )}
-                            <div>
-                              <p className="text-foreground">{scene.text}</p>
-                              <p className="text-xs text-muted-foreground mt-1">{scene.duration_seconds}s</p>
+                            <div className="flex-1">
+                              <EditableText
+                                value={scene.text}
+                                onChange={(val) => updateSceneText(idx, val)}
+                                multiline
+                                className="text-foreground"
+                              />
+                              <div className="flex items-center gap-2 mt-1">
+                                <span className="text-xs text-muted-foreground">Duration:</span>
+                                <input
+                                  type="number"
+                                  value={scene.duration_seconds}
+                                  onChange={(e) => updateSceneDuration(idx, parseInt(e.target.value) || 3)}
+                                  className="w-14 h-6 text-xs bg-background border border-border rounded px-1.5 text-foreground"
+                                  min={1}
+                                  max={30}
+                                />
+                                <span className="text-xs text-muted-foreground">s</span>
+                              </div>
                             </div>
                           </div>
                           <CopyBtn text={scene.text} field={`scene-${scene.number}`} />
@@ -399,24 +517,40 @@ export default function ContentStudio() {
 
               {/* Image Prompts Tab */}
               <TabsContent value="images" className="space-y-4 mt-4">
-                {content.image_prompts.map((ip) => {
+                {content.image_prompts.map((ip, idx) => {
                   const genImg = generatedImages.find((g) => g.scene_number === ip.scene_number);
                   return (
                     <Card key={ip.scene_number}>
                       <CardContent className="pt-4">
                         <div className="flex items-start justify-between gap-3 mb-3">
-                          <div className="flex items-start gap-3">
+                          <div className="flex items-start gap-3 flex-1">
                             <Badge variant="outline" className="shrink-0 mt-0.5">{ip.scene_number}</Badge>
-                            <p className="text-sm text-foreground">{ip.prompt}</p>
+                            <EditableText
+                              value={ip.prompt}
+                              onChange={(val) => updateImagePrompt(idx, val)}
+                              multiline
+                              className="text-sm text-foreground"
+                            />
                           </div>
                           <CopyBtn text={ip.prompt} field={`img-${ip.scene_number}`} />
                         </div>
                         {genImg ? (
-                          <img
-                            src={genImg.url}
-                            alt={`Scene ${ip.scene_number}`}
-                            className="rounded-lg w-full max-w-md border border-border"
-                          />
+                          <div className="space-y-2">
+                            <img
+                              src={genImg.url}
+                              alt={`Scene ${ip.scene_number}`}
+                              className="rounded-lg w-full max-w-md border border-border"
+                            />
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                setGeneratedImages(prev => prev.filter(g => g.scene_number !== ip.scene_number));
+                              }}
+                            >
+                              <ImageIcon className="w-3.5 h-3.5 mr-1.5" /> Regenerate Image
+                            </Button>
+                          </div>
                         ) : (
                           <Button
                             variant="outline"
@@ -437,40 +571,54 @@ export default function ContentStudio() {
                 })}
               </TabsContent>
 
-              {/* Video Scenes Tab */}
-              <TabsContent value="video" className="space-y-3 mt-4">
-                {content.video_scenes.map((vs) => (
-                  <Card key={vs.scene_number}>
-                    <CardContent className="pt-4">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex items-start gap-3">
-                          <Badge variant="outline" className="shrink-0 mt-0.5">{vs.scene_number}</Badge>
-                          <p className="text-sm text-foreground">{vs.description}</p>
-                        </div>
-                        <CopyBtn text={vs.description} field={`vid-${vs.scene_number}`} />
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </TabsContent>
-
               {/* Editing Tab */}
-              <TabsContent value="editing" className="mt-4">
+              <TabsContent value="editing" className="mt-4 space-y-4">
                 <Card>
                   <CardContent className="pt-4 space-y-4">
                     {Object.entries(content.editing).map(([key, value]) => (
                       <div key={key} className="flex items-start justify-between gap-3">
-                        <div>
+                        <div className="flex-1">
                           <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
                             {key.replace(/_/g, " ")}
                           </p>
-                          <p className="text-foreground mt-0.5">{value}</p>
+                          <EditableText
+                            value={value}
+                            onChange={(val) => updateEditing(key, val)}
+                            className="text-foreground mt-0.5"
+                          />
                         </div>
                         <CopyBtn text={value} field={`edit-${key}`} />
                       </div>
                     ))}
                   </CardContent>
                 </Card>
+
+                {/* Video direction notes */}
+                {content.video_scenes.length > 0 && (
+                  <>
+                    <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2 pt-2">
+                      <Camera className="w-4 h-4" /> Video Direction Notes
+                    </h3>
+                    {content.video_scenes.map((vs, idx) => (
+                      <Card key={vs.scene_number}>
+                        <CardContent className="pt-4">
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="flex items-start gap-3 flex-1">
+                              <Badge variant="outline" className="shrink-0 mt-0.5">{vs.scene_number}</Badge>
+                              <EditableText
+                                value={vs.description}
+                                onChange={(val) => updateVideoScene(idx, val)}
+                                multiline
+                                className="text-sm text-foreground"
+                              />
+                            </div>
+                            <CopyBtn text={vs.description} field={`vid-${vs.scene_number}`} />
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </>
+                )}
               </TabsContent>
 
               {/* Continue Story Tab */}
@@ -526,8 +674,8 @@ export default function ContentStudio() {
                 </Card>
               </TabsContent>
 
-              {/* Generate Video Tab */}
-              <TabsContent value="generate" className="mt-4">
+              {/* Video Generation Tab */}
+              <TabsContent value="video" className="mt-4">
                 <VideoCompiler
                   scenes={content.scenes}
                   imagePrompts={content.image_prompts}
