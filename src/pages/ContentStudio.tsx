@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -10,7 +11,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import {
   Clapperboard, Copy, Check, Loader2, Download, ImageIcon, Sparkles,
   Film, Type, Camera, Hash, MessageSquare, Zap, FastForward, Pencil,
-  Video, Globe, Mic, Volume2, Square, Play, Pause, Save, FolderOpen, Trash2, BookTemplate
+  Video, Globe, Mic, Volume2, Square, Play, Pause, Save, FolderOpen, Trash2, BookTemplate,
+  Share2, Eye, EyeOff
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -340,9 +342,12 @@ export default function ContentStudio() {
                   {templates.map(t => (
                     <Card key={t.id} className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => loadTemplate(t)}>
                       <CardContent className="pt-3 pb-3">
-                        <div className="flex items-center justify-between">
+                        <div className="flex items-center justify-between gap-2">
                           <div className="min-w-0 flex-1">
-                            <p className="text-sm font-medium text-foreground truncate">{t.name}</p>
+                            <div className="flex items-center gap-1.5">
+                              <p className="text-sm font-medium text-foreground truncate">{t.name}</p>
+                              {t.is_public && <Badge variant="secondary" className="text-[10px] shrink-0 gap-0.5"><Eye className="w-2.5 h-2.5" /> Public</Badge>}
+                            </div>
                             <p className="text-xs text-muted-foreground truncate">{t.prompt}</p>
                             <div className="flex gap-1 mt-1 flex-wrap">
                               {(t.platforms || []).map((p: string) => {
@@ -352,9 +357,20 @@ export default function ContentStudio() {
                               <span className="text-xs text-muted-foreground ml-1">{new Date(t.created_at).toLocaleDateString()}</span>
                             </div>
                           </div>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0 text-destructive hover:text-destructive" onClick={(e) => deleteTemplate(t.id, e)}>
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </Button>
+                          <div className="flex items-center gap-1 shrink-0">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              title={t.is_public ? "Unpublish" : "Publish to marketplace"}
+                              onClick={(e) => togglePublish(t.id, !!t.is_public, e)}
+                            >
+                              {t.is_public ? <EyeOff className="w-3.5 h-3.5 text-muted-foreground" /> : <Share2 className="w-3.5 h-3.5 text-primary" />}
+                            </Button>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={(e) => deleteTemplate(t.id, e)}>
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </Button>
+                          </div>
                         </div>
                       </CardContent>
                     </Card>
