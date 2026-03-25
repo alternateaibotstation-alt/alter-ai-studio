@@ -84,6 +84,19 @@ export default function TemplateMarketplace() {
     return matchesCategory && matchesSearch;
   });
 
+  const sorted = useMemo(() => {
+    const arr = [...filtered];
+    switch (sortBy) {
+      case "newest":
+        return arr.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      case "alphabetical":
+        return arr.sort((a, b) => a.name.localeCompare(b.name));
+      case "popular":
+      default:
+        return arr.sort((a, b) => (b.use_count || 0) - (a.use_count || 0));
+    }
+  }, [filtered, sortBy]);
+
   const categoryCounts = CATEGORIES.reduce<Record<string, number>>((acc, cat) => {
     acc[cat.id] = cat.id === "all" ? templates.length : templates.filter(t => t.category === cat.id).length;
     return acc;
