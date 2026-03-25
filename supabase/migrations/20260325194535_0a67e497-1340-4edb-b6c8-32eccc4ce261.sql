@@ -1,0 +1,1 @@
+DROP POLICY IF EXISTS "Users can read own referrals" ON public.referrals;
