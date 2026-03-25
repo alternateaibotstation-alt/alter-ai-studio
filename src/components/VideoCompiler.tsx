@@ -312,6 +312,9 @@ export default function VideoCompiler({ scenes, imagePrompts, hook, existingImag
       {/* Style Settings */}
       <VideoStyleSettings style={style} onChange={setStyle} />
 
+      {/* Music Settings */}
+      <VideoMusicSelector settings={music} onChange={setMusic} />
+
       {/* Video Generation */}
       <Card className="border-primary/20">
         <CardContent className="pt-6 space-y-4">
