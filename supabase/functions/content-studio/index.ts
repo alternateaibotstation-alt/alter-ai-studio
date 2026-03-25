@@ -12,7 +12,7 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    const { prompt, platform = "tiktok" } = await req.json();
+    const { prompt, platform = "tiktok", storyProfile, previousScenes } = await req.json();
     if (!prompt || typeof prompt !== "string" || prompt.trim().length === 0) {
       return new Response(JSON.stringify({ error: "Prompt is required" }), {
         status: 400,
@@ -20,15 +20,39 @@ serve(async (req) => {
       });
     }
 
-    const systemPrompt = `You are a viral content strategist and creative director specializing in short-form video content for ${platform}. You create COMPLETE, ready-to-use content packages.
+    // Build character/style context block
+    let characterContext = "";
+    if (storyProfile) {
+      const parts: string[] = [];
+      if (storyProfile.characters?.length) {
+        parts.push("CHARACTERS (use these exact descriptions in every image prompt for consistency):\n" +
+          storyProfile.characters.map((c: any) =>
+            `- ${c.name}: Appearance: ${c.appearance}. Personality: ${c.personality}`
+          ).join("\n"));
+      }
+      if (storyProfile.visualStyle) parts.push(`VISUAL STYLE: ${storyProfile.visualStyle}`);
+      if (storyProfile.mood) parts.push(`MOOD/TONE: ${storyProfile.mood}`);
+      if (storyProfile.setting) parts.push(`SETTING: ${storyProfile.setting}`);
+      if (parts.length) characterContext = "\n\nCHARACTER & STYLE PROFILE (MUST maintain across all scenes and image prompts):\n" + parts.join("\n");
+    }
 
+    let continuationContext = "";
+    if (previousScenes?.length) {
+      continuationContext = `\n\nPREVIOUS SCENES (continue the story from where this left off, maintain same characters, visual style, and narrative arc):\n${
+        previousScenes.map((s: any) => `Scene ${s.number}: ${s.text}`).join("\n")
+      }\n\nIMPORTANT: Start scene numbering from ${previousScenes.length + 1}. The new content should feel like a natural continuation.`;
+    }
+
+    const systemPrompt = `You are a viral content strategist and creative director specializing in short-form video content for ${platform}. You create COMPLETE, ready-to-use content packages.
+${characterContext}
 IMPORTANT RULES:
 - Content must be TikTok-friendly (no explicit sexual content, no illegal/harmful content)
 - Visuals can be "suggestive but safe" for AI personality/companion content
 - Focus on scroll-stopping hooks and emotional engagement
 - Optimize for virality, curiosity gaps, and retention
 - Each scene MUST have a duration_seconds of at least 3 seconds (recommended 4-5 seconds)
-
+- ALL image prompts MUST include the exact character descriptions from the profile so AI image generators produce consistent-looking characters across scenes
+${continuationContext}
 You MUST respond with ONLY valid JSON in this exact structure (no markdown, no code blocks):
 {
   "hook": "The scroll-stopping first line (1 sentence)",
@@ -36,7 +60,7 @@ You MUST respond with ONLY valid JSON in this exact structure (no markdown, no c
     { "number": 1, "text": "What appears on screen / voiceover line", "duration_seconds": 4 }
   ],
   "image_prompts": [
-    { "scene_number": 1, "prompt": "Detailed cinematic image prompt, 4K, realistic, with specific lighting and mood. Compatible with AI image generators." }
+    { "scene_number": 1, "prompt": "Detailed cinematic image prompt, 4K, realistic, with specific lighting and mood. Include EXACT character appearance details. Compatible with AI image generators." }
   ],
   "video_scenes": [
     { "scene_number": 1, "description": "Camera movement, facial expression, environment, motion details" }
