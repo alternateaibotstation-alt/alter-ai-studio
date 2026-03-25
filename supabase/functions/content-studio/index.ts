@@ -27,12 +27,13 @@ IMPORTANT RULES:
 - Visuals can be "suggestive but safe" for AI personality/companion content
 - Focus on scroll-stopping hooks and emotional engagement
 - Optimize for virality, curiosity gaps, and retention
+- Each scene MUST have a duration_seconds of at least 3 seconds (recommended 4-5 seconds)
 
 You MUST respond with ONLY valid JSON in this exact structure (no markdown, no code blocks):
 {
   "hook": "The scroll-stopping first line (1 sentence)",
   "scenes": [
-    { "number": 1, "text": "What appears on screen / voiceover line", "duration_seconds": 3 }
+    { "number": 1, "text": "What appears on screen / voiceover line", "duration_seconds": 4 }
   ],
   "image_prompts": [
     { "scene_number": 1, "prompt": "Detailed cinematic image prompt, 4K, realistic, with specific lighting and mood. Compatible with AI image generators." }
