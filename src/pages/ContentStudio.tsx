@@ -333,6 +333,11 @@ export default function ContentStudio() {
 
         {/* Templates Bar */}
         <div className="flex items-center gap-2 mb-4">
+          <Button variant="outline" size="sm" asChild>
+            <Link to="/template-marketplace">
+              <BookTemplate className="w-3.5 h-3.5 mr-1.5" /> Browse Marketplace
+            </Link>
+          </Button>
           <Dialog open={showTemplates} onOpenChange={setShowTemplates}>
             <DialogTrigger asChild>
               <Button variant="outline" size="sm">
