@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   Search, Loader2, Download, BookTemplate, ArrowLeft,
-  Copy, Check, Tag
+  Copy, Check, Tag, Sparkles
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
