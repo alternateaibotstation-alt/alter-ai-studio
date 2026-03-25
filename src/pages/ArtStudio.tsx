@@ -80,6 +80,15 @@ export default function ArtStudio() {
         },
         ...prev,
       ]);
+      // Auto-save to My Creations
+      try {
+        const imgResp = await fetch(imageUrl);
+        const blob = await imgResp.blob();
+        await saveCreation(blob, prompt.trim().slice(0, 80) || "AI Art", "image", { model, prompt: prompt.trim() });
+      } catch (saveErr) {
+        console.error("Auto-save failed:", saveErr);
+      }
+
       toast.success("Image generated!");
     } catch (err: any) {
       const errMsg = err.message || "Failed to generate image";
