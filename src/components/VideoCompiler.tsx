@@ -41,6 +41,7 @@ export default function VideoCompiler({ scenes, imagePrompts, hook, existingImag
   const [statusText, setStatusText] = useState("");
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [style, setStyle] = useState<VideoStyle>(defaultVideoStyle);
+  const [music, setMusic] = useState<MusicSettings>(defaultMusicSettings);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const generateVideo = useCallback(async () => {
