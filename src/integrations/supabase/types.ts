@@ -357,6 +357,39 @@ export type Database = {
         }
         Relationships: []
       }
+      user_creations: {
+        Row: {
+          created_at: string
+          file_url: string
+          id: string
+          metadata: Json | null
+          thumbnail_url: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          file_url: string
+          id?: string
+          metadata?: Json | null
+          thumbnail_url?: string | null
+          title?: string
+          type?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          file_url?: string
+          id?: string
+          metadata?: Json | null
+          thumbnail_url?: string | null
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
