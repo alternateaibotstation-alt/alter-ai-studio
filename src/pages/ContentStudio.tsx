@@ -315,6 +315,71 @@ export default function ContentStudio() {
           </p>
         </div>
 
+        {/* Templates Bar */}
+        <div className="flex items-center gap-2 mb-4">
+          <Dialog open={showTemplates} onOpenChange={setShowTemplates}>
+            <DialogTrigger asChild>
+              <Button variant="outline" size="sm">
+                <FolderOpen className="w-3.5 h-3.5 mr-1.5" /> My Templates
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-lg max-h-[70vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <BookTemplate className="w-5 h-5 text-primary" /> Saved Templates
+                </DialogTitle>
+              </DialogHeader>
+              {loadingTemplates ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+                </div>
+              ) : templates.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-8">No saved templates yet. Generate content and save it as a template!</p>
+              ) : (
+                <div className="space-y-2">
+                  {templates.map(t => (
+                    <Card key={t.id} className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => loadTemplate(t)}>
+                      <CardContent className="pt-3 pb-3">
+                        <div className="flex items-center justify-between">
+                          <div className="min-w-0 flex-1">
+                            <p className="text-sm font-medium text-foreground truncate">{t.name}</p>
+                            <p className="text-xs text-muted-foreground truncate">{t.prompt}</p>
+                            <div className="flex gap-1 mt-1 flex-wrap">
+                              {(t.platforms || []).map((p: string) => {
+                                const plat = PLATFORMS.find(x => x.id === p);
+                                return plat ? <span key={p} className="text-xs">{plat.icon}</span> : null;
+                              })}
+                              <span className="text-xs text-muted-foreground ml-1">{new Date(t.created_at).toLocaleDateString()}</span>
+                            </div>
+                          </div>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0 text-destructive hover:text-destructive" onClick={(e) => deleteTemplate(t.id, e)}>
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </DialogContent>
+          </Dialog>
+
+          {hasContent && (
+            <div className="flex items-center gap-2">
+              <Input
+                value={templateName}
+                onChange={(e) => setTemplateName(e.target.value)}
+                placeholder="Template name..."
+                className="h-8 w-48 text-sm bg-background"
+              />
+              <Button variant="outline" size="sm" onClick={saveTemplate} disabled={savingTemplate || !templateName.trim()}>
+                {savingTemplate ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <Save className="w-3.5 h-3.5 mr-1.5" />}
+                Save Template
+              </Button>
+            </div>
+          )}
+        </div>
+
         {/* Character Profile */}
         <div className="mb-4">
           <CharacterProfileEditor profile={storyProfile} onChange={setStoryProfile} />
