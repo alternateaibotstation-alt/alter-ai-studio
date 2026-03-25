@@ -55,6 +55,7 @@ const App = () => (
               <Route path="/companion/:id" element={<CompanionProfile />} />
               <Route path="/content-studio" element={<ContentStudio />} />
               <Route path="/my-creations" element={<MyCreations />} />
+              <Route path="/template-marketplace" element={<TemplateMarketplace />} />
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/terms" element={<Terms />} />
               <Route path="*" element={<NotFound />} />
