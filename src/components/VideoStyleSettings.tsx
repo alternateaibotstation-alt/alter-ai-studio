@@ -292,8 +292,6 @@ export default function VideoStyleSettings({ style, onChange }: Props) {
           )}
         </CardContent>
       </Card>
-        </CardContent>
-      </Card>
 
       {/* Typography */}
       <Card className="border-border/50">
