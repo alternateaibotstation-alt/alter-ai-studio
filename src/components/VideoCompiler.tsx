@@ -6,6 +6,7 @@ import { Film, Loader2, Download, Play, AlertCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import VideoStyleSettings, { VideoStyle, defaultVideoStyle } from "./VideoStyleSettings";
+import VideoMusicSelector, { MusicSettings, defaultMusicSettings } from "./VideoMusicSelector";
 
 interface Scene {
   number: number;
@@ -40,6 +41,7 @@ export default function VideoCompiler({ scenes, imagePrompts, hook, existingImag
   const [statusText, setStatusText] = useState("");
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [style, setStyle] = useState<VideoStyle>(defaultVideoStyle);
+  const [music, setMusic] = useState<MusicSettings>(defaultMusicSettings);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const generateVideo = useCallback(async () => {
@@ -104,8 +106,57 @@ export default function VideoCompiler({ scenes, imagePrompts, hook, existingImag
         ? "video/webm;codecs=vp9"
         : "video/webm";
 
-      const stream = canvas.captureStream(FPS);
-      const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 5_000_000 });
+      const videoStream = canvas.captureStream(FPS);
+      let combinedStream = videoStream;
+      let audioCtx: AudioContext | null = null;
+      let audioSource: AudioBufferSourceNode | null = null;
+
+      // Mix audio if provided
+      if (music.audioUrl && music.audioFile) {
+        try {
+          audioCtx = new AudioContext();
+          const audioData = await music.audioFile.arrayBuffer();
+          const audioBuffer = await audioCtx.decodeAudioData(audioData);
+          const dest = audioCtx.createMediaStreamDestination();
+          const gainNode = audioCtx.createGain();
+
+          audioSource = audioCtx.createBufferSource();
+          audioSource.buffer = audioBuffer;
+          audioSource.loop = true;
+          audioSource.connect(gainNode);
+          gainNode.connect(dest);
+
+          const totalDur = scenes.reduce((s, sc) => s + sc.duration_seconds, 0);
+          const vol = music.volume / 100;
+
+          // Set initial volume (handle fade-in)
+          if (music.fadeIn) {
+            gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+            gainNode.gain.linearRampToValueAtTime(vol, audioCtx.currentTime + 1.5);
+          } else {
+            gainNode.gain.setValueAtTime(vol, audioCtx.currentTime);
+          }
+
+          // Schedule fade-out
+          if (music.fadeOut) {
+            const fadeOutStart = Math.max(0, totalDur - 1.5);
+            gainNode.gain.setValueAtTime(vol, audioCtx.currentTime + fadeOutStart);
+            gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + totalDur);
+          }
+
+          audioSource.start(0);
+
+          combinedStream = new MediaStream([
+            ...videoStream.getVideoTracks(),
+            ...dest.stream.getAudioTracks(),
+          ]);
+          setStatusText("Compiling video with audio...");
+        } catch (audioErr) {
+          console.warn("Audio mixing failed, continuing without audio:", audioErr);
+        }
+      }
+
+      const recorder = new MediaRecorder(combinedStream, { mimeType, videoBitsPerSecond: 5_000_000 });
       const chunks: Blob[] = [];
       recorder.ondataavailable = (e) => { if (e.data.size > 0) chunks.push(e.data); };
 
@@ -230,6 +281,10 @@ export default function VideoCompiler({ scenes, imagePrompts, hook, existingImag
       }
 
       recorder.stop();
+      // Stop audio
+      if (audioSource) { try { audioSource.stop(); } catch {} }
+      if (audioCtx) { try { audioCtx.close(); } catch {} }
+
       const url = await videoReady;
       setVideoUrl(url);
       setPhase("done");
@@ -242,7 +297,7 @@ export default function VideoCompiler({ scenes, imagePrompts, hook, existingImag
       setStatusText(err.message || "Failed to generate video");
       toast.error("Video generation failed");
     }
-  }, [scenes, imagePrompts, hook, existingImages, style]);
+  }, [scenes, imagePrompts, hook, existingImages, style, music]);
 
   const downloadVideo = () => {
     if (!videoUrl) return;
@@ -256,6 +311,9 @@ export default function VideoCompiler({ scenes, imagePrompts, hook, existingImag
     <div className="space-y-4">
       {/* Style Settings */}
       <VideoStyleSettings style={style} onChange={setStyle} />
+
+      {/* Music Settings */}
+      <VideoMusicSelector settings={music} onChange={setMusic} />
 
       {/* Video Generation */}
       <Card className="border-primary/20">
