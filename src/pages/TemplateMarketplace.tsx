@@ -80,7 +80,7 @@ export default function TemplateMarketplace() {
       }
 
       // Clone the template for the current user
-      const { error } = await (supabase.from as any)("content_templates").insert({
+      const { error } = await supabase.from("content_templates").insert({
         user_id: user.id,
         name: `${template.name} (copy)`,
         prompt: template.prompt,
@@ -92,7 +92,7 @@ export default function TemplateMarketplace() {
       if (error) throw error;
 
       // Increment use count on original
-      await (supabase.from as any)("content_templates")
+      await supabase.from("content_templates")
         .update({ use_count: (template.use_count || 0) + 1 })
         .eq("id", template.id);
 
