@@ -39,6 +39,7 @@ export default function ArtStudio() {
   const [gallery, setGallery] = useState<GeneratedImage[]>([]);
   const [paywallOpen, setPaywallOpen] = useState(false);
   const { canGenerateImage, refresh: refreshSub } = useSubscription();
+  const { saveCreation } = useCreations();
 
   const generate = async () => {
     if (!prompt.trim()) return;
