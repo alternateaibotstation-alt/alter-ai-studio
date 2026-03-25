@@ -291,7 +291,35 @@ export default function VideoCompiler({ scenes, imagePrompts, hook, existingImag
       setPhase("done");
       setProgress(100);
       setStatusText("Video ready!");
-      toast.success("Video generated! Click download to save.");
+
+      // Auto-save to user's creations
+      try {
+        const resp = await fetch(url);
+        const videoBlob = await resp.blob();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const fileName = `${user.id}/${Date.now()}.webm`;
+          const { error: upErr } = await supabase.storage
+            .from("user-creations")
+            .upload(fileName, videoBlob, { contentType: "video/webm" });
+          if (!upErr) {
+            const { data: urlData } = supabase.storage.from("user-creations").getPublicUrl(fileName);
+            await supabase.from("user_creations").insert({
+              user_id: user.id,
+              title: hook || "Untitled Video",
+              type: "video",
+              file_url: urlData.publicUrl,
+              metadata: { scenes: scenes.length, duration: totalDuration },
+            });
+            toast.success("Video saved to your creations!");
+          }
+        } else {
+          toast.success("Video generated! Sign in to save your creations.");
+        }
+      } catch (saveErr) {
+        console.warn("Auto-save failed:", saveErr);
+        toast.success("Video generated! Download it below.");
+      }
     } catch (err: any) {
       console.error("Video generation error:", err);
       setPhase("error");

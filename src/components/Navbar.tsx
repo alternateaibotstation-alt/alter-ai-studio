@@ -42,6 +42,7 @@ export default function Navbar() {
     { to: "/companions", label: "Companions" },
     { to: "/marketplace", label: "Marketplace" },
     { to: "/content-studio", label: "🎬 Content Studio" },
+    { to: "/my-creations", label: "📁 My Creations" },
     { to: "/art-studio", label: "Art Studio" },
     { to: "/graffiti", label: "Graffiti Studio" },
     { to: "/gallery", label: "Gallery" },
