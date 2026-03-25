@@ -121,6 +121,7 @@ export default function ContentStudio() {
         platforms: selectedPlatforms,
         content: platformContent,
         story_profile: hasStoryProfile ? storyProfile : null,
+        category: templateCategory,
       });
       if (error) throw error;
       toast.success("Template saved!");
