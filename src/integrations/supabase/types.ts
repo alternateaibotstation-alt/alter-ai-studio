@@ -109,6 +109,42 @@ export type Database = {
         }
         Relationships: []
       }
+      content_templates: {
+        Row: {
+          content: Json
+          created_at: string
+          id: string
+          name: string
+          platforms: string[]
+          prompt: string
+          story_profile: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content?: Json
+          created_at?: string
+          id?: string
+          name?: string
+          platforms?: string[]
+          prompt?: string
+          story_profile?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: Json
+          created_at?: string
+          id?: string
+          name?: string
+          platforms?: string[]
+          prompt?: string
+          story_profile?: Json | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       favorites: {
         Row: {
           bot_id: string
