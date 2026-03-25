@@ -175,6 +175,20 @@ export default function ContentStudio() {
     }
   };
 
+  const updateTemplateCategory = async (id: string, newCategory: string, e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    try {
+      const { error } = await (supabase.from as any)("content_templates")
+        .update({ category: newCategory })
+        .eq("id", id);
+      if (error) throw error;
+      setTemplates(prev => prev.map(t => t.id === id ? { ...t, category: newCategory } : t));
+      toast.success("Category updated");
+    } catch {
+      toast.error("Failed to update category");
+    }
+  };
+
   const togglePlatform = (id: PlatformId) => {
     setSelectedPlatforms(prev =>
       prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id]
