@@ -111,7 +111,7 @@ export default function ContentStudio() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { toast.error("Sign in to save templates"); return; }
 
-      const { error } = await supabase.from("content_templates").insert({
+      const { error } = await (supabase.from as any)("content_templates").insert({
         user_id: user.id,
         name: templateName.trim(),
         prompt,
