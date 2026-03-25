@@ -114,33 +114,39 @@ export type Database = {
           content: Json
           created_at: string
           id: string
+          is_public: boolean
           name: string
           platforms: string[]
           prompt: string
           story_profile: Json | null
           updated_at: string
+          use_count: number
           user_id: string
         }
         Insert: {
           content?: Json
           created_at?: string
           id?: string
+          is_public?: boolean
           name?: string
           platforms?: string[]
           prompt?: string
           story_profile?: Json | null
           updated_at?: string
+          use_count?: number
           user_id: string
         }
         Update: {
           content?: Json
           created_at?: string
           id?: string
+          is_public?: boolean
           name?: string
           platforms?: string[]
           prompt?: string
           story_profile?: Json | null
           updated_at?: string
+          use_count?: number
           user_id?: string
         }
         Relationships: []
