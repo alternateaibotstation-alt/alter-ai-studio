@@ -172,7 +172,7 @@ export default function TemplateMarketplace() {
 
                   {/* Creator & Date */}
                   <div className="flex items-center justify-between text-[10px] text-muted-foreground mb-3">
-                    <span>by {(t as any).profiles?.username || "Anonymous"}</span>
+                    <span>shared {new Date(t.created_at).toLocaleDateString()}</span>
                     <span>{new Date(t.created_at).toLocaleDateString()}</span>
                   </div>
 
