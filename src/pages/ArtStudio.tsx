@@ -187,7 +187,10 @@ export default function ArtStudio() {
                       alt={img.prompt}
                       className="w-full h-full object-cover"
                     />
-                    <div className="absolute inset-0 bg-background/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                    <div className="absolute inset-0 bg-background/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 flex-wrap p-2">
+                      <Button size="sm" variant="secondary" onClick={() => { setPrompt(img.prompt); window.scrollTo({ top: 0, behavior: "smooth" }); }}>
+                        <Sparkles className="w-4 h-4 mr-1" /> Edit Prompt
+                      </Button>
                       <Button size="sm" variant="secondary" onClick={() => downloadImage(img)}>
                         <Download className="w-4 h-4 mr-1" /> Save
                       </Button>
