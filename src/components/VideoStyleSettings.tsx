@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { Palette, Type, Move } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export interface VideoStyle {
   fontFamily: string;
@@ -53,6 +54,119 @@ const FONT_OPTIONS = [
   { value: "'Courier New', monospace", label: "Courier New" },
 ];
 
+export const STYLE_PRESETS: { name: string; icon: string; style: VideoStyle }[] = [
+  {
+    name: "Neon",
+    icon: "⚡",
+    style: {
+      fontFamily: "'Impact', sans-serif",
+      sceneTextSize: 46,
+      hookTextSize: 40,
+      badgeTextSize: 26,
+      textColor: "#00ffcc",
+      hookColor: "#ff00ff",
+      badgeColor: "#ff00ff",
+      bgGradientTop: "#0d001a",
+      bgGradientMid: "#1a0033",
+      bgGradientBot: "#0d001a",
+      overlayOpacity: 40,
+      textPosition: "lower",
+      hookPosition: "top",
+      showBadge: true,
+      showProgressBar: true,
+      progressBarColor: "#00ffcc",
+    },
+  },
+  {
+    name: "Minimal",
+    icon: "◻️",
+    style: {
+      fontFamily: "sans-serif",
+      sceneTextSize: 38,
+      hookTextSize: 32,
+      badgeTextSize: 22,
+      textColor: "#f0f0f0",
+      hookColor: "#ffffff",
+      badgeColor: "#555555",
+      bgGradientTop: "#111111",
+      bgGradientMid: "#1a1a1a",
+      bgGradientBot: "#111111",
+      overlayOpacity: 50,
+      textPosition: "center",
+      hookPosition: "center",
+      showBadge: false,
+      showProgressBar: false,
+      progressBarColor: "#ffffff",
+    },
+  },
+  {
+    name: "Cinematic",
+    icon: "🎬",
+    style: {
+      fontFamily: "'Georgia', serif",
+      sceneTextSize: 44,
+      hookTextSize: 38,
+      badgeTextSize: 24,
+      textColor: "#ffd700",
+      hookColor: "#ffd700",
+      badgeColor: "#8b6914",
+      bgGradientTop: "#000000",
+      bgGradientMid: "#0a0a14",
+      bgGradientBot: "#000000",
+      overlayOpacity: 30,
+      textPosition: "lower",
+      hookPosition: "top",
+      showBadge: true,
+      showProgressBar: true,
+      progressBarColor: "#ffd700",
+    },
+  },
+  {
+    name: "Retro",
+    icon: "📼",
+    style: {
+      fontFamily: "'Courier New', monospace",
+      sceneTextSize: 40,
+      hookTextSize: 34,
+      badgeTextSize: 22,
+      textColor: "#33ff33",
+      hookColor: "#ff6600",
+      badgeColor: "#ff6600",
+      bgGradientTop: "#1a0a00",
+      bgGradientMid: "#0a1a0a",
+      bgGradientBot: "#1a0a00",
+      overlayOpacity: 45,
+      textPosition: "lower",
+      hookPosition: "top",
+      showBadge: true,
+      showProgressBar: true,
+      progressBarColor: "#33ff33",
+    },
+  },
+  {
+    name: "Pastel",
+    icon: "🌸",
+    style: {
+      fontFamily: "sans-serif",
+      sceneTextSize: 40,
+      hookTextSize: 34,
+      badgeTextSize: 24,
+      textColor: "#ffffff",
+      hookColor: "#ffb6c1",
+      badgeColor: "#b6d0ff",
+      bgGradientTop: "#2d1f3d",
+      bgGradientMid: "#1f2d3d",
+      bgGradientBot: "#2d1f3d",
+      overlayOpacity: 35,
+      textPosition: "center",
+      hookPosition: "top",
+      showBadge: true,
+      showProgressBar: true,
+      progressBarColor: "#ffb6c1",
+    },
+  },
+];
+
 interface Props {
   style: VideoStyle;
   onChange: (style: VideoStyle) => void;
@@ -65,6 +179,39 @@ export default function VideoStyleSettings({ style, onChange }: Props) {
 
   return (
     <div className="space-y-4">
+      {/* Preset Themes */}
+      <Card className="border-border/50">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm font-medium flex items-center gap-2">
+            🎨 Style Presets
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-wrap gap-2">
+            {STYLE_PRESETS.map((preset) => (
+              <Button
+                key={preset.name}
+                variant="outline"
+                size="sm"
+                className="gap-1.5 text-xs"
+                onClick={() => onChange(preset.style)}
+              >
+                <span>{preset.icon}</span>
+                {preset.name}
+              </Button>
+            ))}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="gap-1.5 text-xs text-muted-foreground"
+              onClick={() => onChange(defaultVideoStyle)}
+            >
+              ↺ Reset
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Typography */}
       <Card className="border-border/50">
         <CardHeader className="pb-3">
