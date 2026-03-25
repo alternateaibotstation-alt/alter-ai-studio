@@ -181,7 +181,8 @@ export default function VideoCompiler({ scenes, imagePrompts, hook, existingImag
 
       for (let sceneIdx = 0; sceneIdx < scenes.length; sceneIdx++) {
         const scene = scenes[sceneIdx];
-        const sceneFrames = scene.duration_seconds * FPS;
+        const sceneDuration = Math.max(3, scene.duration_seconds);
+        const sceneFrames = sceneDuration * FPS;
         const img = sceneImages.get(scene.number);
 
         for (let f = 0; f < sceneFrames; f++) {
