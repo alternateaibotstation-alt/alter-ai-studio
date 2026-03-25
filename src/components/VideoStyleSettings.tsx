@@ -1,10 +1,12 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
-import { Palette, Type, Move } from "lucide-react";
+import { Palette, Type, Move, Save, Trash2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useVideoPresets } from "@/hooks/use-video-presets";
 
 export interface VideoStyle {
   fontFamily: string;
@@ -173,8 +175,19 @@ interface Props {
 }
 
 export default function VideoStyleSettings({ style, onChange }: Props) {
+  const [newPresetName, setNewPresetName] = useState("");
+  const [showSaveInput, setShowSaveInput] = useState(false);
+  const { presets, loading, savePreset, deletePreset, isLoggedIn } = useVideoPresets();
+
   const update = <K extends keyof VideoStyle>(key: K, value: VideoStyle[K]) => {
     onChange({ ...style, [key]: value });
+  };
+
+  const handleSave = async () => {
+    if (!newPresetName.trim()) return;
+    await savePreset(newPresetName.trim(), style);
+    setNewPresetName("");
+    setShowSaveInput(false);
   };
 
   return (
@@ -186,7 +199,8 @@ export default function VideoStyleSettings({ style, onChange }: Props) {
             🎨 Style Presets
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-3">
+          {/* Built-in presets */}
           <div className="flex flex-wrap gap-2">
             {STYLE_PRESETS.map((preset) => (
               <Button
@@ -209,6 +223,73 @@ export default function VideoStyleSettings({ style, onChange }: Props) {
               ↺ Reset
             </Button>
           </div>
+
+          {/* Saved custom presets */}
+          {presets.length > 0 && (
+            <div className="space-y-1.5">
+              <Label className="text-xs text-muted-foreground">Your Saved Presets</Label>
+              <div className="flex flex-wrap gap-2">
+                {presets.map((preset) => (
+                  <div key={preset.id} className="flex items-center gap-0.5">
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      className="gap-1.5 text-xs"
+                      onClick={() => onChange(preset.style)}
+                    >
+                      💾 {preset.name}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 text-muted-foreground hover:text-destructive"
+                      onClick={() => deletePreset(preset.id)}
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Save current as preset */}
+          {isLoggedIn && (
+            <div className="pt-1">
+              {showSaveInput ? (
+                <div className="flex items-center gap-2">
+                  <Input
+                    placeholder="Preset name..."
+                    value={newPresetName}
+                    onChange={(e) => setNewPresetName(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleSave()}
+                    className="h-8 text-xs"
+                  />
+                  <Button size="sm" className="h-8 text-xs gap-1" onClick={handleSave} disabled={!newPresetName.trim()}>
+                    <Save className="w-3 h-3" /> Save
+                  </Button>
+                  <Button size="sm" variant="ghost" className="h-8 text-xs" onClick={() => setShowSaveInput(false)}>
+                    Cancel
+                  </Button>
+                </div>
+              ) : (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-1.5 text-xs"
+                  onClick={() => setShowSaveInput(true)}
+                >
+                  <Save className="w-3 h-3" /> Save Current as Preset
+                </Button>
+              )}
+            </div>
+          )}
+
+          {loading && (
+            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+              <Loader2 className="w-3 h-3 animate-spin" /> Loading presets...
+            </div>
+          )}
         </CardContent>
       </Card>
 
