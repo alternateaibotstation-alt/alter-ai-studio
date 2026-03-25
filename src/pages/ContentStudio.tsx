@@ -88,11 +88,11 @@ export default function ContentStudio() {
     setLoadingTemplates(true);
     try {
       const { data, error } = await supabase
-        .from("content_templates")
+        .from("content_templates" as any)
         .select("*")
         .order("created_at", { ascending: false });
       if (error) throw error;
-      setTemplates(data || []);
+      setTemplates((data as any[]) || []);
     } catch (err: any) {
       toast.error("Failed to load templates");
     } finally {
