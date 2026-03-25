@@ -208,7 +208,7 @@ export default function TemplateMarketplace() {
           <div className="flex items-center justify-center py-16">
             <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
           </div>
-        ) : filtered.length === 0 ? (
+        ) : sorted.length === 0 ? (
           <div className="text-center py-16">
             <BookTemplate className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-40" />
             <p className="text-muted-foreground">
@@ -224,7 +224,7 @@ export default function TemplateMarketplace() {
           </div>
         ) : (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filtered.map(t => (
+            {sorted.map(t => (
               <Card key={t.id} className={`group border-border hover:border-primary/25 transition-all duration-200 ${t.user_id === "00000000-0000-0000-0000-000000000000" ? "ring-1 ring-primary/10" : ""}`}>
                 <CardContent className="pt-5 pb-4">
                   <div className="flex items-start justify-between gap-2 mb-3">
