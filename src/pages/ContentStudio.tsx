@@ -159,6 +159,20 @@ export default function ContentStudio() {
     }
   };
 
+  const togglePublish = async (id: string, currentlyPublic: boolean, e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      const { error } = await (supabase.from as any)("content_templates")
+        .update({ is_public: !currentlyPublic })
+        .eq("id", id);
+      if (error) throw error;
+      setTemplates(prev => prev.map(t => t.id === id ? { ...t, is_public: !currentlyPublic } : t));
+      toast.success(currentlyPublic ? "Template unpublished" : "Template published to marketplace!");
+    } catch {
+      toast.error("Failed to update template");
+    }
+  };
+
   const togglePlatform = (id: PlatformId) => {
     setSelectedPlatforms(prev =>
       prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id]
