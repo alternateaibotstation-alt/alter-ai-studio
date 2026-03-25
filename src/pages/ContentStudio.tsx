@@ -7,10 +7,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Clapperboard, Copy, Check, Loader2, Download, ImageIcon, Sparkles,
-  Film, Type, Camera, Hash, MessageSquare, Zap, Video
+  Film, Type, Camera, Hash, MessageSquare, Zap, Video, FastForward
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import VideoCompiler from "@/components/VideoCompiler";
+import CharacterProfileEditor, { StoryProfile, emptyStoryProfile } from "@/components/CharacterProfileEditor";
 import { toast } from "sonner";
 
 interface Scene {
@@ -53,6 +54,11 @@ interface GeneratedImage {
   url: string;
 }
 
+interface StorySegment {
+  content: GeneratedContent;
+  images: GeneratedImage[];
+}
+
 export default function ContentStudio() {
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
@@ -60,25 +66,82 @@ export default function ContentStudio() {
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [generatingImages, setGeneratingImages] = useState<Record<number, boolean>>({});
   const [generatedImages, setGeneratedImages] = useState<GeneratedImage[]>([]);
+  const [storyProfile, setStoryProfile] = useState<StoryProfile>(emptyStoryProfile);
+
+  // Story continuation state
+  const [storySegments, setStorySegments] = useState<StorySegment[]>([]);
+  const [continuePrompt, setContinuePrompt] = useState("");
+  const [continuing, setContinuing] = useState(false);
+
+  const hasStoryProfile = storyProfile.characters.length > 0 || storyProfile.visualStyle || storyProfile.mood || storyProfile.setting;
 
   const handleGenerate = async () => {
     if (!prompt.trim()) return;
     setLoading(true);
     setContent(null);
     setGeneratedImages([]);
+    setStorySegments([]);
 
     try {
-      const { data, error } = await supabase.functions.invoke("content-studio", {
-        body: { prompt: prompt.trim() },
-      });
+      const body: any = { prompt: prompt.trim() };
+      if (hasStoryProfile) body.storyProfile = storyProfile;
+
+      const { data, error } = await supabase.functions.invoke("content-studio", { body });
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
       setContent(data.content);
+      setStorySegments([{ content: data.content, images: [] }]);
       toast.success("Content generated successfully!");
     } catch (err: any) {
       toast.error(err.message || "Failed to generate content");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleContinueStory = async () => {
+    if (!continuePrompt.trim() || !content) return;
+    setContinuing(true);
+
+    try {
+      // Collect all scenes across segments for context
+      const allScenes = storySegments.flatMap(seg => seg.content.scenes);
+
+      const body: any = {
+        prompt: continuePrompt.trim(),
+        previousScenes: allScenes,
+      };
+      if (hasStoryProfile) body.storyProfile = storyProfile;
+
+      const { data, error } = await supabase.functions.invoke("content-studio", { body });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      const newContent = data.content as GeneratedContent;
+      setStorySegments(prev => [...prev, { content: newContent, images: [] }]);
+
+      // Merge into combined content for video generation
+      setContent(prev => {
+        if (!prev) return newContent;
+        return {
+          ...prev,
+          scenes: [...prev.scenes, ...newContent.scenes],
+          image_prompts: [...prev.image_prompts, ...newContent.image_prompts],
+          video_scenes: [...prev.video_scenes, ...newContent.video_scenes],
+          hook: prev.hook,
+          caption: newContent.caption,
+          cta: newContent.cta,
+          hashtags: [...new Set([...prev.hashtags, ...newContent.hashtags])],
+          editing: newContent.editing,
+        };
+      });
+
+      setContinuePrompt("");
+      toast.success("Story continued! New scenes added.");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to continue story");
+    } finally {
+      setContinuing(false);
     }
   };
 
@@ -90,7 +153,6 @@ export default function ContentStudio() {
       });
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
-      // Extract image from AI gateway response format
       const imageUrl = data?.choices?.[0]?.message?.images?.[0]?.image_url?.url || data?.image;
       if (imageUrl) {
         setGeneratedImages((prev) => [...prev, { scene_number: sceneNumber, url: imageUrl }]);
@@ -113,12 +175,7 @@ export default function ContentStudio() {
   };
 
   const CopyBtn = ({ text, field }: { text: string; field: string }) => (
-    <Button
-      variant="ghost"
-      size="icon"
-      className="h-7 w-7 shrink-0"
-      onClick={() => copyToClipboard(text, field)}
-    >
+    <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={() => copyToClipboard(text, field)}>
       {copiedField === field ? <Check className="w-3.5 h-3.5 text-primary" /> : <Copy className="w-3.5 h-3.5" />}
     </Button>
   );
@@ -183,6 +240,11 @@ export default function ContentStudio() {
           </p>
         </div>
 
+        {/* Character & Style Profile */}
+        <div className="mb-4">
+          <CharacterProfileEditor profile={storyProfile} onChange={setStoryProfile} />
+        </div>
+
         {/* Input */}
         <Card className="mb-8 border-primary/20">
           <CardContent className="pt-6">
@@ -209,6 +271,21 @@ export default function ContentStudio() {
         {/* Results */}
         {content && (
           <div className="space-y-6">
+            {/* Segment indicator */}
+            {storySegments.length > 1 && (
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-xs text-muted-foreground font-medium">Story segments:</span>
+                {storySegments.map((_, idx) => (
+                  <Badge key={idx} variant={idx === storySegments.length - 1 ? "default" : "secondary"} className="text-xs">
+                    Part {idx + 1}
+                  </Badge>
+                ))}
+                <Badge variant="outline" className="text-xs">
+                  {content.scenes.length} total scenes
+                </Badge>
+              </div>
+            )}
+
             {/* Export bar */}
             <div className="flex flex-wrap gap-2">
               <Button variant="outline" size="sm" onClick={exportFullScript}>
@@ -223,12 +300,13 @@ export default function ContentStudio() {
             </div>
 
             <Tabs defaultValue="overview" className="w-full">
-              <TabsList className="grid w-full grid-cols-6">
+              <TabsList className="grid w-full grid-cols-7">
                 <TabsTrigger value="overview"><Zap className="w-3.5 h-3.5 mr-1 hidden sm:inline" /> Overview</TabsTrigger>
                 <TabsTrigger value="scenes"><Film className="w-3.5 h-3.5 mr-1 hidden sm:inline" /> Scenes</TabsTrigger>
                 <TabsTrigger value="images"><ImageIcon className="w-3.5 h-3.5 mr-1 hidden sm:inline" /> Images</TabsTrigger>
                 <TabsTrigger value="video"><Camera className="w-3.5 h-3.5 mr-1 hidden sm:inline" /> Video</TabsTrigger>
                 <TabsTrigger value="editing"><Type className="w-3.5 h-3.5 mr-1 hidden sm:inline" /> Editing</TabsTrigger>
+                <TabsTrigger value="continue" className="text-accent"><FastForward className="w-3.5 h-3.5 mr-1 hidden sm:inline" /> Continue</TabsTrigger>
                 <TabsTrigger value="generate" className="text-primary"><Video className="w-3.5 h-3.5 mr-1 hidden sm:inline" /> Generate</TabsTrigger>
               </TabsList>
 
@@ -289,22 +367,34 @@ export default function ContentStudio() {
 
               {/* Scenes Tab */}
               <TabsContent value="scenes" className="space-y-3 mt-4">
-                {content.scenes.map((scene) => (
-                  <Card key={scene.number}>
-                    <CardContent className="pt-4">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex items-start gap-3">
-                          <Badge variant="outline" className="shrink-0 mt-0.5">{scene.number}</Badge>
-                          <div>
-                            <p className="text-foreground">{scene.text}</p>
-                            <p className="text-xs text-muted-foreground mt-1">{scene.duration_seconds}s</p>
+                {content.scenes.map((scene, idx) => {
+                  // Find which segment this scene belongs to
+                  let segIdx = 0;
+                  let count = 0;
+                  for (let s = 0; s < storySegments.length; s++) {
+                    count += storySegments[s].content.scenes.length;
+                    if (idx < count) { segIdx = s; break; }
+                  }
+                  return (
+                    <Card key={`${scene.number}-${idx}`}>
+                      <CardContent className="pt-4">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex items-start gap-3">
+                            <Badge variant="outline" className="shrink-0 mt-0.5">{scene.number}</Badge>
+                            {storySegments.length > 1 && (
+                              <Badge variant="secondary" className="shrink-0 mt-0.5 text-xs">Part {segIdx + 1}</Badge>
+                            )}
+                            <div>
+                              <p className="text-foreground">{scene.text}</p>
+                              <p className="text-xs text-muted-foreground mt-1">{scene.duration_seconds}s</p>
+                            </div>
                           </div>
+                          <CopyBtn text={scene.text} field={`scene-${scene.number}`} />
                         </div>
-                        <CopyBtn text={scene.text} field={`scene-${scene.number}`} />
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                      </CardContent>
+                    </Card>
+                  );
+                })}
               </TabsContent>
 
               {/* Image Prompts Tab */}
@@ -382,6 +472,60 @@ export default function ContentStudio() {
                   </CardContent>
                 </Card>
               </TabsContent>
+
+              {/* Continue Story Tab */}
+              <TabsContent value="continue" className="mt-4 space-y-4">
+                <Card className="border-accent/30">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium flex items-center gap-2">
+                      <FastForward className="w-4 h-4 text-accent" />
+                      Continue the Story
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <p className="text-sm text-muted-foreground">
+                      Add more scenes that continue from your existing {content.scenes.length} scenes.
+                      {hasStoryProfile && " Your character profile will be maintained for consistency."}
+                    </p>
+                    <Textarea
+                      placeholder="What happens next? e.g. 'The character discovers a hidden message and must make a choice...'"
+                      value={continuePrompt}
+                      onChange={(e) => setContinuePrompt(e.target.value)}
+                      className="min-h-[80px] bg-background border-border"
+                      maxLength={500}
+                    />
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-muted-foreground">{continuePrompt.length}/500</span>
+                      <Button onClick={handleContinueStory} disabled={continuing || !continuePrompt.trim()}>
+                        {continuing ? (
+                          <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Continuing...</>
+                        ) : (
+                          <><FastForward className="w-4 h-4 mr-2" /> Continue Story</>
+                        )}
+                      </Button>
+                    </div>
+
+                    {storySegments.length > 1 && (
+                      <div className="pt-3 border-t border-border">
+                        <p className="text-xs font-medium text-muted-foreground mb-2">Story Timeline</p>
+                        <div className="space-y-2">
+                          {storySegments.map((seg, idx) => (
+                            <div key={idx} className="flex items-start gap-2 text-xs">
+                              <Badge variant={idx === 0 ? "default" : "secondary"} className="shrink-0 text-xs">
+                                Part {idx + 1}
+                              </Badge>
+                              <span className="text-muted-foreground">
+                                {seg.content.scenes.length} scenes — "{seg.content.hook}"
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
               {/* Generate Video Tab */}
               <TabsContent value="generate" className="mt-4">
                 <VideoCompiler
