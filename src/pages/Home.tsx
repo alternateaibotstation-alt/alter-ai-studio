@@ -1,293 +1,397 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Sparkles, Zap, TrendingUp, ArrowRight, Users, BarChart3, Check } from "lucide-react";
+import {
+  ArrowRight, Bot, Mic, Video, BarChart3, Layers, Clock, DollarSign,
+  Globe, Settings, Shield, Sparkles, ChevronRight, Zap, Check, Star,
+  MessageSquare, Image, TrendingUp
+} from "lucide-react";
 import Navbar from "@/components/Navbar";
-import BotCard from "@/components/BotCard";
-import CompanionSection from "@/components/CompanionSection";
-import { api, type Bot } from "@/lib/api";
 
 const fadeUp = {
-  hidden: { opacity: 0, y: 20 },
+  hidden: { opacity: 0, y: 30 },
   visible: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: { delay: i * 0.1, duration: 0.5 },
+    opacity: 1, y: 0,
+    transition: { delay: i * 0.12, duration: 0.6, ease: "easeOut" as const },
   }),
 };
 
-const stats = [
-  { value: "1000+", label: "Bots Created" },
-  { value: "50K+", label: "Active Users" },
-  { value: "$2M+", label: "Paid Out" },
-];
+const scaleIn = {
+  hidden: { opacity: 0, scale: 0.92 },
+  visible: (i: number) => ({
+    opacity: 1, scale: 1,
+    transition: { delay: i * 0.1, duration: 0.5, ease: "easeOut" as const },
+  }),
+};
 
-const steps = [
-  { icon: Sparkles, title: "Create Your Bot", desc: "Give your AI bot a name, personality, and custom instructions." },
-  { icon: Zap, title: "Publish to Marketplace", desc: "Make your bot public or keep it private. Set pricing and category." },
-  { icon: TrendingUp, title: "Earn Passive Income", desc: "Get paid every time someone uses your bot." },
-];
-
-const earnCards = [
+const features = [
   {
-    icon: Users,
-    title: "Free Bots",
-    desc: "Build an audience and collect usage data. Upgrade to paid later.",
-    features: ["Unlimited usage", "Analytics included", "Upgrade anytime"],
+    icon: Bot,
+    title: "AI Bots",
+    subtitle: "Build once, deploy everywhere",
+    desc: "Create custom AI personalities with unique voices, knowledge, and behaviors. Publish to the marketplace or keep private.",
+    accent: "from-primary to-pink-400",
+    stats: ["Custom personas", "Smart context", "Marketplace ready"],
+  },
+  {
+    icon: Video,
+    title: "Content Studio",
+    subtitle: "Multi-platform content engine",
+    desc: "Generate optimized content for TikTok, Instagram, LinkedIn, Twitter, Facebook, and Pinterest — all from a single prompt.",
+    accent: "from-accent to-cyan-300",
+    stats: ["6 platforms", "AI voiceover", "Video compiler"],
   },
   {
     icon: BarChart3,
-    title: "Paid Bots",
-    desc: "Charge per use or set a subscription model. We handle payments.",
-    features: ["Custom pricing", "Revenue tracking", "Instant payouts"],
+    title: "Analytics & Monetization",
+    subtitle: "Track everything, earn passively",
+    desc: "See exactly how your bots perform. Set pricing, track revenue, and understand user engagement in real time.",
+    accent: "from-violet-500 to-purple-400",
+    stats: ["Usage analytics", "Revenue tracking", "Flexible pricing"],
   },
   {
-    icon: Zap,
-    title: "Revenue Share",
-    desc: "Keep 80% of revenue. We take 20% to cover infrastructure.",
-    features: ["Transparent pricing", "No hidden fees", "Weekly payouts"],
+    icon: Layers,
+    title: "Template Library",
+    subtitle: "Instant content creation",
+    desc: "Save your best content as reusable templates. Load, customize, and generate new variations in seconds.",
+    accent: "from-amber-500 to-orange-400",
+    stats: ["Save & reuse", "Quick load", "Platform presets"],
   },
 ];
 
-const pricing = [
-  {
-    name: "Free",
-    subtitle: "Perfect to start",
-    price: "$0",
-    features: ["15 messages/day", "2 image generations/day", "Basic AI models"],
-  },
-  {
-    name: "Pro",
-    subtitle: "For creators & businesses",
-    price: "$9",
-    features: ["Unlimited messages", "20 image generations/day", "Higher-quality AI models", "Faster responses"],
-    highlight: true,
-  },
-  {
-    name: "Power",
-    subtitle: "For power users",
-    price: "$29",
-    features: ["Unlimited messages", "Unlimited image generation", "Priority processing", "Access to best AI models"],
-  },
+const benefits = [
+  { icon: Clock, title: "Save hours every day", desc: "Generate multi-platform content in seconds, not hours. One prompt powers six platforms." },
+  { icon: DollarSign, title: "New revenue streams", desc: "Monetize your AI bots with flexible pricing. Free, paid, or subscription — you choose." },
+  { icon: Globe, title: "Multi-platform reach", desc: "TikTok, Instagram, LinkedIn, Twitter, Facebook, Pinterest. All optimized automatically." },
+  { icon: Settings, title: "Total flexibility", desc: "Use AlterAI credits or bring your own API keys. Scale on your terms." },
+];
+
+const testimonials = [
+  { quote: "AlterAI completely changed how I create content. What used to take me all day now takes 5 minutes.", name: "Content Creator", role: "TikTok · 50K followers" },
+  { quote: "The multi-platform generation is a game changer. I post to 6 platforms from one prompt.", name: "Digital Marketer", role: "Agency Owner" },
+  { quote: "I built a bot, published it, and started earning within the first week. The analytics are incredibly clear.", name: "Bot Creator", role: "AI Entrepreneur" },
 ];
 
 export default function Home() {
-  const [featuredBots, setFeaturedBots] = useState<Bot[]>([]);
-
-  useEffect(() => {
-    api.getPublicBots().then((bots) => {
-      if (Array.isArray(bots)) setFeaturedBots(bots.slice(0, 6));
-    }).catch(() => {});
-  }, []);
+  const { scrollYProgress } = useScroll();
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
+  const heroScale = useTransform(scrollYProgress, [0, 0.15], [1, 0.97]);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background overflow-x-hidden">
       <Navbar />
 
-      {/* Hero */}
-      <section className="hero-gradient pt-32 pb-16 px-4">
-        <div className="container mx-auto text-center max-w-3xl">
-          <motion.h1
-            className="text-4xl sm:text-6xl font-extrabold tracking-tight text-foreground leading-[1.1]"
+      {/* ═══════════════════════ HERO ═══════════════════════ */}
+      <section className="relative pt-28 pb-20 px-4 overflow-hidden">
+        {/* Ambient glow */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[800px] h-[600px] rounded-full bg-primary/5 blur-[120px]" />
+          <div className="absolute top-40 left-1/4 w-[400px] h-[400px] rounded-full bg-accent/5 blur-[100px]" />
+        </div>
+
+        <motion.div
+          className="container mx-auto text-center max-w-4xl relative z-10"
+          style={{ opacity: heroOpacity, scale: heroScale }}
+        >
+          {/* Pill badge */}
+          <motion.div
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/20 bg-primary/5 text-sm text-primary mb-6"
             initial="hidden" animate="visible" variants={fadeUp} custom={0}
           >
-            Create, Use, and{" "}
-            <span className="gradient-text">Monetize AI Bots</span>
-          </motion.h1>
-          <motion.p
-            className="mt-5 text-lg text-muted-foreground max-w-xl mx-auto"
+            <Sparkles className="w-3.5 h-3.5" />
+            <span className="font-medium">AI-Powered Content & Bot Platform</span>
+          </motion.div>
+
+          <motion.h1
+            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-foreground leading-[1.08]"
             initial="hidden" animate="visible" variants={fadeUp} custom={1}
           >
-            Turn ideas into income with AI-powered personalities. Build once, earn forever.
-          </motion.p>
-          <motion.div
-            className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3"
+            Your ideas deserve
+            <br />
+            <span className="gradient-text">more than one platform</span>
+          </motion.h1>
+
+          <motion.p
+            className="mt-6 text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed"
             initial="hidden" animate="visible" variants={fadeUp} custom={2}
           >
-            <Button size="lg" asChild>
-              <Link to="/auth">
-                Start Creating <ArrowRight className="w-4 h-4 ml-2" />
-              </Link>
-            </Button>
-            <Button size="lg" variant="secondary" asChild>
-              <Link to="/marketplace">Explore Bots</Link>
-            </Button>
-          </motion.div>
+            Build AI bots, generate viral content for every platform, and create
+            voice-powered videos — all from a single workspace.
+          </motion.p>
 
-          {/* Stats */}
           <motion.div
-            className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4"
+            className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4"
             initial="hidden" animate="visible" variants={fadeUp} custom={3}
           >
-            {stats.map((s) => (
-              <div
-                key={s.label}
-                className="flex flex-col items-center rounded-lg border border-border bg-card/50 px-8 py-4 min-w-[140px]"
-              >
-                <span className="text-xl font-bold gradient-text">{s.value}</span>
-                <span className="text-xs text-muted-foreground mt-1">{s.label}</span>
+            <Button size="lg" className="h-13 px-8 text-base shadow-lg shadow-primary/20" asChild>
+              <Link to="/auth">
+                Start building your AI now <ArrowRight className="w-4 h-4 ml-2" />
+              </Link>
+            </Button>
+            <Button size="lg" variant="outline" className="h-13 px-8 text-base" asChild>
+              <Link to="/marketplace">
+                Explore marketplace
+              </Link>
+            </Button>
+          </motion.div>
+
+          <motion.p
+            className="mt-4 text-sm text-muted-foreground"
+            initial="hidden" animate="visible" variants={fadeUp} custom={4}
+          >
+            No coding required · Start for free · Cancel anytime
+          </motion.p>
+
+          {/* Hero visual — abstract grid */}
+          <motion.div
+            className="mt-16 relative"
+            initial="hidden" animate="visible" variants={scaleIn} custom={5}
+          >
+            <div className="relative rounded-2xl border border-border/60 bg-card/40 backdrop-blur-sm p-1 shadow-2xl shadow-primary/5">
+              <div className="rounded-xl bg-gradient-to-br from-card via-card to-primary/5 p-8 sm:p-12">
+                <div className="grid grid-cols-3 gap-4 sm:gap-6">
+                  {[
+                    { icon: Bot, label: "AI Bots", color: "text-primary" },
+                    { icon: Video, label: "Content", color: "text-accent" },
+                    { icon: Mic, label: "Voice", color: "text-violet-400" },
+                    { icon: Image, label: "Images", color: "text-amber-400" },
+                    { icon: MessageSquare, label: "Chat", color: "text-pink-400" },
+                    { icon: TrendingUp, label: "Analytics", color: "text-emerald-400" },
+                  ].map((item, i) => (
+                    <motion.div
+                      key={item.label}
+                      className="flex flex-col items-center gap-2 p-4 sm:p-6 rounded-xl bg-background/50 border border-border/40 hover:border-primary/30 hover:bg-primary/5 transition-all duration-300 cursor-default"
+                      whileHover={{ y: -4, transition: { duration: 0.2 } }}
+                    >
+                      <item.icon className={`w-6 h-6 sm:w-8 sm:h-8 ${item.color}`} />
+                      <span className="text-xs sm:text-sm font-medium text-muted-foreground">{item.label}</span>
+                    </motion.div>
+                  ))}
+                </div>
               </div>
+            </div>
+            {/* Decorative dots */}
+            <div className="absolute -top-3 -right-3 w-6 h-6 rounded-full bg-primary/20 blur-sm" />
+            <div className="absolute -bottom-2 -left-2 w-4 h-4 rounded-full bg-accent/20 blur-sm" />
+          </motion.div>
+        </motion.div>
+      </section>
+
+      {/* ═══════════════════════ FEATURES ═══════════════════════ */}
+      <section className="py-24 px-4 relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/[0.02] to-transparent pointer-events-none" />
+        <div className="container mx-auto max-w-6xl relative z-10">
+          <motion.div
+            className="text-center mb-16"
+            initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={0}
+          >
+            <span className="text-xs font-semibold tracking-widest uppercase text-primary">Platform</span>
+            <h2 className="mt-3 text-3xl sm:text-4xl font-bold text-foreground">
+              Everything you need to create, publish, and earn
+            </h2>
+            <p className="mt-4 text-muted-foreground max-w-xl mx-auto">
+              From AI bots to multi-platform content — one workspace, infinite possibilities.
+            </p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-2 gap-5">
+            {features.map((f, i) => (
+              <motion.div
+                key={f.title}
+                className="group relative rounded-2xl border border-border bg-card p-7 hover:border-primary/25 transition-all duration-300"
+                initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={i}
+                whileHover={{ y: -3 }}
+              >
+                {/* Accent bar */}
+                <div className={`absolute top-0 left-7 right-7 h-[2px] rounded-b-full bg-gradient-to-r ${f.accent} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
+
+                <div className="flex items-start gap-4">
+                  <div className={`shrink-0 w-11 h-11 rounded-xl bg-gradient-to-br ${f.accent} flex items-center justify-center shadow-lg`}>
+                    <f.icon className="w-5 h-5 text-white" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-lg font-semibold text-foreground">{f.title}</h3>
+                    <p className="text-sm text-primary font-medium">{f.subtitle}</p>
+                    <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {f.stats.map(s => (
+                        <span key={s} className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground bg-muted/50 px-2.5 py-1 rounded-md">
+                          <Check className="w-3 h-3 text-accent" /> {s}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Arrow cue */}
+                <ChevronRight className="absolute bottom-6 right-6 w-4 h-4 text-muted-foreground/30 group-hover:text-primary group-hover:translate-x-1 transition-all duration-300" />
+              </motion.div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════ BENEFITS ═══════════════════════ */}
+      <section className="py-24 px-4 border-t border-border/30">
+        <div className="container mx-auto max-w-5xl">
+          <motion.div
+            className="text-center mb-16"
+            initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={0}
+          >
+            <span className="text-xs font-semibold tracking-widest uppercase text-accent">Why AlterAI</span>
+            <h2 className="mt-3 text-3xl sm:text-4xl font-bold text-foreground">
+              Built for creators who think bigger
+            </h2>
+          </motion.div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {benefits.map((b, i) => (
+              <motion.div
+                key={b.title}
+                className="text-center p-6 rounded-2xl border border-border/50 bg-card/50 hover:bg-card hover:border-border transition-all duration-300"
+                initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={i}
+                whileHover={{ y: -4 }}
+              >
+                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                  <b.icon className="w-5 h-5 text-primary" />
+                </div>
+                <h3 className="font-semibold text-foreground text-sm">{b.title}</h3>
+                <p className="mt-2 text-xs text-muted-foreground leading-relaxed">{b.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════ SOCIAL PROOF ═══════════════════════ */}
+      <section className="py-24 px-4 relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-accent/[0.02] to-transparent pointer-events-none" />
+        <div className="container mx-auto max-w-5xl relative z-10">
+          <motion.div
+            className="text-center mb-12"
+            initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={0}
+          >
+            {/* Trust badge */}
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-accent/20 bg-accent/5 mb-6">
+              <Shield className="w-4 h-4 text-accent" />
+              <span className="text-sm font-medium text-accent">Trusted by creators worldwide</span>
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-bold text-foreground">
+              Real creators, real results
+            </h2>
+          </motion.div>
+
+          <div className="grid md:grid-cols-3 gap-5">
+            {testimonials.map((t, i) => (
+              <motion.div
+                key={i}
+                className="rounded-2xl border border-border bg-card p-6 flex flex-col"
+                initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={i + 1}
+              >
+                <div className="flex gap-1 mb-4">
+                  {[...Array(5)].map((_, j) => (
+                    <Star key={j} className="w-4 h-4 fill-primary text-primary" />
+                  ))}
+                </div>
+                <p className="text-sm text-foreground leading-relaxed flex-1">"{t.quote}"</p>
+                <div className="mt-5 pt-4 border-t border-border/50">
+                  <p className="text-sm font-medium text-foreground">{t.name}</p>
+                  <p className="text-xs text-muted-foreground">{t.role}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════ FINAL CTA ═══════════════════════ */}
+      <section className="py-24 px-4">
+        <div className="container mx-auto max-w-3xl">
+          <motion.div
+            className="relative rounded-3xl border border-primary/20 bg-gradient-to-br from-primary/5 via-card to-accent/5 p-12 sm:p-16 text-center overflow-hidden"
+            initial="hidden" whileInView="visible" viewport={{ once: true }} variants={scaleIn} custom={0}
+          >
+            {/* Glow */}
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[400px] h-[200px] bg-primary/10 rounded-full blur-[80px] pointer-events-none" />
+
+            <div className="relative z-10">
+              <Zap className="w-10 h-10 text-primary mx-auto mb-6" />
+              <h2 className="text-3xl sm:text-4xl font-bold text-foreground">
+                Create your first AI bot today
+              </h2>
+              <p className="mt-4 text-muted-foreground max-w-lg mx-auto">
+                Join a growing community of creators building AI-powered bots and content.
+                No coding required, no credit card needed.
+              </p>
+              <Button size="lg" className="mt-8 h-14 px-10 text-base shadow-xl shadow-primary/20" asChild>
+                <Link to="/auth">
+                  Start building your AI now <ArrowRight className="w-4 h-4 ml-2" />
+                </Link>
+              </Button>
+              <p className="mt-3 text-xs text-muted-foreground">
+                Free plan available · No coding required · Set up in minutes
+              </p>
+            </div>
           </motion.div>
         </div>
       </section>
 
-      {/* How it works */}
-      <section className="py-20 px-4 border-t border-border/50">
+      {/* ═══════════════════════ FOOTER ═══════════════════════ */}
+      <footer className="border-t border-border/30 py-12 px-4">
         <div className="container mx-auto max-w-5xl">
-          <h2 className="text-2xl sm:text-3xl font-bold text-center text-foreground mb-12">
-            How It Works
-          </h2>
-          <div className="grid md:grid-cols-3 gap-6">
-            {steps.map((s, i) => (
-              <motion.div
-                key={s.title}
-                className="relative rounded-lg border border-border bg-card p-6"
-                initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={i}
-              >
-                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
-                  <s.icon className="w-5 h-5 text-primary" />
-                </div>
-                <h3 className="font-semibold text-foreground flex items-center gap-2">
-                  {s.title}
-                  {i < steps.length - 1 && (
-                    <ArrowRight className="w-4 h-4 text-muted-foreground hidden md:inline" />
-                  )}
-                </h3>
-                <p className="mt-2 text-sm text-muted-foreground">{s.desc}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Featured Bots */}
-      <section className="py-20 px-4 border-t border-border/50">
-        <div className="container mx-auto max-w-5xl">
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="text-2xl sm:text-3xl font-bold text-foreground">Featured Bots</h2>
-            <Button variant="outline" size="sm" asChild>
-              <Link to="/marketplace">
-                View All <ArrowRight className="w-4 h-4 ml-1" />
-              </Link>
-            </Button>
-          </div>
-          {featuredBots.length > 0 ? (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {featuredBots.map((bot) => (
-                <BotCard key={bot.id} bot={bot} />
-              ))}
-            </div>
-          ) : (
-            <p className="text-center text-muted-foreground py-8">
-              No bots available yet. Be the first to create one!
-            </p>
-          )}
-        </div>
-      </section>
-
-      {/* AI Companions */}
-      <CompanionSection />
-
-      {/* Earn from Your Bots */}
-      <section className="py-20 px-4 border-t border-border/50">
-        <div className="container mx-auto max-w-5xl">
-          <h2 className="text-2xl sm:text-3xl font-bold text-center text-foreground mb-12">
-            Earn from Your Bots
-          </h2>
-          <div className="grid md:grid-cols-3 gap-6">
-            {earnCards.map((card, i) => (
-              <motion.div
-                key={card.title}
-                className="rounded-lg border border-border bg-card p-6 flex flex-col"
-                initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={i}
-              >
-                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
-                  <card.icon className="w-5 h-5 text-primary" />
-                </div>
-                <h3 className="font-semibold text-foreground">{card.title}</h3>
-                <p className="mt-2 text-sm text-muted-foreground">{card.desc}</p>
-                <ul className="mt-4 space-y-2 flex-1">
-                  {card.features.map((f) => (
-                    <li key={f} className="text-sm text-muted-foreground flex items-center gap-2">
-                      <Check className="w-3.5 h-3.5 text-accent" />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Pricing */}
-      <section className="py-20 px-4 border-t border-border/50">
-        <div className="container mx-auto max-w-4xl">
-          <h2 className="text-2xl sm:text-3xl font-bold text-center text-foreground mb-12">Simple Pricing</h2>
-          <div className="grid md:grid-cols-3 gap-6">
-            {pricing.map((plan) => (
-              <div
-                key={plan.name}
-                className={`relative rounded-lg border p-6 flex flex-col ${
-                  plan.highlight
-                    ? "border-primary bg-primary/5"
-                    : "border-border bg-card"
-                }`}
-              >
-                {plan.highlight && (
-                  <span className="absolute -top-3 right-4 text-xs font-semibold bg-primary text-primary-foreground px-3 py-1 rounded-full">
-                    Popular
-                  </span>
-                )}
-                <h3 className="font-semibold text-foreground">{plan.name}</h3>
-                <p className="text-sm text-muted-foreground">{plan.subtitle}</p>
-                <p className="text-3xl font-bold text-foreground mt-4">
-                  {plan.price}
-                  {plan.price !== "Custom" && <span className="text-sm font-normal text-muted-foreground">/month</span>}
-                </p>
-                <ul className="mt-6 space-y-3 flex-1">
-                  {plan.features.map((f) => (
-                    <li key={f} className="text-sm text-muted-foreground flex items-center gap-2">
-                      <Check className="w-3.5 h-3.5 text-accent" />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-                <Button className="mt-6" variant={plan.highlight ? "default" : "secondary"} asChild>
-                  <Link to="/pricing">
-                    {plan.highlight ? "Start Free Trial" : "Get Started"}
-                  </Link>
-                </Button>
+          <div className="grid sm:grid-cols-4 gap-8 mb-8">
+            {/* Brand */}
+            <div className="sm:col-span-2">
+              <h3 className="font-bold text-foreground text-lg">Alter AI</h3>
+              <p className="mt-2 text-sm text-muted-foreground max-w-xs leading-relaxed">
+                The all-in-one platform for AI bots, multi-platform content, and creative monetization.
+              </p>
+              <div className="mt-4 flex items-center gap-2">
+                <Shield className="w-3.5 h-3.5 text-accent" />
+                <span className="text-xs text-muted-foreground">Secure · Verified · Privacy-first</span>
               </div>
-            ))}
+            </div>
+
+            {/* Links */}
+            <div>
+              <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Product</h4>
+              <ul className="space-y-2">
+                {[
+                  { label: "Pricing", to: "/pricing" },
+                  { label: "Marketplace", to: "/marketplace" },
+                  { label: "Content Studio", to: "/content-studio" },
+                  { label: "Dashboard", to: "/dashboard" },
+                ].map(link => (
+                  <li key={link.label}>
+                    <Link to={link.to} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Legal</h4>
+              <ul className="space-y-2">
+                {[
+                  { label: "Privacy Policy", to: "/privacy" },
+                  { label: "Terms of Service", to: "/terms" },
+                ].map(link => (
+                  <li key={link.label}>
+                    <Link to={link.to} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
-        </div>
-      </section>
 
-      {/* CTA */}
-      <section className="py-20 px-4 border-t border-border/50">
-        <div className="container mx-auto text-center max-w-2xl">
-          <h2 className="text-2xl sm:text-3xl font-bold text-foreground">
-            Ready to build your AI bot?
-          </h2>
-          <p className="mt-3 text-muted-foreground">
-            Join thousands of creators monetizing AI on Alter AI.
-          </p>
-          <Button size="lg" className="mt-6" asChild>
-            <Link to="/auth">Start Creating <ArrowRight className="w-4 h-4 ml-2" /></Link>
-          </Button>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="border-t border-border/50 py-8 px-4">
-        <div className="container mx-auto flex items-center justify-between text-xs text-muted-foreground">
-          <span>© 2026 Alter AI. All rights reserved.</span>
-          <div className="flex gap-4">
-            <Link to="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
-            <Link to="/terms" className="hover:text-foreground transition-colors">Terms</Link>
+          <div className="pt-6 border-t border-border/30 flex flex-col sm:flex-row items-center justify-between gap-2">
+            <span className="text-xs text-muted-foreground">© 2026 Alter AI. All rights reserved.</span>
+            <span className="text-xs text-muted-foreground">Built for creators, by creators.</span>
           </div>
         </div>
       </footer>
