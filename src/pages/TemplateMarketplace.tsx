@@ -46,8 +46,8 @@ export default function TemplateMarketplace() {
     setLoading(true);
     try {
       const { data, error } = await supabase
-        .from("content_templates" as any)
-        .select("*, profiles:user_id(username)")
+        .from("content_templates")
+        .select("*")
         .eq("is_public", true)
         .order("use_count", { ascending: false });
       if (error) throw error;
@@ -80,7 +80,7 @@ export default function TemplateMarketplace() {
       }
 
       // Clone the template for the current user
-      const { error } = await (supabase.from as any)("content_templates").insert({
+      const { error } = await supabase.from("content_templates").insert({
         user_id: user.id,
         name: `${template.name} (copy)`,
         prompt: template.prompt,
@@ -92,7 +92,7 @@ export default function TemplateMarketplace() {
       if (error) throw error;
 
       // Increment use count on original
-      await (supabase.from as any)("content_templates")
+      await supabase.from("content_templates")
         .update({ use_count: (template.use_count || 0) + 1 })
         .eq("id", template.id);
 
@@ -172,7 +172,7 @@ export default function TemplateMarketplace() {
 
                   {/* Creator & Date */}
                   <div className="flex items-center justify-between text-[10px] text-muted-foreground mb-3">
-                    <span>by {(t as any).profiles?.username || "Anonymous"}</span>
+                    <span>shared {new Date(t.created_at).toLocaleDateString()}</span>
                     <span>{new Date(t.created_at).toLocaleDateString()}</span>
                   </div>
 
