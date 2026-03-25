@@ -44,6 +44,7 @@ const features = [
     accent: "from-[hsl(260,80%,60%)] to-[hsl(280,70%,50%)]",
     glow: "hsl(270 80% 55% / 0.15)",
     stats: ["Custom personas", "Smart context", "Marketplace ready"],
+    link: "/marketplace",
   },
   {
     icon: Video,
@@ -53,6 +54,7 @@ const features = [
     accent: "from-[hsl(200,90%,50%)] to-[hsl(220,80%,60%)]",
     glow: "hsl(210 90% 55% / 0.15)",
     stats: ["6 platforms", "AI voiceover", "Video compiler"],
+    link: "/content-studio",
   },
   {
     icon: BarChart3,
@@ -62,6 +64,7 @@ const features = [
     accent: "from-[hsl(170,80%,45%)] to-[hsl(190,70%,50%)]",
     glow: "hsl(180 80% 45% / 0.15)",
     stats: ["Usage analytics", "Revenue tracking", "Flexible pricing"],
+    link: "/dashboard",
   },
   {
     icon: BookTemplate,
@@ -71,6 +74,7 @@ const features = [
     accent: "from-[hsl(40,90%,55%)] to-[hsl(25,85%,50%)]",
     glow: "hsl(35 90% 55% / 0.15)",
     stats: ["Save & reuse", "Community marketplace", "Platform presets"],
+    link: "/template-marketplace",
   },
 ];
 
@@ -266,42 +270,43 @@ export default function Home() {
 
           <div className="grid md:grid-cols-2 gap-6">
             {features.map((f, i) => (
-              <motion.div
-                key={f.title}
-                className="group relative rounded-2xl border border-border/60 bg-card/80 backdrop-blur-sm p-8 hover:border-[hsl(260,60%,55%/0.3)] transition-all duration-300 overflow-hidden"
-                initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={i}
-                whileHover={{ y: -4 }}
-              >
-                {/* Hover glow */}
-                <div
-                  className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
-                  style={{ background: `radial-gradient(400px circle at 50% 0%, ${f.glow}, transparent)` }}
-                />
+              <Link key={f.title} to={f.link} className="block">
+                <motion.div
+                  className="group relative rounded-2xl border border-border/60 bg-card/80 backdrop-blur-sm p-8 hover:border-[hsl(260,60%,55%/0.3)] transition-all duration-300 overflow-hidden h-full"
+                  initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={i}
+                  whileHover={{ y: -4 }}
+                >
+                  {/* Hover glow */}
+                  <div
+                    className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+                    style={{ background: `radial-gradient(400px circle at 50% 0%, ${f.glow}, transparent)` }}
+                  />
 
-                {/* Top accent line */}
-                <div className={`absolute top-0 left-8 right-8 h-[2px] rounded-b-full bg-gradient-to-r ${f.accent} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
+                  {/* Top accent line */}
+                  <div className={`absolute top-0 left-8 right-8 h-[2px] rounded-b-full bg-gradient-to-r ${f.accent} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
 
-                <div className="relative flex items-start gap-5">
-                  <div className={`shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br ${f.accent} flex items-center justify-center shadow-lg`}>
-                    <f.icon className="w-5.5 h-5.5 text-white" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-lg font-bold text-foreground">{f.title}</h3>
-                    <p className="text-sm font-medium text-[hsl(260,70%,65%)]">{f.subtitle}</p>
-                    <p className="mt-3 text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
-                    <div className="mt-5 flex flex-wrap gap-2">
-                      {f.stats.map(s => (
-                        <span key={s} className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground bg-muted/50 px-2.5 py-1 rounded-md border border-border/30">
-                          <Check className="w-3 h-3 text-[hsl(210,90%,60%)]" /> {s}
-                        </span>
-                      ))}
+                  <div className="relative flex items-start gap-5">
+                    <div className={`shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br ${f.accent} flex items-center justify-center shadow-lg`}>
+                      <f.icon className="w-5.5 h-5.5 text-white" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-lg font-bold text-foreground">{f.title}</h3>
+                      <p className="text-sm font-medium text-[hsl(260,70%,65%)]">{f.subtitle}</p>
+                      <p className="mt-3 text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
+                      <div className="mt-5 flex flex-wrap gap-2">
+                        {f.stats.map(s => (
+                          <span key={s} className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground bg-muted/50 px-2.5 py-1 rounded-md border border-border/30">
+                            <Check className="w-3 h-3 text-[hsl(210,90%,60%)]" /> {s}
+                          </span>
+                        ))}
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Arrow cue */}
-                <ChevronRight className="absolute bottom-7 right-7 w-4 h-4 text-muted-foreground/20 group-hover:text-[hsl(260,80%,65%)] group-hover:translate-x-1 transition-all duration-300" />
-              </motion.div>
+                  {/* Arrow cue */}
+                  <ChevronRight className="absolute bottom-7 right-7 w-4 h-4 text-muted-foreground/20 group-hover:text-[hsl(260,80%,65%)] group-hover:translate-x-1 transition-all duration-300" />
+                </motion.div>
+              </Link>
             ))}
           </div>
         </div>
