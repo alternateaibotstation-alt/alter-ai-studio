@@ -126,7 +126,7 @@ export default function VideoCompiler({ scenes, imagePrompts, hook, existingImag
           audioSource.connect(gainNode);
           gainNode.connect(dest);
 
-          const totalDur = scenes.reduce((s, sc) => s + sc.duration_seconds, 0);
+          const totalDur = scenes.reduce((s, sc) => s + Math.max(3, sc.duration_seconds), 0);
           const vol = music.volume / 100;
 
           // Set initial volume (handle fade-in)
@@ -169,7 +169,7 @@ export default function VideoCompiler({ scenes, imagePrompts, hook, existingImag
 
       recorder.start();
 
-      const totalDuration = scenes.reduce((sum, s) => sum + s.duration_seconds, 0);
+      const totalDuration = scenes.reduce((sum, s) => sum + Math.max(3, s.duration_seconds), 0);
       const totalFrames = totalDuration * FPS;
       const transitionFrames = Math.floor(FPS * 0.5);
 
