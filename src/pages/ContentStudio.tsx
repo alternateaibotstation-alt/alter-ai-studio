@@ -10,8 +10,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import {
   Clapperboard, Copy, Check, Loader2, Download, ImageIcon, Sparkles,
   Film, Type, Camera, Hash, MessageSquare, Zap, FastForward, Pencil,
-  Video, Globe, Mic, Volume2, Square, Play, Pause
+  Video, Globe, Mic, Volume2, Square, Play, Pause, Save, FolderOpen, Trash2, BookTemplate
 } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import VideoCompiler from "@/components/VideoCompiler";
