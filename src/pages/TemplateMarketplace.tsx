@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   Search, Loader2, Download, BookTemplate, ArrowLeft,
-  Copy, Check, Tag
+  Copy, Check, Tag, Sparkles
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -197,10 +197,17 @@ export default function TemplateMarketplace() {
         ) : (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {filtered.map(t => (
-              <Card key={t.id} className="group border-border hover:border-primary/25 transition-all duration-200">
+              <Card key={t.id} className={`group border-border hover:border-primary/25 transition-all duration-200 ${t.user_id === "00000000-0000-0000-0000-000000000000" ? "ring-1 ring-primary/10" : ""}`}>
                 <CardContent className="pt-5 pb-4">
                   <div className="flex items-start justify-between gap-2 mb-3">
-                    <h3 className="text-sm font-semibold text-foreground line-clamp-1">{t.name}</h3>
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      {t.user_id === "00000000-0000-0000-0000-000000000000" && (
+                        <Badge className="text-[9px] gap-0.5 bg-primary/15 text-primary border-primary/25 shrink-0 px-1.5 py-0">
+                          <Sparkles className="w-2.5 h-2.5" /> Official
+                        </Badge>
+                      )}
+                      <h3 className="text-sm font-semibold text-foreground line-clamp-1">{t.name}</h3>
+                    </div>
                     {t.use_count > 0 && (
                       <Badge variant="secondary" className="text-[10px] shrink-0 gap-1">
                         <Download className="w-2.5 h-2.5" /> {t.use_count}
