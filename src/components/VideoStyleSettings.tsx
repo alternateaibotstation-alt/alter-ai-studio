@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { Palette, Type, Move, Save, Trash2, Loader2 } from "lucide-react";
+import VideoStylePreview from "./VideoStylePreview";
 import { Button } from "@/components/ui/button";
 import { useVideoPresets } from "@/hooks/use-video-presets";
 
@@ -192,6 +193,9 @@ export default function VideoStyleSettings({ style, onChange }: Props) {
 
   return (
     <div className="space-y-4">
+      {/* Live Preview */}
+      <VideoStylePreview style={style} />
+
       {/* Preset Themes */}
       <Card className="border-border/50">
         <CardHeader className="pb-3">
