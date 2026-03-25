@@ -157,16 +157,29 @@ export default function TemplateMarketplace() {
         </div>
         <p className="text-muted-foreground mb-6">Browse and use community-shared content templates</p>
 
-        {/* Search + Category Filter */}
+        {/* Search + Sort + Category Filter */}
         <div className="space-y-4 mb-8">
-          <div className="relative max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              placeholder="Search templates..."
-              className="pl-9 bg-card border-border"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
+          <div className="flex gap-3 items-center flex-wrap">
+            <div className="relative max-w-md flex-1 min-w-[200px]">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Search templates..."
+                className="pl-9 bg-card border-border"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
+            <Select value={sortBy} onValueChange={(v) => setSortBy(v as any)}>
+              <SelectTrigger className="w-40 bg-card border-border">
+                <ArrowUpDown className="w-3.5 h-3.5 mr-1.5 text-muted-foreground" />
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="popular">Most Used</SelectItem>
+                <SelectItem value="newest">Newest</SelectItem>
+                <SelectItem value="alphabetical">A → Z</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Category tabs */}
