@@ -1,19 +1,20 @@
-import { useEffect, useState } from "react";
+import { useRef } from "react";
 import { Link } from "react-router-dom";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform, useInView } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import {
   ArrowRight, Bot, Mic, Video, BarChart3, Layers, Clock, DollarSign,
   Globe, Settings, Shield, Sparkles, ChevronRight, Zap, Check, Star,
-  MessageSquare, Image, TrendingUp
+  MessageSquare, Image, TrendingUp, Play, BookTemplate, ArrowDown
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 
+/* ─── Animation Variants ─── */
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
   visible: (i: number) => ({
     opacity: 1, y: 0,
-    transition: { delay: i * 0.12, duration: 0.6, ease: "easeOut" as const },
+    transition: { delay: i * 0.1, duration: 0.6, ease: "easeOut" as const },
   }),
 };
 
@@ -25,46 +26,59 @@ const scaleIn = {
   }),
 };
 
+const slideIn = {
+  hidden: { opacity: 0, x: -20 },
+  visible: (i: number) => ({
+    opacity: 1, x: 0,
+    transition: { delay: i * 0.08, duration: 0.5, ease: "easeOut" as const },
+  }),
+};
+
+/* ─── Data ─── */
 const features = [
   {
     icon: Bot,
     title: "AI Bots",
     subtitle: "Build once, deploy everywhere",
-    desc: "Create custom AI personalities with unique voices, knowledge, and behaviors. Publish to the marketplace or keep private.",
-    accent: "from-primary to-pink-400",
+    desc: "Create custom AI personalities with unique voices, knowledge, and behaviors. Publish to the marketplace or keep them private for your audience.",
+    accent: "from-[hsl(260,80%,60%)] to-[hsl(280,70%,50%)]",
+    glow: "hsl(270 80% 55% / 0.15)",
     stats: ["Custom personas", "Smart context", "Marketplace ready"],
   },
   {
     icon: Video,
-    title: "Content Studio",
-    subtitle: "Multi-platform content engine",
-    desc: "Generate optimized content for TikTok, Instagram, LinkedIn, Twitter, Facebook, and Pinterest — all from a single prompt.",
-    accent: "from-accent to-cyan-300",
+    title: "Voice & Video Studio",
+    subtitle: "Generate multi-platform content instantly",
+    desc: "One prompt generates optimized content for TikTok, Instagram, LinkedIn, Twitter, Facebook, and Pinterest — with AI voiceovers and video compilation.",
+    accent: "from-[hsl(200,90%,50%)] to-[hsl(220,80%,60%)]",
+    glow: "hsl(210 90% 55% / 0.15)",
     stats: ["6 platforms", "AI voiceover", "Video compiler"],
   },
   {
     icon: BarChart3,
-    title: "Analytics & Monetization",
-    subtitle: "Track everything, earn passively",
-    desc: "See exactly how your bots perform. Set pricing, track revenue, and understand user engagement in real time.",
-    accent: "from-violet-500 to-purple-400",
+    title: "Analytics & Profit",
+    subtitle: "Track usage, control costs",
+    desc: "See exactly how your bots perform. Set pricing, track revenue, and understand user engagement — all in a clean dashboard.",
+    accent: "from-[hsl(170,80%,45%)] to-[hsl(190,70%,50%)]",
+    glow: "hsl(180 80% 45% / 0.15)",
     stats: ["Usage analytics", "Revenue tracking", "Flexible pricing"],
   },
   {
-    icon: Layers,
+    icon: BookTemplate,
     title: "Template Library",
     subtitle: "Instant content creation",
-    desc: "Save your best content as reusable templates. Load, customize, and generate new variations in seconds.",
-    accent: "from-amber-500 to-orange-400",
-    stats: ["Save & reuse", "Quick load", "Platform presets"],
+    desc: "Save your best content as reusable templates. Browse the community marketplace, load templates, and generate new variations instantly.",
+    accent: "from-[hsl(40,90%,55%)] to-[hsl(25,85%,50%)]",
+    glow: "hsl(35 90% 55% / 0.15)",
+    stats: ["Save & reuse", "Community marketplace", "Platform presets"],
   },
 ];
 
 const benefits = [
-  { icon: Clock, title: "Save hours every day", desc: "Generate multi-platform content in seconds, not hours. One prompt powers six platforms." },
-  { icon: DollarSign, title: "New revenue streams", desc: "Monetize your AI bots with flexible pricing. Free, paid, or subscription — you choose." },
-  { icon: Globe, title: "Multi-platform reach", desc: "TikTok, Instagram, LinkedIn, Twitter, Facebook, Pinterest. All optimized automatically." },
-  { icon: Settings, title: "Total flexibility", desc: "Use AlterAI credits or bring your own API keys. Scale on your terms." },
+  { icon: Clock, title: "Save hours every day", desc: "Generate multi-platform content in seconds, not hours. One prompt powers six platforms simultaneously." },
+  { icon: DollarSign, title: "New revenue streams", desc: "Monetize your AI bots with flexible pricing. Free, paid, or subscription — you decide how to earn." },
+  { icon: Globe, title: "Multi-platform reach", desc: "TikTok, Instagram, LinkedIn, Twitter, Facebook, Pinterest. Every post optimized for its platform." },
+  { icon: Settings, title: "Total flexibility", desc: "Use AlterAI credits to get started instantly, or bring your own API keys. Scale on your own terms." },
 ];
 
 const testimonials = [
@@ -73,22 +87,53 @@ const testimonials = [
   { quote: "I built a bot, published it, and started earning within the first week. The analytics are incredibly clear.", name: "Bot Creator", role: "AI Entrepreneur" },
 ];
 
+const heroCapabilities = [
+  { icon: Bot, label: "AI Bots", color: "text-[hsl(270,80%,65%)]", bg: "bg-[hsl(270,80%,65%/0.1)]" },
+  { icon: Video, label: "Content", color: "text-[hsl(210,90%,60%)]", bg: "bg-[hsl(210,90%,60%/0.1)]" },
+  { icon: Mic, label: "Voice", color: "text-[hsl(250,70%,65%)]", bg: "bg-[hsl(250,70%,65%/0.1)]" },
+  { icon: Image, label: "Images", color: "text-[hsl(40,90%,60%)]", bg: "bg-[hsl(40,90%,60%/0.1)]" },
+  { icon: MessageSquare, label: "Chat", color: "text-[hsl(330,80%,60%)]", bg: "bg-[hsl(330,80%,60%/0.1)]" },
+  { icon: TrendingUp, label: "Analytics", color: "text-[hsl(160,70%,50%)]", bg: "bg-[hsl(160,70%,50%/0.1)]" },
+];
+
+/* ─── Floating Particle (decorative) ─── */
+function FloatingOrb({ className }: { className: string }) {
+  return (
+    <motion.div
+      className={`absolute rounded-full pointer-events-none ${className}`}
+      animate={{
+        y: [0, -20, 0],
+        opacity: [0.3, 0.6, 0.3],
+      }}
+      transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+    />
+  );
+}
+
 export default function Home() {
   const { scrollYProgress } = useScroll();
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
-  const heroScale = useTransform(scrollYProgress, [0, 0.15], [1, 0.97]);
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.12], [1, 0]);
+  const heroScale = useTransform(scrollYProgress, [0, 0.12], [1, 0.97]);
+  const featuresRef = useRef(null);
+  const featuresInView = useInView(featuresRef, { once: true, margin: "-80px" });
 
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
       <Navbar />
 
       {/* ═══════════════════════ HERO ═══════════════════════ */}
-      <section className="relative pt-28 pb-20 px-4 overflow-hidden">
-        {/* Ambient glow */}
+      <section className="relative pt-28 pb-24 px-4 overflow-hidden">
+        {/* Ambient neon glows */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[800px] h-[600px] rounded-full bg-primary/5 blur-[120px]" />
-          <div className="absolute top-40 left-1/4 w-[400px] h-[400px] rounded-full bg-accent/5 blur-[100px]" />
+          <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[900px] h-[600px] rounded-full bg-[hsl(260,80%,55%/0.06)] blur-[140px]" />
+          <div className="absolute top-32 left-1/4 w-[500px] h-[500px] rounded-full bg-[hsl(210,90%,55%/0.05)] blur-[120px]" />
+          <div className="absolute top-60 right-1/4 w-[400px] h-[400px] rounded-full bg-[hsl(330,85%,50%/0.04)] blur-[100px]" />
         </div>
+
+        {/* Floating decorative orbs */}
+        <FloatingOrb className="top-32 left-[15%] w-2 h-2 bg-[hsl(260,80%,60%/0.4)]" />
+        <FloatingOrb className="top-48 right-[20%] w-1.5 h-1.5 bg-[hsl(210,90%,60%/0.4)]" />
+        <FloatingOrb className="bottom-32 left-[30%] w-1 h-1 bg-[hsl(330,85%,55%/0.5)]" />
 
         <motion.div
           className="container mx-auto text-center max-w-4xl relative z-10"
@@ -96,27 +141,29 @@ export default function Home() {
         >
           {/* Pill badge */}
           <motion.div
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/20 bg-primary/5 text-sm text-primary mb-6"
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[hsl(260,60%,55%/0.3)] bg-[hsl(260,60%,55%/0.08)] text-sm text-[hsl(260,80%,70%)] mb-7"
             initial="hidden" animate="visible" variants={fadeUp} custom={0}
           >
             <Sparkles className="w-3.5 h-3.5" />
-            <span className="font-medium">AI-Powered Content & Bot Platform</span>
+            <span className="font-medium">AI-Powered Creation Platform</span>
           </motion.div>
 
           <motion.h1
-            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-foreground leading-[1.08]"
+            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-foreground leading-[1.06]"
             initial="hidden" animate="visible" variants={fadeUp} custom={1}
           >
-            Your ideas deserve
+            Build AI that works
             <br />
-            <span className="gradient-text">more than one platform</span>
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-[hsl(260,80%,65%)] via-[hsl(210,90%,60%)] to-[hsl(260,80%,65%)]">
+              across every platform
+            </span>
           </motion.h1>
 
           <motion.p
             className="mt-6 text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed"
             initial="hidden" animate="visible" variants={fadeUp} custom={2}
           >
-            Build AI bots, generate viral content for every platform, and create
+            Create AI bots, generate viral content for six platforms, and produce
             voice-powered videos — all from a single workspace.
           </motion.p>
 
@@ -124,100 +171,128 @@ export default function Home() {
             className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4"
             initial="hidden" animate="visible" variants={fadeUp} custom={3}
           >
-            <Button size="lg" className="h-13 px-8 text-base shadow-lg shadow-primary/20" asChild>
+            <Button
+              size="lg"
+              className="h-14 px-8 text-base font-semibold bg-gradient-to-r from-[hsl(260,80%,55%)] to-[hsl(210,85%,55%)] hover:from-[hsl(260,80%,60%)] hover:to-[hsl(210,85%,60%)] text-white shadow-lg shadow-[hsl(260,80%,55%/0.25)] border-0"
+              asChild
+            >
               <Link to="/auth">
                 Start building your AI now <ArrowRight className="w-4 h-4 ml-2" />
               </Link>
             </Button>
-            <Button size="lg" variant="outline" className="h-13 px-8 text-base" asChild>
+            <Button size="lg" variant="outline" className="h-14 px-8 text-base border-border/60 hover:border-[hsl(260,60%,55%/0.4)] hover:bg-[hsl(260,60%,55%/0.05)]" asChild>
               <Link to="/marketplace">
-                Explore marketplace
+                <Play className="w-4 h-4 mr-2" /> Explore marketplace
               </Link>
             </Button>
           </motion.div>
 
           <motion.p
-            className="mt-4 text-sm text-muted-foreground"
+            className="mt-4 text-sm text-muted-foreground/70"
             initial="hidden" animate="visible" variants={fadeUp} custom={4}
           >
             No coding required · Start for free · Cancel anytime
           </motion.p>
 
-          {/* Hero visual — abstract grid */}
+          {/* Hero capability grid */}
           <motion.div
             className="mt-16 relative"
             initial="hidden" animate="visible" variants={scaleIn} custom={5}
           >
-            <div className="relative rounded-2xl border border-border/60 bg-card/40 backdrop-blur-sm p-1 shadow-2xl shadow-primary/5">
-              <div className="rounded-xl bg-gradient-to-br from-card via-card to-primary/5 p-8 sm:p-12">
-                <div className="grid grid-cols-3 gap-4 sm:gap-6">
-                  {[
-                    { icon: Bot, label: "AI Bots", color: "text-primary" },
-                    { icon: Video, label: "Content", color: "text-accent" },
-                    { icon: Mic, label: "Voice", color: "text-violet-400" },
-                    { icon: Image, label: "Images", color: "text-amber-400" },
-                    { icon: MessageSquare, label: "Chat", color: "text-pink-400" },
-                    { icon: TrendingUp, label: "Analytics", color: "text-emerald-400" },
-                  ].map((item, i) => (
+            <div className="relative rounded-2xl border border-border/50 bg-card/30 backdrop-blur-md p-1 shadow-2xl shadow-[hsl(260,80%,55%/0.08)]">
+              <div className="rounded-xl bg-gradient-to-br from-card via-card to-[hsl(260,60%,55%/0.05)] p-6 sm:p-10">
+                <div className="grid grid-cols-3 sm:grid-cols-6 gap-3 sm:gap-4">
+                  {heroCapabilities.map((item, i) => (
                     <motion.div
                       key={item.label}
-                      className="flex flex-col items-center gap-2 p-4 sm:p-6 rounded-xl bg-background/50 border border-border/40 hover:border-primary/30 hover:bg-primary/5 transition-all duration-300 cursor-default"
-                      whileHover={{ y: -4, transition: { duration: 0.2 } }}
+                      className={`flex flex-col items-center gap-2 p-4 sm:p-5 rounded-xl ${item.bg} border border-border/30 hover:border-[hsl(260,60%,55%/0.3)] transition-all duration-300 cursor-default`}
+                      whileHover={{ y: -6, scale: 1.04, transition: { duration: 0.2 } }}
+                      initial={{ opacity: 0, y: 15 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.6 + i * 0.08, duration: 0.4 }}
                     >
-                      <item.icon className={`w-6 h-6 sm:w-8 sm:h-8 ${item.color}`} />
+                      <item.icon className={`w-6 h-6 sm:w-7 sm:h-7 ${item.color}`} />
                       <span className="text-xs sm:text-sm font-medium text-muted-foreground">{item.label}</span>
                     </motion.div>
                   ))}
                 </div>
               </div>
             </div>
-            {/* Decorative dots */}
-            <div className="absolute -top-3 -right-3 w-6 h-6 rounded-full bg-primary/20 blur-sm" />
-            <div className="absolute -bottom-2 -left-2 w-4 h-4 rounded-full bg-accent/20 blur-sm" />
+            {/* Corner accents */}
+            <div className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-[hsl(260,80%,55%/0.3)] blur-[6px]" />
+            <div className="absolute -bottom-1.5 -left-1.5 w-3 h-3 rounded-full bg-[hsl(210,90%,55%/0.3)] blur-[4px]" />
+          </motion.div>
+
+          {/* Scroll indicator */}
+          <motion.div
+            className="mt-10 flex justify-center"
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.5 }}
+          >
+            <motion.div
+              animate={{ y: [0, 8, 0] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+            >
+              <ArrowDown className="w-5 h-5 text-muted-foreground/30" />
+            </motion.div>
           </motion.div>
         </motion.div>
       </section>
 
       {/* ═══════════════════════ FEATURES ═══════════════════════ */}
-      <section className="py-24 px-4 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/[0.02] to-transparent pointer-events-none" />
+      <section className="py-28 px-4 relative" ref={featuresRef}>
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] rounded-full bg-[hsl(260,70%,55%/0.03)] blur-[100px]" />
+        </div>
+
         <div className="container mx-auto max-w-6xl relative z-10">
           <motion.div
-            className="text-center mb-16"
+            className="text-center mb-20"
             initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={0}
           >
-            <span className="text-xs font-semibold tracking-widest uppercase text-primary">Platform</span>
-            <h2 className="mt-3 text-3xl sm:text-4xl font-bold text-foreground">
-              Everything you need to create, publish, and earn
+            <span className="inline-flex items-center gap-1.5 text-xs font-semibold tracking-widest uppercase text-[hsl(260,80%,65%)] mb-3">
+              <Layers className="w-3 h-3" /> Platform
+            </span>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground">
+              Everything you need to create,
+              <br className="hidden sm:block" />
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-[hsl(260,80%,65%)] to-[hsl(210,90%,60%)]">
+                publish, and earn
+              </span>
             </h2>
-            <p className="mt-4 text-muted-foreground max-w-xl mx-auto">
+            <p className="mt-5 text-muted-foreground max-w-xl mx-auto text-base">
               From AI bots to multi-platform content — one workspace, infinite possibilities.
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 gap-5">
+          <div className="grid md:grid-cols-2 gap-6">
             {features.map((f, i) => (
               <motion.div
                 key={f.title}
-                className="group relative rounded-2xl border border-border bg-card p-7 hover:border-primary/25 transition-all duration-300"
+                className="group relative rounded-2xl border border-border/60 bg-card/80 backdrop-blur-sm p-8 hover:border-[hsl(260,60%,55%/0.3)] transition-all duration-300 overflow-hidden"
                 initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={i}
-                whileHover={{ y: -3 }}
+                whileHover={{ y: -4 }}
               >
-                {/* Accent bar */}
-                <div className={`absolute top-0 left-7 right-7 h-[2px] rounded-b-full bg-gradient-to-r ${f.accent} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
+                {/* Hover glow */}
+                <div
+                  className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+                  style={{ background: `radial-gradient(400px circle at 50% 0%, ${f.glow}, transparent)` }}
+                />
 
-                <div className="flex items-start gap-4">
-                  <div className={`shrink-0 w-11 h-11 rounded-xl bg-gradient-to-br ${f.accent} flex items-center justify-center shadow-lg`}>
-                    <f.icon className="w-5 h-5 text-white" />
+                {/* Top accent line */}
+                <div className={`absolute top-0 left-8 right-8 h-[2px] rounded-b-full bg-gradient-to-r ${f.accent} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
+
+                <div className="relative flex items-start gap-5">
+                  <div className={`shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br ${f.accent} flex items-center justify-center shadow-lg`}>
+                    <f.icon className="w-5.5 h-5.5 text-white" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-lg font-semibold text-foreground">{f.title}</h3>
-                    <p className="text-sm text-primary font-medium">{f.subtitle}</p>
-                    <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
-                    <div className="mt-4 flex flex-wrap gap-2">
+                    <h3 className="text-lg font-bold text-foreground">{f.title}</h3>
+                    <p className="text-sm font-medium text-[hsl(260,70%,65%)]">{f.subtitle}</p>
+                    <p className="mt-3 text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
+                    <div className="mt-5 flex flex-wrap gap-2">
                       {f.stats.map(s => (
-                        <span key={s} className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground bg-muted/50 px-2.5 py-1 rounded-md">
-                          <Check className="w-3 h-3 text-accent" /> {s}
+                        <span key={s} className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground bg-muted/50 px-2.5 py-1 rounded-md border border-border/30">
+                          <Check className="w-3 h-3 text-[hsl(210,90%,60%)]" /> {s}
                         </span>
                       ))}
                     </div>
@@ -225,7 +300,7 @@ export default function Home() {
                 </div>
 
                 {/* Arrow cue */}
-                <ChevronRight className="absolute bottom-6 right-6 w-4 h-4 text-muted-foreground/30 group-hover:text-primary group-hover:translate-x-1 transition-all duration-300" />
+                <ChevronRight className="absolute bottom-7 right-7 w-4 h-4 text-muted-foreground/20 group-hover:text-[hsl(260,80%,65%)] group-hover:translate-x-1 transition-all duration-300" />
               </motion.div>
             ))}
           </div>
@@ -233,31 +308,37 @@ export default function Home() {
       </section>
 
       {/* ═══════════════════════ BENEFITS ═══════════════════════ */}
-      <section className="py-24 px-4 border-t border-border/30">
-        <div className="container mx-auto max-w-5xl">
+      <section className="py-28 px-4 relative">
+        <div className="absolute inset-0 border-t border-b border-border/20 pointer-events-none" />
+        <div className="container mx-auto max-w-5xl relative z-10">
           <motion.div
             className="text-center mb-16"
             initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={0}
           >
-            <span className="text-xs font-semibold tracking-widest uppercase text-accent">Why AlterAI</span>
-            <h2 className="mt-3 text-3xl sm:text-4xl font-bold text-foreground">
+            <span className="inline-flex items-center gap-1.5 text-xs font-semibold tracking-widest uppercase text-[hsl(210,90%,60%)] mb-3">
+              <Zap className="w-3 h-3" /> Why AlterAI
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-bold text-foreground">
               Built for creators who think bigger
             </h2>
+            <p className="mt-4 text-muted-foreground max-w-md mx-auto">
+              Stop juggling tools. One platform handles everything from creation to monetization.
+            </p>
           </motion.div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {benefits.map((b, i) => (
               <motion.div
                 key={b.title}
-                className="text-center p-6 rounded-2xl border border-border/50 bg-card/50 hover:bg-card hover:border-border transition-all duration-300"
+                className="group text-center p-7 rounded-2xl border border-border/40 bg-card/40 backdrop-blur-sm hover:bg-card/80 hover:border-[hsl(260,60%,55%/0.25)] transition-all duration-300"
                 initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={i}
-                whileHover={{ y: -4 }}
+                whileHover={{ y: -6 }}
               >
-                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                  <b.icon className="w-5 h-5 text-primary" />
+                <div className="w-13 h-13 rounded-xl bg-gradient-to-br from-[hsl(260,70%,55%/0.15)] to-[hsl(210,80%,55%/0.1)] flex items-center justify-center mx-auto mb-5 group-hover:shadow-lg group-hover:shadow-[hsl(260,70%,55%/0.1)] transition-shadow duration-300">
+                  <b.icon className="w-5.5 h-5.5 text-[hsl(260,80%,65%)]" />
                 </div>
-                <h3 className="font-semibold text-foreground text-sm">{b.title}</h3>
-                <p className="mt-2 text-xs text-muted-foreground leading-relaxed">{b.desc}</p>
+                <h3 className="font-semibold text-foreground">{b.title}</h3>
+                <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{b.desc}</p>
               </motion.div>
             ))}
           </div>
@@ -265,39 +346,46 @@ export default function Home() {
       </section>
 
       {/* ═══════════════════════ SOCIAL PROOF ═══════════════════════ */}
-      <section className="py-24 px-4 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-accent/[0.02] to-transparent pointer-events-none" />
+      <section className="py-28 px-4 relative">
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-1/3 right-1/4 w-[500px] h-[300px] rounded-full bg-[hsl(210,90%,55%/0.03)] blur-[100px]" />
+        </div>
+
         <div className="container mx-auto max-w-5xl relative z-10">
           <motion.div
-            className="text-center mb-12"
+            className="text-center mb-14"
             initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={0}
           >
             {/* Trust badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-accent/20 bg-accent/5 mb-6">
-              <Shield className="w-4 h-4 text-accent" />
-              <span className="text-sm font-medium text-accent">Trusted by creators worldwide</span>
+            <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-[hsl(210,80%,55%/0.2)] bg-[hsl(210,80%,55%/0.06)] mb-7">
+              <Shield className="w-4 h-4 text-[hsl(210,90%,60%)]" />
+              <span className="text-sm font-medium text-[hsl(210,80%,70%)]">Trusted by creators worldwide</span>
             </div>
             <h2 className="text-3xl sm:text-4xl font-bold text-foreground">
               Real creators, real results
             </h2>
+            <p className="mt-4 text-muted-foreground max-w-md mx-auto">
+              Hear from people already building with AlterAI.
+            </p>
           </motion.div>
 
           <div className="grid md:grid-cols-3 gap-5">
             {testimonials.map((t, i) => (
               <motion.div
                 key={i}
-                className="rounded-2xl border border-border bg-card p-6 flex flex-col"
+                className="rounded-2xl border border-border/50 bg-card/60 backdrop-blur-sm p-7 flex flex-col hover:border-[hsl(260,60%,55%/0.25)] transition-all duration-300"
                 initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={i + 1}
+                whileHover={{ y: -3 }}
               >
-                <div className="flex gap-1 mb-4">
+                <div className="flex gap-1 mb-5">
                   {[...Array(5)].map((_, j) => (
-                    <Star key={j} className="w-4 h-4 fill-primary text-primary" />
+                    <Star key={j} className="w-4 h-4 fill-[hsl(40,90%,55%)] text-[hsl(40,90%,55%)]" />
                   ))}
                 </div>
-                <p className="text-sm text-foreground leading-relaxed flex-1">"{t.quote}"</p>
-                <div className="mt-5 pt-4 border-t border-border/50">
-                  <p className="text-sm font-medium text-foreground">{t.name}</p>
-                  <p className="text-xs text-muted-foreground">{t.role}</p>
+                <p className="text-sm text-foreground leading-relaxed flex-1 italic">"{t.quote}"</p>
+                <div className="mt-6 pt-4 border-t border-border/40">
+                  <p className="text-sm font-semibold text-foreground">{t.name}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{t.role}</p>
                 </div>
               </motion.div>
             ))}
@@ -306,31 +394,42 @@ export default function Home() {
       </section>
 
       {/* ═══════════════════════ FINAL CTA ═══════════════════════ */}
-      <section className="py-24 px-4">
+      <section className="py-28 px-4">
         <div className="container mx-auto max-w-3xl">
           <motion.div
-            className="relative rounded-3xl border border-primary/20 bg-gradient-to-br from-primary/5 via-card to-accent/5 p-12 sm:p-16 text-center overflow-hidden"
+            className="relative rounded-3xl border border-[hsl(260,60%,55%/0.2)] bg-gradient-to-br from-[hsl(260,60%,55%/0.06)] via-card to-[hsl(210,80%,55%/0.06)] p-12 sm:p-16 text-center overflow-hidden"
             initial="hidden" whileInView="visible" viewport={{ once: true }} variants={scaleIn} custom={0}
           >
-            {/* Glow */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[400px] h-[200px] bg-primary/10 rounded-full blur-[80px] pointer-events-none" />
+            {/* Neon glow */}
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[250px] bg-[hsl(260,80%,55%/0.1)] rounded-full blur-[100px] pointer-events-none" />
+            <div className="absolute bottom-0 right-1/4 w-[300px] h-[150px] bg-[hsl(210,90%,55%/0.06)] rounded-full blur-[80px] pointer-events-none" />
 
             <div className="relative z-10">
-              <Zap className="w-10 h-10 text-primary mx-auto mb-6" />
+              <motion.div
+                className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[hsl(260,80%,55%)] to-[hsl(210,85%,55%)] flex items-center justify-center mx-auto mb-7 shadow-lg shadow-[hsl(260,80%,55%/0.25)]"
+                whileHover={{ rotate: 12, scale: 1.1 }}
+                transition={{ duration: 0.3 }}
+              >
+                <Zap className="w-7 h-7 text-white" />
+              </motion.div>
               <h2 className="text-3xl sm:text-4xl font-bold text-foreground">
                 Create your first AI bot today
               </h2>
-              <p className="mt-4 text-muted-foreground max-w-lg mx-auto">
+              <p className="mt-5 text-muted-foreground max-w-lg mx-auto leading-relaxed">
                 Join a growing community of creators building AI-powered bots and content.
                 No coding required, no credit card needed.
               </p>
-              <Button size="lg" className="mt-8 h-14 px-10 text-base shadow-xl shadow-primary/20" asChild>
+              <Button
+                size="lg"
+                className="mt-9 h-14 px-10 text-base font-semibold bg-gradient-to-r from-[hsl(260,80%,55%)] to-[hsl(210,85%,55%)] hover:from-[hsl(260,80%,60%)] hover:to-[hsl(210,85%,60%)] text-white shadow-xl shadow-[hsl(260,80%,55%/0.3)] border-0"
+                asChild
+              >
                 <Link to="/auth">
                   Start building your AI now <ArrowRight className="w-4 h-4 ml-2" />
                 </Link>
               </Button>
-              <p className="mt-3 text-xs text-muted-foreground">
-                Free plan available · No coding required · Set up in minutes
+              <p className="mt-4 text-xs text-muted-foreground/70">
+                No coding required · Start for free · Set up in minutes
               </p>
             </div>
           </motion.div>
@@ -338,29 +437,35 @@ export default function Home() {
       </section>
 
       {/* ═══════════════════════ FOOTER ═══════════════════════ */}
-      <footer className="border-t border-border/30 py-12 px-4">
+      <footer className="border-t border-border/30 py-14 px-4">
         <div className="container mx-auto max-w-5xl">
-          <div className="grid sm:grid-cols-4 gap-8 mb-8">
+          <div className="grid sm:grid-cols-4 gap-8 mb-10">
             {/* Brand */}
             <div className="sm:col-span-2">
-              <h3 className="font-bold text-foreground text-lg">Alter AI</h3>
-              <p className="mt-2 text-sm text-muted-foreground max-w-xs leading-relaxed">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[hsl(260,80%,55%)] to-[hsl(210,85%,55%)] flex items-center justify-center">
+                  <Sparkles className="w-4 h-4 text-white" />
+                </div>
+                <h3 className="font-bold text-foreground text-lg">Alter AI</h3>
+              </div>
+              <p className="mt-3 text-sm text-muted-foreground max-w-xs leading-relaxed">
                 The all-in-one platform for AI bots, multi-platform content, and creative monetization.
               </p>
               <div className="mt-4 flex items-center gap-2">
-                <Shield className="w-3.5 h-3.5 text-accent" />
+                <Shield className="w-3.5 h-3.5 text-[hsl(210,90%,60%)]" />
                 <span className="text-xs text-muted-foreground">Secure · Verified · Privacy-first</span>
               </div>
             </div>
 
-            {/* Links */}
+            {/* Product Links */}
             <div>
-              <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Product</h4>
-              <ul className="space-y-2">
+              <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">Product</h4>
+              <ul className="space-y-2.5">
                 {[
                   { label: "Pricing", to: "/pricing" },
                   { label: "Marketplace", to: "/marketplace" },
                   { label: "Content Studio", to: "/content-studio" },
+                  { label: "Templates", to: "/template-marketplace" },
                   { label: "Dashboard", to: "/dashboard" },
                 ].map(link => (
                   <li key={link.label}>
@@ -372,9 +477,10 @@ export default function Home() {
               </ul>
             </div>
 
+            {/* Legal Links */}
             <div>
-              <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Legal</h4>
-              <ul className="space-y-2">
+              <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">Legal</h4>
+              <ul className="space-y-2.5">
                 {[
                   { label: "Privacy Policy", to: "/privacy" },
                   { label: "Terms of Service", to: "/terms" },
@@ -389,7 +495,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="pt-6 border-t border-border/30 flex flex-col sm:flex-row items-center justify-between gap-2">
+          <div className="pt-7 border-t border-border/30 flex flex-col sm:flex-row items-center justify-between gap-2">
             <span className="text-xs text-muted-foreground">© 2026 Alter AI. All rights reserved.</span>
             <span className="text-xs text-muted-foreground">Built for creators, by creators.</span>
           </div>
