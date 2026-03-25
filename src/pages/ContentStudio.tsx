@@ -454,8 +454,83 @@ export default function ContentStudio() {
   );
 }
 
-// TikTok-specific detailed section with scenes, images, editing
+// TikTok-specific detailed section with scenes, images, editing, voiceover
 function TikTokSection({ content, onUpdate, copyToClipboard, copiedField, generatedImages, generatingImages, onGenerateImage, setGeneratedImages, storySegments }: any) {
+  const [selectedVoice, setSelectedVoice] = useState("JBFqnCBsd6RMkjVDRZzb");
+  const [voiceLoading, setVoiceLoading] = useState<Record<string, boolean>>({});
+  const [sceneAudios, setSceneAudios] = useState<Record<number, string>>({});
+  const [fullAudio, setFullAudio] = useState<string | null>(null);
+  const [playingAudio, setPlayingAudio] = useState<string | null>(null);
+  const [audioElements, setAudioElements] = useState<Record<string, HTMLAudioElement>>({});
+
+  const VOICES = [
+    { id: "JBFqnCBsd6RMkjVDRZzb", name: "George" },
+    { id: "EXAVITQu4vr4xnSDxMaL", name: "Sarah" },
+    { id: "TX3LPaxmHKxFdv7VOQHJ", name: "Liam" },
+    { id: "Xb7hH8MSUJpSbSDYk0k2", name: "Alice" },
+    { id: "onwK4e9ZLuTAKqWW03F9", name: "Daniel" },
+    { id: "pFZP5JQG7iQjIQuC4Bku", name: "Lily" },
+    { id: "cjVigY5qzO86Huf0OWal", name: "Eric" },
+    { id: "iP95p4xoKVk53GoZ742B", name: "Chris" },
+  ];
+
+  const generateVoiceover = async (key: string, text: string, isFull = false) => {
+    setVoiceLoading(prev => ({ ...prev, [key]: true }));
+    try {
+      const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/elevenlabs-tts`;
+      const body = isFull
+        ? { action: "generate_full", voiceId: selectedVoice, scenes: content.scenes }
+        : { action: "generate", voiceId: selectedVoice, text };
+
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
+        body: JSON.stringify(body),
+      });
+
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({ error: "TTS failed" }));
+        throw new Error(err.error || `TTS error: ${response.status}`);
+      }
+
+      const blob = await response.blob();
+      const audioUrl = URL.createObjectURL(blob);
+
+      if (isFull) {
+        setFullAudio(audioUrl);
+      } else {
+        const sceneNum = parseInt(key.replace("scene-", ""));
+        setSceneAudios(prev => ({ ...prev, [sceneNum]: audioUrl }));
+      }
+      toast.success(isFull ? "Full voiceover generated!" : "Scene voiceover generated!");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to generate voiceover");
+    } finally {
+      setVoiceLoading(prev => ({ ...prev, [key]: false }));
+    }
+  };
+
+  const togglePlayAudio = (key: string, audioUrl: string) => {
+    if (playingAudio === key) {
+      audioElements[key]?.pause();
+      setPlayingAudio(null);
+      return;
+    }
+    // Stop any currently playing
+    if (playingAudio && audioElements[playingAudio]) {
+      audioElements[playingAudio].pause();
+    }
+    const audio = new Audio(audioUrl);
+    audio.onended = () => setPlayingAudio(null);
+    audio.play();
+    setAudioElements(prev => ({ ...prev, [key]: audio }));
+    setPlayingAudio(key);
+  };
+
   const CopyBtn = ({ text, field }: { text: string; field: string }) => (
     <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={() => copyToClipboard(text, field)}>
       {copiedField === field ? <Check className="w-3.5 h-3.5 text-primary" /> : <Copy className="w-3.5 h-3.5" />}
@@ -464,11 +539,12 @@ function TikTokSection({ content, onUpdate, copyToClipboard, copiedField, genera
 
   return (
     <Tabs defaultValue="overview" className="w-full">
-      <TabsList className="grid w-full grid-cols-5">
+      <TabsList className="grid w-full grid-cols-6">
         <TabsTrigger value="overview"><Zap className="w-3.5 h-3.5 mr-1 hidden sm:inline" /> Overview</TabsTrigger>
         <TabsTrigger value="scenes"><Film className="w-3.5 h-3.5 mr-1 hidden sm:inline" /> Scenes</TabsTrigger>
         <TabsTrigger value="images"><ImageIcon className="w-3.5 h-3.5 mr-1 hidden sm:inline" /> Images</TabsTrigger>
         <TabsTrigger value="directions"><Camera className="w-3.5 h-3.5 mr-1 hidden sm:inline" /> Direction</TabsTrigger>
+        <TabsTrigger value="voiceover"><Mic className="w-3.5 h-3.5 mr-1 hidden sm:inline" /> Voice</TabsTrigger>
         <TabsTrigger value="editing"><Type className="w-3.5 h-3.5 mr-1 hidden sm:inline" /> Editing</TabsTrigger>
       </TabsList>
 
@@ -583,6 +659,126 @@ function TikTokSection({ content, onUpdate, copyToClipboard, copiedField, genera
             </CardContent>
           </Card>
         ))}
+      </TabsContent>
+
+      {/* Voiceover Tab */}
+      <TabsContent value="voiceover" className="space-y-4 mt-4">
+        <Card className="border-primary/20">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium flex items-center gap-2">
+              <Mic className="w-4 h-4 text-primary" /> AI Voiceover
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {/* Voice Selector */}
+            <div className="flex items-center gap-3">
+              <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Voice</label>
+              <Select value={selectedVoice} onValueChange={setSelectedVoice}>
+                <SelectTrigger className="w-48 h-9 bg-background">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {VOICES.map(v => (
+                    <SelectItem key={v.id} value={v.id}>{v.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Full Script Voiceover */}
+            <Card className="border-accent/20">
+              <CardContent className="pt-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-foreground">Full Script Narration</p>
+                    <p className="text-xs text-muted-foreground">Generate voiceover for all {content.scenes?.length || 0} scenes combined</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {fullAudio && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => togglePlayAudio("full", fullAudio)}
+                      >
+                        {playingAudio === "full" ? <Pause className="w-3.5 h-3.5 mr-1.5" /> : <Play className="w-3.5 h-3.5 mr-1.5" />}
+                        {playingAudio === "full" ? "Pause" : "Play"}
+                      </Button>
+                    )}
+                    <Button
+                      size="sm"
+                      onClick={() => generateVoiceover("full", "", true)}
+                      disabled={voiceLoading["full"]}
+                    >
+                      {voiceLoading["full"] ? (
+                        <><Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> Generating...</>
+                      ) : fullAudio ? (
+                        <><Mic className="w-3.5 h-3.5 mr-1.5" /> Regenerate</>
+                      ) : (
+                        <><Mic className="w-3.5 h-3.5 mr-1.5" /> Generate Full Voiceover</>
+                      )}
+                    </Button>
+                  </div>
+                </div>
+                {fullAudio && (
+                  <div className="mt-3">
+                    <audio controls src={fullAudio} className="w-full h-10" />
+                    <a href={fullAudio} download="voiceover-full.mp3" className="text-xs text-primary hover:underline mt-1 inline-block">
+                      <Download className="w-3 h-3 inline mr-1" />Download MP3
+                    </a>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Per-Scene Voiceovers */}
+            <div className="space-y-3">
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Per-Scene Voiceover</p>
+              {content.scenes?.map((scene: any) => {
+                const key = `scene-${scene.number}`;
+                const audioUrl = sceneAudios[scene.number];
+                return (
+                  <Card key={key} className="border-border">
+                    <CardContent className="pt-3 pb-3">
+                      <div className="flex items-start gap-3">
+                        <Badge variant="outline" className="shrink-0 mt-0.5">{scene.number}</Badge>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm text-foreground truncate">{scene.text}</p>
+                          {audioUrl && (
+                            <div className="mt-2">
+                              <audio controls src={audioUrl} className="w-full h-8" />
+                              <a href={audioUrl} download={`voiceover-scene-${scene.number}.mp3`} className="text-xs text-primary hover:underline mt-1 inline-block">
+                                <Download className="w-3 h-3 inline mr-1" />Download
+                              </a>
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          {audioUrl && (
+                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => togglePlayAudio(key, audioUrl)}>
+                              {playingAudio === key ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
+                            </Button>
+                          )}
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => generateVoiceover(key, scene.text)}
+                            disabled={voiceLoading[key]}
+                          >
+                            {voiceLoading[key] ? (
+                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                            ) : (
+                              <><Mic className="w-3.5 h-3.5 mr-1" /> {audioUrl ? "Redo" : "Generate"}</>
+                            )}
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
       </TabsContent>
 
       <TabsContent value="editing" className="mt-4">
