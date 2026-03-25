@@ -175,6 +175,20 @@ export default function ContentStudio() {
     }
   };
 
+  const updateTemplateCategory = async (id: string, newCategory: string, e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    try {
+      const { error } = await (supabase.from as any)("content_templates")
+        .update({ category: newCategory })
+        .eq("id", id);
+      if (error) throw error;
+      setTemplates(prev => prev.map(t => t.id === id ? { ...t, category: newCategory } : t));
+      toast.success("Category updated");
+    } catch {
+      toast.error("Failed to update category");
+    }
+  };
+
   const togglePlatform = (id: PlatformId) => {
     setSelectedPlatforms(prev =>
       prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id]
@@ -370,12 +384,37 @@ export default function ContentStudio() {
                               {t.is_public && <Badge variant="secondary" className="text-[10px] shrink-0 gap-0.5"><Eye className="w-2.5 h-2.5" /> Public</Badge>}
                             </div>
                             <p className="text-xs text-muted-foreground truncate">{t.prompt}</p>
-                            <div className="flex gap-1 mt-1 flex-wrap">
+                            <div className="flex gap-1 mt-1 flex-wrap items-center">
                               {(t.platforms || []).map((p: string) => {
                                 const plat = PLATFORMS.find(x => x.id === p);
                                 return plat ? <span key={p} className="text-xs">{plat.icon}</span> : null;
                               })}
                               <span className="text-xs text-muted-foreground ml-1">{new Date(t.created_at).toLocaleDateString()}</span>
+                              <Select
+                                value={t.category || "general"}
+                                onValueChange={(val) => updateTemplateCategory(t.id, val)}
+                              >
+                                <SelectTrigger
+                                  className="h-5 w-auto text-[10px] bg-muted/50 border-border/50 px-1.5 py-0 ml-1 gap-0.5"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {[
+                                    { id: "general", label: "✨ General" },
+                                    { id: "marketing", label: "📢 Marketing" },
+                                    { id: "education", label: "📚 Education" },
+                                    { id: "entertainment", label: "🎭 Entertainment" },
+                                    { id: "business", label: "💼 Business" },
+                                    { id: "lifestyle", label: "🌿 Lifestyle" },
+                                    { id: "tech", label: "💻 Tech" },
+                                    { id: "motivation", label: "🔥 Motivation" },
+                                  ].map(c => (
+                                    <SelectItem key={c.id} value={c.id}>{c.label}</SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
                             </div>
                           </div>
                           <div className="flex items-center gap-1 shrink-0">
