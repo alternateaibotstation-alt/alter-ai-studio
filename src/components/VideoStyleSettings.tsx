@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { Palette, Type, Move, Save, Trash2, Loader2 } from "lucide-react";
+import VideoStylePreview from "./VideoStylePreview";
 import { Button } from "@/components/ui/button";
 import { useVideoPresets } from "@/hooks/use-video-presets";
 
