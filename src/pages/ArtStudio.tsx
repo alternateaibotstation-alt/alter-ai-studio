@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import PaywallModal from "@/components/PaywallModal";
 import UsageBadge from "@/components/UsageBadge";
+import { useCreations } from "@/hooks/use-creations";
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-image`;
 
@@ -38,6 +39,7 @@ export default function ArtStudio() {
   const [gallery, setGallery] = useState<GeneratedImage[]>([]);
   const [paywallOpen, setPaywallOpen] = useState(false);
   const { canGenerateImage, refresh: refreshSub } = useSubscription();
+  const { saveCreation } = useCreations();
 
   const generate = async () => {
     if (!prompt.trim()) return;
@@ -78,6 +80,15 @@ export default function ArtStudio() {
         },
         ...prev,
       ]);
+      // Auto-save to My Creations
+      try {
+        const imgResp = await fetch(imageUrl);
+        const blob = await imgResp.blob();
+        await saveCreation(blob, prompt.trim().slice(0, 80) || "AI Art", "image", { model, prompt: prompt.trim() });
+      } catch (saveErr) {
+        console.error("Auto-save failed:", saveErr);
+      }
+
       toast.success("Image generated!");
     } catch (err: any) {
       const errMsg = err.message || "Failed to generate image";
