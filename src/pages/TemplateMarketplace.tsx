@@ -52,7 +52,7 @@ export default function TemplateMarketplace() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
-  const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [sortBy, setSortBy] = useState<"popular" | "newest" | "alphabetical">("popular");
   const [importing, setImporting] = useState<string | null>(null);
   const navigate = useNavigate();
 
