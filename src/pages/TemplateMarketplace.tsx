@@ -1,13 +1,14 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Search, Loader2, Download, BookTemplate, ArrowLeft,
-  Copy, Check, Tag, Sparkles
+  Copy, Check, Tag, Sparkles, ArrowUpDown
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -51,6 +52,7 @@ export default function TemplateMarketplace() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [sortBy, setSortBy] = useState<"popular" | "newest" | "alphabetical">("popular");
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [importing, setImporting] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -81,6 +83,19 @@ export default function TemplateMarketplace() {
     const matchesSearch = !search || t.name.toLowerCase().includes(search.toLowerCase()) || t.prompt.toLowerCase().includes(search.toLowerCase());
     return matchesCategory && matchesSearch;
   });
+
+  const sorted = useMemo(() => {
+    const arr = [...filtered];
+    switch (sortBy) {
+      case "newest":
+        return arr.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      case "alphabetical":
+        return arr.sort((a, b) => a.name.localeCompare(b.name));
+      case "popular":
+      default:
+        return arr.sort((a, b) => (b.use_count || 0) - (a.use_count || 0));
+    }
+  }, [filtered, sortBy]);
 
   const categoryCounts = CATEGORIES.reduce<Record<string, number>>((acc, cat) => {
     acc[cat.id] = cat.id === "all" ? templates.length : templates.filter(t => t.category === cat.id).length;
@@ -142,16 +157,29 @@ export default function TemplateMarketplace() {
         </div>
         <p className="text-muted-foreground mb-6">Browse and use community-shared content templates</p>
 
-        {/* Search + Category Filter */}
+        {/* Search + Sort + Category Filter */}
         <div className="space-y-4 mb-8">
-          <div className="relative max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              placeholder="Search templates..."
-              className="pl-9 bg-card border-border"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
+          <div className="flex gap-3 items-center flex-wrap">
+            <div className="relative max-w-md flex-1 min-w-[200px]">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Search templates..."
+                className="pl-9 bg-card border-border"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
+            <Select value={sortBy} onValueChange={(v) => setSortBy(v as any)}>
+              <SelectTrigger className="w-40 bg-card border-border">
+                <ArrowUpDown className="w-3.5 h-3.5 mr-1.5 text-muted-foreground" />
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="popular">Most Used</SelectItem>
+                <SelectItem value="newest">Newest</SelectItem>
+                <SelectItem value="alphabetical">A → Z</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Category tabs */}
@@ -180,7 +208,7 @@ export default function TemplateMarketplace() {
           <div className="flex items-center justify-center py-16">
             <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
           </div>
-        ) : filtered.length === 0 ? (
+        ) : sorted.length === 0 ? (
           <div className="text-center py-16">
             <BookTemplate className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-40" />
             <p className="text-muted-foreground">
@@ -196,7 +224,7 @@ export default function TemplateMarketplace() {
           </div>
         ) : (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filtered.map(t => (
+            {sorted.map(t => (
               <Card key={t.id} className={`group border-border hover:border-primary/25 transition-all duration-200 ${t.user_id === "00000000-0000-0000-0000-000000000000" ? "ring-1 ring-primary/10" : ""}`}>
                 <CardContent className="pt-5 pb-4">
                   <div className="flex items-start justify-between gap-2 mb-3">
