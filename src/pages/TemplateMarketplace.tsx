@@ -46,8 +46,8 @@ export default function TemplateMarketplace() {
     setLoading(true);
     try {
       const { data, error } = await supabase
-        .from("content_templates" as any)
-        .select("*, profiles:user_id(username)")
+        .from("content_templates")
+        .select("*")
         .eq("is_public", true)
         .order("use_count", { ascending: false });
       if (error) throw error;
