@@ -111,6 +111,7 @@ export type Database = {
       }
       content_templates: {
         Row: {
+          category: string
           content: Json
           created_at: string
           id: string
@@ -124,6 +125,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          category?: string
           content?: Json
           created_at?: string
           id?: string
@@ -137,6 +139,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          category?: string
           content?: Json
           created_at?: string
           id?: string

@@ -1,0 +1,1 @@
+ALTER TABLE public.content_templates ADD COLUMN category text NOT NULL DEFAULT 'general';

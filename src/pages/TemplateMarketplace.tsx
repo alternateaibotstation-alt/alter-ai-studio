@@ -6,8 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
-  Search, Loader2, Download, BookTemplate, ArrowLeft, TrendingUp,
-  Copy, Check, Globe, Sparkles
+  Search, Loader2, Download, BookTemplate, ArrowLeft,
+  Copy, Check, Tag
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -21,6 +21,18 @@ const PLATFORMS = [
   { id: "twitter", label: "Twitter/X", icon: "𝕏" },
 ];
 
+const CATEGORIES = [
+  { id: "all", label: "All", icon: "📋" },
+  { id: "general", label: "General", icon: "✨" },
+  { id: "marketing", label: "Marketing", icon: "📢" },
+  { id: "education", label: "Education", icon: "📚" },
+  { id: "entertainment", label: "Entertainment", icon: "🎭" },
+  { id: "business", label: "Business", icon: "💼" },
+  { id: "lifestyle", label: "Lifestyle", icon: "🌿" },
+  { id: "tech", label: "Tech", icon: "💻" },
+  { id: "motivation", label: "Motivation", icon: "🔥" },
+];
+
 interface PublicTemplate {
   id: string;
   name: string;
@@ -31,13 +43,14 @@ interface PublicTemplate {
   use_count: number;
   created_at: string;
   user_id: string;
-  profiles?: { username: string | null } | null;
+  category: string;
 }
 
 export default function TemplateMarketplace() {
   const [templates, setTemplates] = useState<PublicTemplate[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [importing, setImporting] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -64,10 +77,15 @@ export default function TemplateMarketplace() {
   }, [fetchPublicTemplates]);
 
   const filtered = templates.filter(t => {
-    if (!search) return true;
-    const s = search.toLowerCase();
-    return t.name.toLowerCase().includes(s) || t.prompt.toLowerCase().includes(s);
+    const matchesCategory = selectedCategory === "all" || t.category === selectedCategory;
+    const matchesSearch = !search || t.name.toLowerCase().includes(search.toLowerCase()) || t.prompt.toLowerCase().includes(search.toLowerCase());
+    return matchesCategory && matchesSearch;
   });
+
+  const categoryCounts = CATEGORIES.reduce<Record<string, number>>((acc, cat) => {
+    acc[cat.id] = cat.id === "all" ? templates.length : templates.filter(t => t.category === cat.id).length;
+    return acc;
+  }, {});
 
   const useTemplate = async (template: PublicTemplate) => {
     setImporting(template.id);
@@ -79,7 +97,6 @@ export default function TemplateMarketplace() {
         return;
       }
 
-      // Clone the template for the current user
       const { error } = await supabase.from("content_templates").insert({
         user_id: user.id,
         name: `${template.name} (copy)`,
@@ -87,11 +104,11 @@ export default function TemplateMarketplace() {
         platforms: template.platforms,
         content: template.content,
         story_profile: template.story_profile,
+        category: template.category,
         is_public: false,
       });
       if (error) throw error;
 
-      // Increment use count on original
       await supabase.from("content_templates")
         .update({ use_count: (template.use_count || 0) + 1 })
         .eq("id", template.id);
@@ -104,6 +121,11 @@ export default function TemplateMarketplace() {
     } finally {
       setImporting(null);
     }
+  };
+
+  const getCategoryLabel = (id: string) => {
+    const cat = CATEGORIES.find(c => c.id === id);
+    return cat ? `${cat.icon} ${cat.label}` : id;
   };
 
   return (
@@ -120,15 +142,38 @@ export default function TemplateMarketplace() {
         </div>
         <p className="text-muted-foreground mb-6">Browse and use community-shared content templates</p>
 
-        {/* Search */}
-        <div className="relative max-w-md mb-8">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            placeholder="Search templates..."
-            className="pl-9 bg-card border-border"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
+        {/* Search + Category Filter */}
+        <div className="space-y-4 mb-8">
+          <div className="relative max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder="Search templates..."
+              className="pl-9 bg-card border-border"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+
+          {/* Category tabs */}
+          <div className="flex flex-wrap gap-2">
+            {CATEGORIES.map(cat => (
+              <button
+                key={cat.id}
+                onClick={() => setSelectedCategory(cat.id)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border transition-all ${
+                  selectedCategory === cat.id
+                    ? "bg-primary/15 text-primary border-primary/30 ring-1 ring-primary/20"
+                    : "bg-muted/30 text-muted-foreground border-border hover:bg-muted/50"
+                }`}
+              >
+                <span>{cat.icon}</span>
+                <span>{cat.label}</span>
+                {categoryCounts[cat.id] > 0 && (
+                  <span className="text-[10px] opacity-60 ml-0.5">{categoryCounts[cat.id]}</span>
+                )}
+              </button>
+            ))}
+          </div>
         </div>
 
         {loading ? (
@@ -139,8 +184,15 @@ export default function TemplateMarketplace() {
           <div className="text-center py-16">
             <BookTemplate className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-40" />
             <p className="text-muted-foreground">
-              {search ? "No templates match your search." : "No public templates yet. Be the first to share one!"}
+              {search || selectedCategory !== "all"
+                ? "No templates match your filters."
+                : "No public templates yet. Be the first to share one!"}
             </p>
+            {(search || selectedCategory !== "all") && (
+              <Button variant="ghost" size="sm" className="mt-3" onClick={() => { setSearch(""); setSelectedCategory("all"); }}>
+                Clear filters
+              </Button>
+            )}
           </div>
         ) : (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -158,22 +210,26 @@ export default function TemplateMarketplace() {
 
                   <p className="text-xs text-muted-foreground line-clamp-2 mb-3 leading-relaxed">{t.prompt}</p>
 
-                  {/* Platforms */}
-                  <div className="flex flex-wrap gap-1 mb-3">
-                    {(t.platforms || []).map((p: string) => {
-                      const plat = PLATFORMS.find(x => x.id === p);
-                      return plat ? (
-                        <span key={p} className="text-xs bg-muted/50 px-1.5 py-0.5 rounded" title={plat.label}>
-                          {plat.icon}
-                        </span>
-                      ) : null;
-                    })}
+                  {/* Category + Platforms */}
+                  <div className="flex items-center gap-2 mb-3 flex-wrap">
+                    <Badge variant="outline" className="text-[10px] gap-1">
+                      <Tag className="w-2.5 h-2.5" /> {getCategoryLabel(t.category || "general")}
+                    </Badge>
+                    <div className="flex gap-1">
+                      {(t.platforms || []).map((p: string) => {
+                        const plat = PLATFORMS.find(x => x.id === p);
+                        return plat ? (
+                          <span key={p} className="text-xs bg-muted/50 px-1.5 py-0.5 rounded" title={plat.label}>
+                            {plat.icon}
+                          </span>
+                        ) : null;
+                      })}
+                    </div>
                   </div>
 
-                  {/* Creator & Date */}
-                  <div className="flex items-center justify-between text-[10px] text-muted-foreground mb-3">
-                    <span>shared {new Date(t.created_at).toLocaleDateString()}</span>
-                    <span>{new Date(t.created_at).toLocaleDateString()}</span>
+                  {/* Date */}
+                  <div className="text-[10px] text-muted-foreground mb-3">
+                    shared {new Date(t.created_at).toLocaleDateString()}
                   </div>
 
                   {/* Use button */}

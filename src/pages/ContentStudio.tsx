@@ -83,6 +83,7 @@ export default function ContentStudio() {
   const [savingTemplate, setSavingTemplate] = useState(false);
   const [loadingTemplates, setLoadingTemplates] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
+  const [templateCategory, setTemplateCategory] = useState("general");
 
   const hasStoryProfile = storyProfile.characters.length > 0 || storyProfile.visualStyle || storyProfile.mood || storyProfile.setting;
 
@@ -120,6 +121,7 @@ export default function ContentStudio() {
         platforms: selectedPlatforms,
         content: platformContent,
         story_profile: hasStoryProfile ? storyProfile : null,
+        category: templateCategory,
       });
       if (error) throw error;
       toast.success("Template saved!");
@@ -400,13 +402,32 @@ export default function ContentStudio() {
           </Dialog>
 
           {hasContent && (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <Input
                 value={templateName}
                 onChange={(e) => setTemplateName(e.target.value)}
                 placeholder="Template name..."
-                className="h-8 w-48 text-sm bg-background"
+                className="h-8 w-40 text-sm bg-background"
               />
+              <Select value={templateCategory} onValueChange={setTemplateCategory}>
+                <SelectTrigger className="h-8 w-36 text-sm bg-background">
+                  <SelectValue placeholder="Category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {[
+                    { id: "general", label: "✨ General" },
+                    { id: "marketing", label: "📢 Marketing" },
+                    { id: "education", label: "📚 Education" },
+                    { id: "entertainment", label: "🎭 Entertainment" },
+                    { id: "business", label: "💼 Business" },
+                    { id: "lifestyle", label: "🌿 Lifestyle" },
+                    { id: "tech", label: "💻 Tech" },
+                    { id: "motivation", label: "🔥 Motivation" },
+                  ].map(c => (
+                    <SelectItem key={c.id} value={c.id}>{c.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <Button variant="outline" size="sm" onClick={saveTemplate} disabled={savingTemplate || !templateName.trim()}>
                 {savingTemplate ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <Save className="w-3.5 h-3.5 mr-1.5" />}
                 Save Template
