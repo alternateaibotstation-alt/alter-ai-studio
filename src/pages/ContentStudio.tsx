@@ -76,8 +76,86 @@ export default function ContentStudio() {
   const [continuePrompt, setContinuePrompt] = useState("");
   const [continuing, setContinuing] = useState(false);
   const [activeTab, setActiveTab] = useState<string>("tiktok");
+  const [templates, setTemplates] = useState<any[]>([]);
+  const [templateName, setTemplateName] = useState("");
+  const [savingTemplate, setSavingTemplate] = useState(false);
+  const [loadingTemplates, setLoadingTemplates] = useState(false);
+  const [showTemplates, setShowTemplates] = useState(false);
 
   const hasStoryProfile = storyProfile.characters.length > 0 || storyProfile.visualStyle || storyProfile.mood || storyProfile.setting;
+
+  const fetchTemplates = useCallback(async () => {
+    setLoadingTemplates(true);
+    try {
+      const { data, error } = await supabase
+        .from("content_templates")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      setTemplates(data || []);
+    } catch (err: any) {
+      toast.error("Failed to load templates");
+    } finally {
+      setLoadingTemplates(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (showTemplates) fetchTemplates();
+  }, [showTemplates, fetchTemplates]);
+
+  const saveTemplate = async () => {
+    if (!templateName.trim() || Object.keys(platformContent).length === 0) return;
+    setSavingTemplate(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { toast.error("Sign in to save templates"); return; }
+
+      const { error } = await supabase.from("content_templates").insert({
+        user_id: user.id,
+        name: templateName.trim(),
+        prompt,
+        platforms: selectedPlatforms,
+        content: platformContent,
+        story_profile: hasStoryProfile ? storyProfile : null,
+      });
+      if (error) throw error;
+      toast.success("Template saved!");
+      setTemplateName("");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to save template");
+    } finally {
+      setSavingTemplate(false);
+    }
+  };
+
+  const loadTemplate = (template: any) => {
+    setPrompt(template.prompt || "");
+    setSelectedPlatforms(template.platforms || ["tiktok"]);
+    setPlatformContent(template.content || {});
+    if (template.story_profile) setStoryProfile(template.story_profile);
+    if (template.content?.tiktok) {
+      setStorySegments([{ content: template.content.tiktok, images: [] }]);
+      setActiveTab("tiktok");
+    } else {
+      const firstPlatform = Object.keys(template.content || {})[0];
+      if (firstPlatform) setActiveTab(firstPlatform);
+    }
+    setShowTemplates(false);
+    toast.success(`Loaded "${template.name}"`);
+  };
+
+  const deleteTemplate = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      const { error } = await supabase.from("content_templates").delete().eq("id", id);
+      if (error) throw error;
+      setTemplates(prev => prev.filter(t => t.id !== id));
+      toast.success("Template deleted");
+    } catch {
+      toast.error("Failed to delete template");
+    }
+  };
 
   const togglePlatform = (id: PlatformId) => {
     setSelectedPlatforms(prev =>
