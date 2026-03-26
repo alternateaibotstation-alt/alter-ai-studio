@@ -185,7 +185,18 @@ export default function Auth() {
             </div>
           )}
 
-          <Button type="submit" className="w-full" disabled={loading}>
+          {lockedUntil && Date.now() < lockedUntil && (
+            <div className="flex items-center gap-2 text-sm text-destructive bg-destructive/10 rounded-md p-3">
+              <ShieldAlert className="w-4 h-4 shrink-0" />
+              <span>Too many failed attempts. Please wait before trying again.</span>
+            </div>
+          )}
+
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={loading || (!!lockedUntil && Date.now() < lockedUntil)}
+          >
             {loading ? "Please wait..." : isLogin ? "Sign In" : "Sign Up"}
           </Button>
         </form>
