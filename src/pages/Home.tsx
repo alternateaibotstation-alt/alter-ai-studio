@@ -123,7 +123,19 @@ export default function Home() {
   const featuresInView = useInView(featuresRef, { once: true, margin: "-80px" });
 
   return (
-    <div className="min-h-screen bg-background overflow-x-hidden">
+    <div className="min-h-screen bg-background overflow-x-hidden relative">
+      {/* Fixed background logo */}
+      <div
+        className="fixed inset-0 z-0 pointer-events-none flex items-center justify-center"
+        aria-hidden="true"
+      >
+        <img
+          src={bgLogo}
+          alt=""
+          className="w-[600px] h-[600px] object-contain opacity-[0.04]"
+        />
+      </div>
+
       <Navbar />
 
       {/* ═══════════════════════ HERO ═══════════════════════ */}
