@@ -1,11 +1,15 @@
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Sparkles, Gift } from "lucide-react";
+import { Sparkles, Gift, ShieldAlert } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+
+const MAX_ATTEMPTS = 5;
+const LOCKOUT_DURATION_MS = 60_000; // 1 minute
+const COOLDOWN_MS = 1_500; // 1.5s between submissions
 
 export default function Auth() {
   const [isLogin, setIsLogin] = useState(true);
@@ -13,6 +17,9 @@ export default function Auth() {
   const [password, setPassword] = useState("");
   const [referralCode, setReferralCode] = useState("");
   const [loading, setLoading] = useState(false);
+  const [lockedUntil, setLockedUntil] = useState<number | null>(null);
+  const failedAttempts = useRef(0);
+  const lastSubmitTime = useRef(0);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
@@ -23,8 +30,34 @@ export default function Auth() {
     if (ref) setReferralCode(ref);
   });
 
+  const isLockedOut = useCallback(() => {
+    if (lockedUntil && Date.now() < lockedUntil) {
+      const secondsLeft = Math.ceil((lockedUntil - Date.now()) / 1000);
+      toast({
+        title: "Too many failed attempts",
+        description: `Please wait ${secondsLeft}s before trying again.`,
+        variant: "destructive",
+      });
+      return true;
+    }
+    if (lockedUntil && Date.now() >= lockedUntil) {
+      setLockedUntil(null);
+      failedAttempts.current = 0;
+    }
+    return false;
+  }, [lockedUntil, toast]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Cooldown between submissions
+    const now = Date.now();
+    if (now - lastSubmitTime.current < COOLDOWN_MS) {
+      return;
+    }
+    lastSubmitTime.current = now;
+
+    if (isLockedOut()) return;
     setLoading(true);
 
     try {
