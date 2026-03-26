@@ -7,7 +7,7 @@ import { api, type Bot, type ChatMessage } from "@/lib/api";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useVoiceChat } from "@/hooks/use-voice-chat";
-import BotReviews from "@/components/BotReviews";
+
 import ChatSearchBar from "@/components/ChatSearchBar";
 import ChatFileUpload, { type UploadedFile } from "@/components/ChatFileUpload";
 import { toast } from "sonner";
