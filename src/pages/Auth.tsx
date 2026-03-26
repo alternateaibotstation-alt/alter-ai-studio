@@ -104,6 +104,19 @@ export default function Auth() {
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Something went wrong";
       toast({ title: "Error", description: message, variant: "destructive" });
+
+      // Track failed login attempts
+      if (isLogin) {
+        failedAttempts.current += 1;
+        if (failedAttempts.current >= MAX_ATTEMPTS) {
+          setLockedUntil(Date.now() + LOCKOUT_DURATION_MS);
+          toast({
+            title: "Account temporarily locked",
+            description: "Too many failed attempts. Please wait 1 minute.",
+            variant: "destructive",
+          });
+        }
+      }
     } finally {
       setLoading(false);
     }
