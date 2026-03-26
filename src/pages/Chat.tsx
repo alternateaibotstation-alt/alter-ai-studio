@@ -7,7 +7,7 @@ import { api, type Bot, type ChatMessage } from "@/lib/api";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useVoiceChat } from "@/hooks/use-voice-chat";
-import BotReviews from "@/components/BotReviews";
+
 import ChatSearchBar from "@/components/ChatSearchBar";
 import ChatFileUpload, { type UploadedFile } from "@/components/ChatFileUpload";
 import { toast } from "sonner";
@@ -468,7 +468,19 @@ export default function Chat() {
             </div>
           </div>
 
-          {botId && <BotReviews botId={botId} />}
+          {botId && (
+            <div className="border-t border-border/50 bg-card/50">
+              <div className="max-w-[800px] mx-auto px-4 py-6 text-center space-y-3">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">
+                  <Sparkles className="w-3 h-3" />
+                  New & Growing
+                </div>
+                <p className="text-sm text-muted-foreground leading-relaxed max-w-lg mx-auto">
+                  We're a new and emerging platform, and you're among the first to experience it! We'd love to hear your thoughts — whether it's a glowing review, constructive feedback, or fresh ideas to help us grow. We're building this with you in mind, so thank you for being here. We look forward to creating something amazing together.
+                </p>
+              </div>
+            </div>
+          )}
           <div className="shrink-0 border-t border-border/50 p-4">
             <form onSubmit={handleSend} className="max-w-[800px] mx-auto">
               {attachedFiles.length > 0 && (
