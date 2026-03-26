@@ -8,6 +8,7 @@ import {
   MessageSquare, Image, TrendingUp, Play, BookTemplate, ArrowDown
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
+import bgLogo from "@/assets/bg-logo.png";
 
 /* ─── Animation Variants ─── */
 const fadeUp = {
