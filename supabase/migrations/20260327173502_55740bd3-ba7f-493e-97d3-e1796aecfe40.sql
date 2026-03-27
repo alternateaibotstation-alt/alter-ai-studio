@@ -1,0 +1,11 @@
+UPDATE public.bots SET avatar_url = 'https://celvxwiympkuceitdgxo.supabase.co/storage/v1/object/public/bot-avatars/companions/aria.png' WHERE id = '4c447b2b-6f42-463c-8e95-16102dbbac6c';
+UPDATE public.bots SET avatar_url = 'https://celvxwiympkuceitdgxo.supabase.co/storage/v1/object/public/bot-avatars/companions/ethan.png' WHERE id = '563219d9-cb71-466e-a5cf-708c63e966c4';
+UPDATE public.bots SET avatar_url = 'https://celvxwiympkuceitdgxo.supabase.co/storage/v1/object/public/bot-avatars/companions/luna.png' WHERE id = '85dd0a4f-cd2d-4467-8675-353f72c662d4';
+UPDATE public.bots SET avatar_url = 'https://celvxwiympkuceitdgxo.supabase.co/storage/v1/object/public/bot-avatars/companions/atlas.png' WHERE id = '6c097db7-4a0c-45de-addc-87a621eddec7';
+UPDATE public.bots SET avatar_url = 'https://celvxwiympkuceitdgxo.supabase.co/storage/v1/object/public/bot-avatars/companions/kai.png' WHERE id = '0b654bc9-76ed-4021-bc45-1a5b0e33c801';
+UPDATE public.bots SET avatar_url = 'https://celvxwiympkuceitdgxo.supabase.co/storage/v1/object/public/bot-avatars/companions/luca.png' WHERE id = '28f39490-6ebd-4752-aa26-c68a5ee35104';
+UPDATE public.bots SET avatar_url = 'https://celvxwiympkuceitdgxo.supabase.co/storage/v1/object/public/bot-avatars/companions/ren.png' WHERE id = '79786eac-12c0-4d99-8051-3879a1eff469';
+UPDATE public.bots SET avatar_url = 'https://celvxwiympkuceitdgxo.supabase.co/storage/v1/object/public/bot-avatars/companions/mia.png' WHERE id = 'f3222243-597b-4aad-9eeb-df649dfee9a9';
+UPDATE public.bots SET avatar_url = 'https://celvxwiympkuceitdgxo.supabase.co/storage/v1/object/public/bot-avatars/companions/sakura.png' WHERE id = 'fecc0fe1-46cc-4612-aa9f-3a1e312efa01';
+UPDATE public.bots SET avatar_url = 'https://celvxwiympkuceitdgxo.supabase.co/storage/v1/object/public/bot-avatars/companions/valentina.png' WHERE id = '838d0827-a07d-4913-a55a-9f1e3ac0705d';
+UPDATE public.bots SET avatar_url = 'https://celvxwiympkuceitdgxo.supabase.co/storage/v1/object/public/bot-avatars/companions/yuki.png' WHERE id = '276bedd7-e0dc-4ced-9000-2fb0a7ef3190';
