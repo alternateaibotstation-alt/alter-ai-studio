@@ -45,7 +45,6 @@ export default function Navbar() {
     { to: "/my-creations", label: "📁 My Creations" },
     { to: "/art-studio", label: "Art Studio" },
     { to: "/graffiti", label: "Graffiti Studio" },
-    { to: "/gallery", label: "Gallery" },
     { to: "/dashboard", label: "Dashboard" },
     { to: "/pricing", label: "Pricing" },
   ];
