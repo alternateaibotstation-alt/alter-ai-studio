@@ -90,10 +90,20 @@ export default function ContentStudio() {
   const fetchTemplates = useCallback(async () => {
     setLoadingTemplates(true);
     try {
-      const { data, error } = await supabase
+      const { data: { user } } = await supabase.auth.getUser();
+      // Fetch user's own templates + public system templates
+      let query = supabase
         .from("content_templates" as any)
         .select("*")
         .order("created_at", { ascending: false });
+      
+      if (user) {
+        query = query.or(`user_id.eq.${user.id},and(is_public.eq.true,user_id.eq.00000000-0000-0000-0000-000000000000)`);
+      } else {
+        query = query.eq("is_public", true).eq("user_id", "00000000-0000-0000-0000-000000000000");
+      }
+
+      const { data, error } = await query;
       if (error) throw error;
       setTemplates((data as any[]) || []);
     } catch (err: any) {
