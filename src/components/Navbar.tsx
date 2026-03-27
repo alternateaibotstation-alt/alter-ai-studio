@@ -41,8 +41,8 @@ export default function Navbar() {
     { to: "/", label: "Home" },
     { to: "/companions", label: "Companions" },
     { to: "/marketplace", label: "Marketplace" },
-    { to: "/content-studio", label: "🎬 Content Studio" },
-    { to: "/my-creations", label: "📁 My Creations" },
+    { to: "/content-studio", label: "Content Studio" },
+    { to: "/my-creations", label: "My Creations" },
     { to: "/art-studio", label: "Art Studio" },
     { to: "/graffiti", label: "Graffiti Studio" },
     { to: "/dashboard", label: "Dashboard" },
@@ -63,10 +63,10 @@ export default function Navbar() {
             <Link
               key={l.to}
               to={l.to}
-              className={`text-sm font-medium transition-colors ${
+              className={`text-sm font-semibold tracking-wide transition-colors ${
                 location.pathname === l.to
                   ? "text-foreground"
-                  : "text-muted-foreground hover:text-foreground"
+                  : "text-foreground/70 hover:text-foreground"
               }`}
             >
               {l.label}
