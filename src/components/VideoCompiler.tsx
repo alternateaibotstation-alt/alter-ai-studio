@@ -275,9 +275,8 @@ export default function VideoCompiler({ scenes, imagePrompts, hook, existingImag
           currentFrame++;
           setProgress(50 + (currentFrame / totalFrames) * 50);
 
-          if (f % 5 === 0) {
-            await new Promise(r => setTimeout(r, 0));
-          }
+          // Throttle to real-time so MediaRecorder captures correct duration
+          await new Promise(r => setTimeout(r, 1000 / FPS));
         }
       }
 
