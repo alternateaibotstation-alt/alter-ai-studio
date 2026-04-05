@@ -128,7 +128,7 @@ export default function Auth() {
         <div className="text-center space-y-2">
           <div className="flex items-center justify-center gap-2 mb-4">
             <Sparkles className="w-6 h-6 text-primary" />
-            <span className="text-xl font-bold text-foreground">Alter AI</span>
+            <span className="text-xl font-bold text-foreground">ONE-Stop</span>
           </div>
           <h1 className="text-2xl font-bold text-foreground">
             {isLogin ? "Welcome back" : "Create your account"}

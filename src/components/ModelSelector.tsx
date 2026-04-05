@@ -7,12 +7,11 @@ import {
 } from "@/components/ui/select";
 
 const MODELS = [
-  { value: "google/gemini-3-flash-preview", label: "Gemini 3 Flash", desc: "Fast & balanced" },
-  { value: "google/gemini-2.5-flash", label: "Gemini 2.5 Flash", desc: "Good multimodal" },
-  { value: "google/gemini-2.5-pro", label: "Gemini 2.5 Pro", desc: "Top reasoning" },
-  { value: "openai/gpt-5-mini", label: "GPT-5 Mini", desc: "Strong & affordable" },
-  { value: "openai/gpt-5", label: "GPT-5", desc: "Most powerful" },
-  { value: "openai/gpt-5-nano", label: "GPT-5 Nano", desc: "Fast & cheap" },
+  { value: "google/gemini-2.5-flash-lite", label: "Gemini 2.5 Flash Lite", desc: "Fast & balanced" },
+  { value: "google/gemini-3-flash-preview", label: "Gemini 3 Flash", desc: "Good multimodal" },
+  { value: "openai/gpt-4.1-mini", label: "GPT-4.1 Mini", desc: "Strong & affordable" },
+  { value: "openai/gpt-4.1", label: "GPT-4.1", desc: "Most powerful" },
+  { value: "openai/gpt-4.1-nano", label: "GPT-4.1 Nano", desc: "Fast & cheap" },
 ];
 
 interface Props {

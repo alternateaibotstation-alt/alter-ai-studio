@@ -26,19 +26,15 @@ serve(async (req) => {
     }
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
-      return new Response(JSON.stringify({ error: "LOVABLE_API_KEY is not configured" }), {
-        status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
-    // Check user usage limits
     let userTier = "free";
+    let userId: string | null = null;
+    let userApiKey: string | null = null;
+
     const authHeader = req.headers.get("Authorization");
     if (authHeader) {
       const token = authHeader.replace("Bearer ", "");
@@ -46,7 +42,11 @@ serve(async (req) => {
       if (token !== anonKey) {
         const { data: userData } = await supabaseClient.auth.getUser(token);
         if (userData?.user) {
-          const userId = userData.user.id;
+          userId = userData.user.id;
+          
+          // Check for user-provided OpenAI API key
+          const { data: profile } = await supabaseClient.from('profiles').select('openai_api_key').eq('id', userId).maybeSingle();
+          if (profile?.openai_api_key) userApiKey = profile.openai_api_key;
 
           // Check tier
           const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
@@ -63,76 +63,84 @@ serve(async (req) => {
                   else if (productId === "prod_UBEIVHEtYoy7QP") userTier = "pro";
                 }
               }
-            } catch (e) {
-              console.error("Stripe check error:", e);
-            }
+            } catch (e) { console.error("Stripe check error:", e); }
           }
 
-          // Check image usage
-          const { data: usageData } = await supabaseClient.rpc("get_or_reset_usage", { p_user_id: userId });
-          if (usageData) {
-            const limit = TIER_LIMITS[userTier];
-            if (limit !== Infinity && usageData.images_used_today >= limit) {
-              return new Response(JSON.stringify({ error: "LIMIT_IMAGES", tier: userTier }), {
-                status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
-              });
+          // Credit check (skip if user has their own API key)
+          if (!userApiKey) {
+            const { data: usageData } = await supabaseClient.rpc("get_or_reset_usage", { p_user_id: userId });
+            if (usageData) {
+              const limit = TIER_LIMITS[userTier];
+              if (limit !== Infinity && usageData.images_used_today >= limit) {
+                return new Response(JSON.stringify({ error: "LIMIT_IMAGES", tier: userTier }), {
+                  status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
+                });
+              }
+              await supabaseClient.rpc("increment_usage", { p_user_id: userId, p_type: "image" });
             }
-            await supabaseClient.rpc("increment_usage", { p_user_id: userId, p_type: "image" });
           }
         }
       }
     }
 
-    // Free users can only use the cheapest image model
-    const selectedModel = userTier === "free" ? "google/gemini-2.5-flash-image" : (model || "google/gemini-2.5-flash-image");
+    // Model routing for image generation
+    // If user has their own key, we use dall-e-3
+    // Otherwise, we use Gemini for cost efficiency
+    const selectedModel = userApiKey ? "dall-e-3" : (userTier === "free" ? "google/gemini-2.5-flash-image" : (model || "google/gemini-2.5-flash-image"));
 
     const userContent: any[] = [{ type: "text", text: prompt }];
     if (editImageUrl) {
       userContent.push({ type: "image_url", image_url: { url: editImageUrl } });
     }
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const fetchUrl = userApiKey ? "https://api.openai.com/v1/images/generations" : "https://ai.gateway.lovable.dev/v1/chat/completions";
+    const fetchHeaders: Record<string, string> = { "Content-Type": "application/json" };
+    if (userApiKey) fetchHeaders["Authorization"] = `Bearer ${userApiKey}`;
+    else fetchHeaders["Authorization"] = `Bearer ${LOVABLE_API_KEY}`;
+
+    const body = userApiKey ? {
+      model: "dall-e-3",
+      prompt: prompt,
+      n: 1,
+      size: "1024x1024",
+    } : {
+      model: selectedModel,
+      messages: [
+        { role: "system", content: "You are an expert AI artist. Generate high quality, creative images based on the user's description." },
+        { role: "user", content: userContent },
+      ],
+      modalities: ["image", "text"],
+    };
+
+    const response = await fetch(fetchUrl, {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: selectedModel,
-        messages: [
-          { role: "system", content: "You are an expert AI artist. Generate high quality, creative images based on the user's description." },
-          { role: "user", content: userContent },
-        ],
-        modalities: ["image", "text"],
-      }),
+      headers: fetchHeaders,
+      body: JSON.stringify(body),
     });
 
     if (!response.ok) {
-      if (response.status === 429) {
-        return new Response(JSON.stringify({ error: "Rate limit exceeded. Please try again." }), {
-          status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-      if (response.status === 402) {
-        return new Response(JSON.stringify({ error: "AI credits exhausted." }), {
-          status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-      const t = await response.text();
-      console.error("Image gen error:", response.status, t);
-      return new Response(JSON.stringify({ error: "Image generation failed" }), {
-        status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      const errText = await response.text();
+      return new Response(JSON.stringify({ error: "Image Generation Error", details: errText }), { status: 500, headers: corsHeaders });
     }
 
     const data = await response.json();
-    return new Response(JSON.stringify(data), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    
+    // Normalize OpenAI response format to match Lovable's for the frontend
+    if (userApiKey) {
+      const normalizedData = {
+        choices: [{
+          message: {
+            images: [{
+              image_url: { url: data.data[0].url }
+            }]
+          }
+        }]
+      };
+      return new Response(JSON.stringify(normalizedData), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
+    return new Response(JSON.stringify(data), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
   } catch (e) {
-    console.error("generate-image error:", e);
-    return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }), {
-      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return new Response(JSON.stringify({ error: e.message }), { status: 500, headers: corsHeaders });
   }
 });

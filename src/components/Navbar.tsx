@@ -54,7 +54,7 @@ export default function Navbar() {
       <div className="container mx-auto flex items-center justify-between h-16 px-4">
         <Link to="/" className="flex items-center gap-2">
           <Sparkles className="w-5 h-5 text-primary" />
-          <span className="text-lg font-bold tracking-tight text-foreground">Alter AI</span>
+          <span className="text-lg font-bold tracking-tight text-foreground">ONE-Stop</span>
         </Link>
 
         {/* Desktop */}

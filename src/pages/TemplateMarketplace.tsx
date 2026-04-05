@@ -102,7 +102,7 @@ export default function TemplateMarketplace() {
     return acc;
   }, {});
 
-  const useTemplate = async (template: PublicTemplate) => {
+  const handleUseTemplate = async (template: PublicTemplate) => {
     setImporting(template.id);
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -272,7 +272,7 @@ export default function TemplateMarketplace() {
                     variant="outline"
                     size="sm"
                     className="w-full gap-1.5"
-                    onClick={() => useTemplate(t)}
+                    onClick={() => handleUseTemplate(t)}
                     disabled={importing === t.id}
                   >
                     {importing === t.id ? (

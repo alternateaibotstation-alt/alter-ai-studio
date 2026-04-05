@@ -7,9 +7,9 @@ export const TIER_LIMITS = {
 } as const;
 
 export const TIER_MODELS = {
-  free: "google/gemini-2.5-flash-lite",
-  pro: "google/gemini-3-flash-preview",
-  power: "google/gemini-2.5-pro",
+  free: "openai/gpt-4.1-mini",
+  pro: "openai/gpt-4.1",
+  power: "openai/gpt-4.1",
 } as const;
 
 export const TIER_CONFIG = {

@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Camera, Loader2, User, LogOut, Copy, Zap, Crown, Star, Gift } from "lucide-react";
+import { Camera, Loader2, User, LogOut, Copy, Zap, Crown, Star, Gift, Key } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -14,6 +14,7 @@ interface Profile {
   id: string;
   username: string | null;
   avatar_url: string | null;
+  openai_api_key?: string | null;
 }
 
 export default function ProfilePage() {
@@ -22,6 +23,7 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [username, setUsername] = useState("");
+  const [openaiKey, setOpenaiKey] = useState("");
   const [referralCode, setReferralCode] = useState<string | null>(null);
   const [totalReferred, setTotalReferred] = useState(0);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -43,11 +45,14 @@ export default function ProfilePage() {
       if (data) {
         setProfile(data as Profile);
         setUsername(data.username || "");
+        setOpenaiKey(data.openai_api_key || "");
       }
       // Load referral stats
-      const { data: refData } = await supabase.functions.invoke("referral", { body: { action: "stats" } });
-      if (refData?.code) setReferralCode(refData.code);
-      if (refData?.totalReferred) setTotalReferred(refData.totalReferred);
+      try {
+        const { data: refData } = await supabase.functions.invoke("referral", { body: { action: "stats" } });
+        if (refData?.code) setReferralCode(refData.code);
+        if (refData?.totalReferred) setTotalReferred(refData.totalReferred);
+      } catch (e) { console.error("Referral load error:", e); }
       setLoading(false);
     })();
   }, [navigate]);
@@ -74,7 +79,6 @@ export default function ProfilePage() {
         .from("user-avatars")
         .getPublicUrl(path);
 
-      // Add cache-buster
       const avatarUrl = `${urlData.publicUrl}?t=${Date.now()}`;
       await supabase
         .from("profiles")
@@ -96,7 +100,10 @@ export default function ProfilePage() {
     try {
       await supabase
         .from("profiles")
-        .update({ username: username.trim() || null })
+        .update({ 
+          username: username.trim() || null,
+          openai_api_key: openaiKey.trim() || null
+        })
         .eq("id", profile.id);
       toast.success("Profile saved");
     } catch {
@@ -127,7 +134,6 @@ export default function ProfilePage() {
         <p className="text-muted-foreground mt-1">Manage your account</p>
 
         <div className="mt-8 space-y-6">
-          {/* Avatar */}
           <div className="flex flex-col items-center gap-3">
             <button
               type="button"
@@ -158,7 +164,6 @@ export default function ProfilePage() {
             />
           </div>
 
-          {/* Username */}
           <div>
             <label className="text-sm text-muted-foreground">Username</label>
             <Input
@@ -170,12 +175,27 @@ export default function ProfilePage() {
             />
           </div>
 
+          {/* API Key Section */}
+          <div className="rounded-xl border border-border bg-card p-4 space-y-3">
+            <div className="flex items-center gap-2">
+              <Key className="w-4 h-4 text-primary" />
+              <span className="text-sm font-medium text-foreground">Bring Your Own Key</span>
+            </div>
+            <p className="text-xs text-muted-foreground">Add your OpenAI API key to skip platform limits and usage fees.</p>
+            <Input
+              type="password"
+              value={openaiKey}
+              onChange={(e) => setOpenaiKey(e.target.value)}
+              className="bg-secondary border-border font-mono text-sm"
+              placeholder="sk-..."
+            />
+          </div>
+
           <Button onClick={handleSave} className="w-full" disabled={saving}>
             {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
             Save Changes
           </Button>
 
-          {/* Subscription Info */}
           <div className="rounded-xl border border-border bg-card p-4 space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-foreground flex items-center gap-2">
@@ -202,7 +222,6 @@ export default function ProfilePage() {
             )}
           </div>
 
-          {/* Referral */}
           <div className="rounded-xl border border-border bg-card p-4 space-y-3">
             <div className="flex items-center gap-2">
               <Gift className="w-4 h-4 text-primary" />
