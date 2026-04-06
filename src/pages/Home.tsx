@@ -351,9 +351,9 @@ export default function Home() {
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-primary" />
-              <span className="text-lg font-bold tracking-tight text-foreground">ONE-Stop</span>
+              <span className="text-lg font-bold tracking-tight text-foreground">Alterai.im</span>
             </div>
-            <p className="text-sm text-muted-foreground">© 2026 ONE-Stop AI Platform. All rights reserved.</p>
+            <p className="text-sm text-muted-foreground">© 2026 Alterai.im AI Platform. All rights reserved.</p>
             <div className="flex gap-8">
               <Link to="/terms" className="text-sm text-muted-foreground hover:text-foreground">Terms</Link>
               <Link to="/privacy" className="text-sm text-muted-foreground hover:text-foreground">Privacy</Link>
