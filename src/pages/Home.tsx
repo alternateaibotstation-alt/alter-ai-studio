@@ -83,7 +83,7 @@ const benefits = [
   { icon: Clock, title: "Save hours every day", desc: "Generate multi-platform content in seconds, not hours. One prompt powers six platforms simultaneously." },
   { icon: DollarSign, title: "New revenue streams", desc: "Monetize your AI bots with flexible pricing. Free, paid, or subscription — you decide how to earn." },
   { icon: Globe, title: "Multi-platform reach", desc: "TikTok, Instagram, LinkedIn, Twitter, Facebook, Pinterest. Every post optimized for its platform." },
-  { icon: Settings, title: "Total flexibility", desc: "Use ONE-Stop credits to get started instantly, or bring your own API keys. Scale on your own terms." },
+  { icon: Settings, title: "Total flexibility", desc: "Use Alterai.im credits to get started instantly, or bring your own API keys. Scale on your own terms." },
 ];
 
 const testimonials = [
