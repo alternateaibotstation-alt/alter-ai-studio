@@ -43,7 +43,6 @@ export default function ProfilePage() {
       if (data) {
         setProfile(data as Profile);
         setUsername(data.username || "");
-        setOpenaiKey(data.openai_api_key || "");
       }
       // Load referral stats
       try {
