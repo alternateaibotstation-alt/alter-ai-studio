@@ -332,7 +332,7 @@ export default function Home() {
             
             <div className="relative z-10">
               <h2 className="text-3xl sm:text-5xl font-extrabold mb-6">Ready to automate your <br className="hidden sm:block" /> content empire?</h2>
-              <p className="text-white/80 text-lg mb-10 max-w-xl mx-auto">Join thousands of creators who are scaling their reach with ONE-Stop.</p>
+              <p className="text-white/80 text-lg mb-10 max-w-xl mx-auto">Join thousands of creators who are scaling their reach with Alterai.im.</p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <Button size="lg" variant="secondary" className="h-14 px-10 text-base font-bold text-primary shadow-xl" asChild>
                   <Link to="/auth">Get Started for Free</Link>
