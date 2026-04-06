@@ -59,18 +59,15 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      const [subData, profileData] = await Promise.all([
-        supabase.functions.invoke("check-subscription"),
-        supabase.from('profiles').select('openai_api_key').eq('id', session.user.id).maybeSingle()
-      ]);
+      const { data: subData, error: subError } = await supabase.functions.invoke("check-subscription");
 
-      if (subData.error) throw subData.error;
+      if (subError) throw subError;
 
-      setTier(subData.data.tier || "free");
-      setSubscribed(subData.data.subscribed || false);
-      setSubscriptionEnd(subData.data.subscription_end || null);
-      setUsage(subData.data.usage || defaultUsage);
-      setHasApiKey(!!profileData.data?.openai_api_key);
+      setTier(subData.tier || "free");
+      setSubscribed(subData.subscribed || false);
+      setSubscriptionEnd(subData.subscription_end || null);
+      setUsage(subData.usage || defaultUsage);
+      setHasApiKey(false);
     } catch (e) {
       console.error("Failed to check subscription:", e);
     } finally {

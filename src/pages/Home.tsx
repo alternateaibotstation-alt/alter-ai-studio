@@ -83,11 +83,11 @@ const benefits = [
   { icon: Clock, title: "Save hours every day", desc: "Generate multi-platform content in seconds, not hours. One prompt powers six platforms simultaneously." },
   { icon: DollarSign, title: "New revenue streams", desc: "Monetize your AI bots with flexible pricing. Free, paid, or subscription — you decide how to earn." },
   { icon: Globe, title: "Multi-platform reach", desc: "TikTok, Instagram, LinkedIn, Twitter, Facebook, Pinterest. Every post optimized for its platform." },
-  { icon: Settings, title: "Total flexibility", desc: "Use ONE-Stop credits to get started instantly, or bring your own API keys. Scale on your own terms." },
+  { icon: Settings, title: "Total flexibility", desc: "Use Alterai.im credits to get started instantly, or bring your own API keys. Scale on your own terms." },
 ];
 
 const testimonials = [
-  { quote: "ONE-Stop completely changed how I create content. What used to take me all day now takes 5 minutes.", name: "Content Creator", role: "TikTok · 50K followers" },
+  { quote: "Alterai.im completely changed how I create content. What used to take me all day now takes 5 minutes.", name: "Content Creator", role: "TikTok · 50K followers" },
   { quote: "The multi-platform generation is a game changer. I post to 6 platforms from one prompt.", name: "Digital Marketer", role: "Agency Owner" },
   { quote: "I built a bot, published it, and started earning within the first week. The analytics are incredibly clear.", name: "Bot Creator", role: "AI Entrepreneur" },
 ];
@@ -289,7 +289,7 @@ export default function Home() {
                 <span className="text-primary">next generation</span> of creators
               </h2>
               <p className="mt-6 text-muted-foreground text-lg leading-relaxed">
-                Stop juggling dozens of tools. ONE-Stop brings your entire AI workflow 
+                Stop juggling dozens of tools. Alterai.im brings your entire AI workflow 
                 into a single, high-performance dashboard.
               </p>
               
@@ -332,7 +332,7 @@ export default function Home() {
             
             <div className="relative z-10">
               <h2 className="text-3xl sm:text-5xl font-extrabold mb-6">Ready to automate your <br className="hidden sm:block" /> content empire?</h2>
-              <p className="text-white/80 text-lg mb-10 max-w-xl mx-auto">Join thousands of creators who are scaling their reach with ONE-Stop.</p>
+              <p className="text-white/80 text-lg mb-10 max-w-xl mx-auto">Join thousands of creators who are scaling their reach with Alterai.im.</p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <Button size="lg" variant="secondary" className="h-14 px-10 text-base font-bold text-primary shadow-xl" asChild>
                   <Link to="/auth">Get Started for Free</Link>
@@ -351,9 +351,9 @@ export default function Home() {
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-primary" />
-              <span className="text-lg font-bold tracking-tight text-foreground">ONE-Stop</span>
+              <span className="text-lg font-bold tracking-tight text-foreground">Alterai.im</span>
             </div>
-            <p className="text-sm text-muted-foreground">© 2026 ONE-Stop AI Platform. All rights reserved.</p>
+            <p className="text-sm text-muted-foreground">© 2026 Alterai.im AI Platform. All rights reserved.</p>
             <div className="flex gap-8">
               <Link to="/terms" className="text-sm text-muted-foreground hover:text-foreground">Terms</Link>
               <Link to="/privacy" className="text-sm text-muted-foreground hover:text-foreground">Privacy</Link>
