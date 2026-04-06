@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Camera, Loader2, User, LogOut, Copy, Zap, Crown, Star, Gift, Key } from "lucide-react";
+import { Camera, Loader2, User, LogOut, Copy, Zap, Crown, Star, Gift } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
