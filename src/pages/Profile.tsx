@@ -99,7 +99,6 @@ export default function ProfilePage() {
         .from("profiles")
         .update({ 
           username: username.trim() || null,
-          openai_api_key: openaiKey.trim() || null
         })
         .eq("id", profile.id);
       toast.success("Profile saved");
