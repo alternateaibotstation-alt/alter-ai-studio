@@ -289,7 +289,7 @@ export default function Home() {
                 <span className="text-primary">next generation</span> of creators
               </h2>
               <p className="mt-6 text-muted-foreground text-lg leading-relaxed">
-                Stop juggling dozens of tools. ONE-Stop brings your entire AI workflow 
+                Stop juggling dozens of tools. Alterai.im brings your entire AI workflow 
                 into a single, high-performance dashboard.
               </p>
               
