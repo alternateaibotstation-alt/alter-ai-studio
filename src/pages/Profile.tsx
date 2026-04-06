@@ -14,7 +14,6 @@ interface Profile {
   id: string;
   username: string | null;
   avatar_url: string | null;
-  openai_api_key?: string | null;
 }
 
 export default function ProfilePage() {
