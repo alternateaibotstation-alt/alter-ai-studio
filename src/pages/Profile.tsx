@@ -171,21 +171,6 @@ export default function ProfilePage() {
             />
           </div>
 
-          {/* API Key Section */}
-          <div className="rounded-xl border border-border bg-card p-4 space-y-3">
-            <div className="flex items-center gap-2">
-              <Key className="w-4 h-4 text-primary" />
-              <span className="text-sm font-medium text-foreground">Bring Your Own Key</span>
-            </div>
-            <p className="text-xs text-muted-foreground">Add your OpenAI API key to skip platform limits and usage fees.</p>
-            <Input
-              type="password"
-              value={openaiKey}
-              onChange={(e) => setOpenaiKey(e.target.value)}
-              className="bg-secondary border-border font-mono text-sm"
-              placeholder="sk-..."
-            />
-          </div>
 
           <Button onClick={handleSave} className="w-full" disabled={saving}>
             {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
