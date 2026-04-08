@@ -9,6 +9,7 @@ const platformPrompts: Record<string, string> = {
   tiktok: `Generate TikTok content. Fast-paced, emotional, curiosity-driven. Return JSON:
 {
   "hook": "scroll-stopping first line",
+  "hooks": ["hook option 1","hook option 2","hook option 3","hook option 4","hook option 5"],
   "scenes": [{"number":1,"text":"frame text","duration_seconds":4}],
   "image_prompts": [{"scene_number":1,"prompt":"detailed cinematic 4K prompt with lighting/mood"}],
   "video_scenes": [{"scene_number":1,"description":"camera movement, expression, environment"}],
@@ -17,7 +18,7 @@ const platformPrompts: Record<string, string> = {
   "cta": "non-salesy call to action",
   "hashtags": ["relevant","hashtags"]
 }
-Generate 4-6 scenes. Each image prompt must be cinematic, realistic, 4K, with specific lighting.`,
+Generate 4-6 scenes. Each image prompt must be cinematic, realistic, 4K, with specific lighting. Include 5 alternative hooks in the "hooks" array.`,
 
   instagram: `Generate Instagram Reels content. Aesthetic, slightly emotional, personal brand feel. Return JSON:
 {
