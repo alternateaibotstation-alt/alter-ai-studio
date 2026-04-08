@@ -25,6 +25,7 @@ import Terms from "./pages/Terms";
 import ContentStudio from "./pages/ContentStudio";
 import MyCreations from "./pages/MyCreations";
 import TemplateMarketplace from "./pages/TemplateMarketplace";
+import TikTokTemplates from "./pages/TikTokTemplates";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
