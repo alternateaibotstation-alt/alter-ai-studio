@@ -323,6 +323,38 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ═══════════════════════ TIKTOK CTA ═══════════════════════ */}
+      <section className="py-16 px-4 relative">
+        <div className="container mx-auto max-w-4xl">
+          <motion.div
+            className="relative rounded-3xl border border-border/50 bg-card overflow-hidden group hover:border-primary/30 transition-all duration-500"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-[hsl(330,85%,50%/0.06)] to-[hsl(260,80%,55%/0.06)] group-hover:from-[hsl(330,85%,50%/0.1)] group-hover:to-[hsl(260,80%,55%/0.1)] transition-all duration-500" />
+            <div className="relative z-10 flex flex-col sm:flex-row items-center gap-6 p-8 sm:p-10">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[hsl(330,85%,55%)] to-[hsl(260,80%,60%)] flex items-center justify-center text-white shadow-lg shrink-0">
+                <Zap className="w-8 h-8" />
+              </div>
+              <div className="flex-1 text-center sm:text-left">
+                <h3 className="text-2xl font-extrabold text-foreground mb-1">Start selling in 60 seconds</h3>
+                <p className="text-muted-foreground">Pick a proven TikTok template, drop in your product, and generate scroll-stopping content — no editing skills needed.</p>
+              </div>
+              <Button
+                size="lg"
+                className="h-14 px-8 text-base font-semibold bg-gradient-to-r from-[hsl(330,85%,55%)] to-[hsl(260,80%,60%)] hover:from-[hsl(330,85%,60%)] hover:to-[hsl(260,80%,65%)] text-white border-0 shadow-lg shadow-[hsl(330,85%,55%/0.25)] shrink-0"
+                asChild
+              >
+                <Link to="/tiktok-templates">
+                  Try Templates <ArrowRight className="w-4 h-4 ml-2" />
+                </Link>
+              </Button>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
       {/* ═══════════════════════ CTA ═══════════════════════ */}
       <section className="py-24 px-4 relative">
         <div className="container mx-auto max-w-5xl">
