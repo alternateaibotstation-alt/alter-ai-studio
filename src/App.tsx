@@ -24,6 +24,7 @@ import ContentStudio from "./pages/ContentStudio";
 import MyCreations from "./pages/MyCreations";
 import TemplateMarketplace from "./pages/TemplateMarketplace";
 import TikTokTemplates from "./pages/TikTokTemplates";
+import ContentCreator from "./pages/ContentCreator";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -54,6 +55,7 @@ const App = () => (
               <Route path="/my-creations" element={<MyCreations />} />
               <Route path="/template-marketplace" element={<TemplateMarketplace />} />
               <Route path="/tiktok-templates" element={<TikTokTemplates />} />
+              <Route path="/content-creator" element={<ContentCreator />} />
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/terms" element={<Terms />} />
               <Route path="*" element={<NotFound />} />
