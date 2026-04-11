@@ -14,8 +14,6 @@ import Success from "./pages/Success";
 import Purchases from "./pages/Purchases";
 import Profile from "./pages/Profile";
 import ArtStudio from "./pages/ArtStudio";
-import GraffitiStudio from "./pages/GraffitiStudio";
-import GraffitiGallery from "./pages/GraffitiGallery";
 import Pricing from "./pages/Pricing";
 import AdminDashboard from "./pages/AdminDashboard";
 import Companions from "./pages/Companions";
@@ -48,8 +46,6 @@ const App = () => (
               <Route path="/profile" element={<Profile />} />
               <Route path="/success" element={<Success />} />
               <Route path="/art-studio" element={<ArtStudio />} />
-              <Route path="/graffiti" element={<GraffitiStudio />} />
-              <Route path="/gallery" element={<GraffitiGallery />} />
               <Route path="/pricing" element={<Pricing />} />
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/companions" element={<Companions />} />

@@ -45,7 +45,7 @@ export default function Navbar() {
     { to: "/tiktok-templates", label: "TikTok Templates" },
     { to: "/my-creations", label: "My Creations" },
     { to: "/art-studio", label: "Art Studio" },
-    { to: "/graffiti", label: "Graffiti Studio" },
+    
     { to: "/dashboard", label: "Dashboard" },
     { to: "/pricing", label: "Pricing" },
   ];
