@@ -1,74 +1,96 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const platformPrompts: Record<string, string> = {
-  tiktok: `Generate TikTok content. Fast-paced, emotional, curiosity-driven. Return JSON:
+const TREND_MODES: Record<string, string> = {
+  viral_storytime: "Use dramatic storytelling. Build suspense. Personal confession tone. Fast cuts, emotional music. Dark moody lighting.",
+  dark_psychology: "Use dark psychology hooks. Expose hidden truths. Conspiracy-adjacent curiosity. Slow zooms, intense eye contact shots.",
+  luxury_lifestyle: "Luxury aesthetic. Rich textures, gold tones, designer brands. Aspirational but attainable. Slow motion glamour shots.",
+  ai_futuristic: "Futuristic AI aesthetic. Neon blue/purple tones, holographic overlays, tech interfaces. Cutting-edge and mysterious.",
+  motivational_viral: "High energy motivation. Powerful quotes, intense workout/hustle footage. Dramatic music crescendo. Fast-paced edits.",
+  soft_feminine: "Soft feminine aesthetic. Pastel tones, golden hour lighting, delicate movements. ASMR-like calm. Dreamy and aspirational.",
+};
+
+function buildSystemPrompt(platform: string, trendMode: string | null, storyProfile: any, previousScenes: any[], tier: string) {
+  const trendContext = trendMode && TREND_MODES[trendMode]
+    ? `\n\nTREND MODE ACTIVE — "${trendMode}":\n${TREND_MODES[trendMode]}\nApply this aesthetic to ALL visual prompts, tone, and pacing.\n`
+    : "";
+
+  let characterContext = "";
+  if (storyProfile) {
+    const parts: string[] = [];
+    if (storyProfile.characters?.length) {
+      parts.push("CHARACTERS:\n" + storyProfile.characters.map((c: any) =>
+        `- ${c.name}: Appearance: ${c.appearance}. Personality: ${c.personality}`
+      ).join("\n"));
+    }
+    if (storyProfile.visualStyle) parts.push(`VISUAL STYLE: ${storyProfile.visualStyle}`);
+    if (storyProfile.mood) parts.push(`MOOD/TONE: ${storyProfile.mood}`);
+    if (storyProfile.setting) parts.push(`SETTING: ${storyProfile.setting}`);
+    if (parts.length) characterContext = "\n\nCHARACTER & STYLE PROFILE:\n" + parts.join("\n");
+  }
+
+  let continuationContext = "";
+  if (previousScenes?.length) {
+    continuationContext = `\n\nPREVIOUS SCENES (continue from here):\n${
+      previousScenes.map((s: any) => `Scene ${s.number}: ${s.text}`).join("\n")
+    }\nStart numbering from ${previousScenes.length + 1}.`;
+  }
+
+  const isPro = tier === "pro" || tier === "power";
+
+  if (!isPro) {
+    // FREE tier: limited output
+    return `You are a viral content strategist. The user is on a FREE plan.
+${characterContext}${trendContext}
+Generate a TEASER-level content brief for ${platform}. Return JSON:
+{
+  "hook": "one scroll-stopping hook line",
+  "concept": "2-sentence content concept summary",
+  "content_type": "${platform}",
+  "locked_features": ["Full scene breakdown", "AI generation prompts", "Caption engine", "Hashtag pack", "Remix variations"]
+}
+Respond with ONLY valid JSON (no markdown, no code blocks).`;
+  }
+
+  // PRO tier: full output
+  return `You are an elite viral content strategist specializing in ${platform} content.
+${characterContext}${trendContext}
+RULES:
+- Produce FINISHED, post-ready content — never explain or teach
+- Every visual prompt must be cinematic, 4K, specific lighting/mood
+- Content must be platform-appropriate
+- Focus on virality, engagement, and retention
+- Each scene must have duration_seconds of at least 3 seconds
+${continuationContext}
+
+Return JSON:
 {
   "hook": "scroll-stopping first line",
-  "hooks": ["hook option 1","hook option 2","hook option 3","hook option 4","hook option 5"],
-  "scenes": [{"number":1,"text":"frame text","duration_seconds":4}],
-  "image_prompts": [{"scene_number":1,"prompt":"detailed cinematic 4K prompt with lighting/mood"}],
-  "video_scenes": [{"scene_number":1,"description":"camera movement, expression, environment"}],
+  "hooks": ["hook 1","hook 2","hook 3","hook 4","hook 5"],
+  "scenes": [{"number":1,"text":"frame text","visual_direction":"camera angle, lighting, aesthetic","duration_seconds":4}],
+  "ai_prompts": {
+    "runway": "ready-to-paste Runway Gen-3 prompt for this exact visual",
+    "midjourney": "ready-to-paste Midjourney prompt",
+    "pika": "ready-to-paste Pika prompt",
+    "sora": "ready-to-paste Sora prompt",
+    "capcut_ai": "ready-to-paste CapCut AI prompt"
+  },
+  "caption": {
+    "primary": "hook-driven caption with emotional triggers and CTA",
+    "variation_1": "alternate caption version",
+    "variation_2": "alternate caption version"
+  },
+  "hashtags": ["15-20","platform-optimized","viral+niche","hashtags"],
   "editing": {"pacing":"","transitions":"","zoom_effects":"","caption_style":"","music_mood":""},
-  "caption": "curiosity-driven caption",
-  "cta": "non-salesy call to action",
-  "hashtags": ["relevant","hashtags"]
+  "trend_mode_applied": "${trendMode || 'none'}"
 }
-Generate 4-6 scenes. Each image prompt must be cinematic, realistic, 4K, with specific lighting. Include 5 alternative hooks in the "hooks" array.`,
-
-  instagram: `Generate Instagram Reels content. Aesthetic, slightly emotional, personal brand feel. Return JSON:
-{
-  "reel_hook": "attention-grabbing first line for Reels",
-  "caption": "engaging aesthetic caption with line breaks for readability",
-  "hashtags": ["relevant","instagram","hashtags"],
-  "visual_direction": "overall visual style and color palette guidance",
-  "scenes": [{"number":1,"text":"what appears on screen","duration_seconds":3}],
-  "image_prompts": [{"scene_number":1,"prompt":"aesthetic, clean, Instagram-worthy 4K prompt"}],
-  "cta": "soft call to action"
+Generate 4-6 scenes. Respond with ONLY valid JSON (no markdown, no code blocks).`;
 }
-Generate 4-6 scenes optimized for Reels format (9:16).`,
-
-  facebook: `Generate Facebook post content. Relatable storytelling tone, encourage engagement. Return JSON:
-{
-  "post": "full Facebook post with storytelling, short paragraphs, relatable tone",
-  "engagement_question": "question to encourage comments",
-  "cta": "call to action",
-  "visual_prompt": "image prompt for the post visual, clean and shareable",
-  "hashtags": ["facebook","hashtags"]
-}
-Make the post 3-5 short paragraphs. Focus on storytelling and relatability.`,
-
-  pinterest: `Generate Pinterest pin content. SEO-optimized, clean aesthetic, clickable. Return JSON:
-{
-  "pin_title": "SEO-optimized pin title (max 100 chars)",
-  "pin_description": "keyword-rich description for search discovery",
-  "visual_prompt": "clean, aesthetic, Pinterest-worthy image prompt, bright colors, text overlay friendly",
-  "keywords": ["seo","keywords","for","discovery"],
-  "board_suggestion": "suggested Pinterest board name"
-}
-Focus on search discoverability and visual appeal.`,
-
-  linkedin: `Generate LinkedIn post content. Professional, value-driven, authority-building. Return JSON:
-{
-  "post": "professional LinkedIn post with short paragraphs, value-driven insights about AI/business/automation",
-  "hook": "strong opening line that stops scrolling in a professional feed",
-  "cta": "professional call to action",
-  "hashtags": ["linkedin","professional","hashtags"]
-}
-Use short paragraphs. Focus on business value, AI opportunity, and professional growth. Authority-building voice.`,
-
-  twitter: `Generate Twitter/X content. Punchy, curiosity-driven, viral potential. Return JSON:
-{
-  "main_tweet": "single viral tweet (max 280 chars)",
-  "thread": ["tweet 1 (hook)","tweet 2","tweet 3","tweet 4","tweet 5 (CTA)"],
-  "hashtags": ["viral","hashtags"]
-}
-Create both a standalone viral tweet AND a 3-5 tweet thread. Short, sharp, curiosity-driven.`,
-};
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
@@ -77,7 +99,32 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    const { prompt, platforms = ["tiktok"], storyProfile, previousScenes } = await req.json();
+    const authHeader = req.headers.get("Authorization");
+    let tier = "free";
+
+    if (authHeader) {
+      const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+      const supabaseKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+      const supabase = createClient(supabaseUrl, supabaseKey, {
+        global: { headers: { Authorization: authHeader } },
+      });
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: subData } = await supabase.from("subscriptions")
+          .select("product_id, status")
+          .eq("user_id", user.id)
+          .eq("status", "active")
+          .maybeSingle();
+        if (subData) {
+          const proProductId = "prod_UBEIVHEtYoy7QP";
+          const powerProductId = "prod_UBEJiRN7lDcB4u";
+          if (subData.product_id === powerProductId) tier = "power";
+          else if (subData.product_id === proProductId) tier = "pro";
+        }
+      }
+    }
+
+    const { prompt, platforms = ["tiktok"], storyProfile, previousScenes, trendMode, remixOptions } = await req.json();
     if (!prompt || typeof prompt !== "string" || prompt.trim().length === 0) {
       return new Response(JSON.stringify({ error: "Prompt is required" }), {
         status: 400,
@@ -85,31 +132,17 @@ serve(async (req) => {
       });
     }
 
-    // Build character/style context
-    let characterContext = "";
-    if (storyProfile) {
-      const parts: string[] = [];
-      if (storyProfile.characters?.length) {
-        parts.push("CHARACTERS:\n" +
-          storyProfile.characters.map((c: any) =>
-            `- ${c.name}: Appearance: ${c.appearance}. Personality: ${c.personality}`
-          ).join("\n"));
-      }
-      if (storyProfile.visualStyle) parts.push(`VISUAL STYLE: ${storyProfile.visualStyle}`);
-      if (storyProfile.mood) parts.push(`MOOD/TONE: ${storyProfile.mood}`);
-      if (storyProfile.setting) parts.push(`SETTING: ${storyProfile.setting}`);
-      if (parts.length) characterContext = "\n\nCHARACTER & STYLE PROFILE:\n" + parts.join("\n");
+    // Handle remix: modify the prompt based on remix options
+    let finalPrompt = prompt.trim();
+    if (remixOptions) {
+      const parts: string[] = [`Original concept: ${finalPrompt}`];
+      if (remixOptions.niche) parts.push(`Adapt for niche: ${remixOptions.niche}`);
+      if (remixOptions.tone) parts.push(`Change emotional tone to: ${remixOptions.tone}`);
+      if (remixOptions.platform) parts.push(`Reformat for: ${remixOptions.platform}`);
+      finalPrompt = parts.join(". ");
     }
 
-    let continuationContext = "";
-    if (previousScenes?.length) {
-      continuationContext = `\n\nPREVIOUS SCENES (continue from here):\n${
-        previousScenes.map((s: any) => `Scene ${s.number}: ${s.text}`).join("\n")
-      }\nStart numbering from ${previousScenes.length + 1}.`;
-    }
-
-    // Generate content for each platform in parallel
-    const validPlatforms = (platforms as string[]).filter(p => platformPrompts[p]);
+    const validPlatforms = (platforms as string[]).filter(p => ["tiktok", "instagram", "facebook", "pinterest", "linkedin", "twitter"].includes(p));
     if (validPlatforms.length === 0) {
       return new Response(JSON.stringify({ error: "No valid platforms selected" }), {
         status: 400,
@@ -120,22 +153,12 @@ serve(async (req) => {
     const results: Record<string, any> = {};
     const errors: Record<string, string> = {};
 
-    // Process platforms — batch up to 3 concurrent to avoid rate limits
     const batchSize = 3;
     for (let i = 0; i < validPlatforms.length; i += batchSize) {
       const batch = validPlatforms.slice(i, i + batchSize);
       const batchResults = await Promise.allSettled(
         batch.map(async (platform) => {
-          const systemPrompt = `You are a viral content strategist specializing in ${platform} content.
-${characterContext}
-RULES:
-- Content must be platform-appropriate (no explicit/harmful content)
-- Visuals can be suggestive but safe for AI personality content
-- Focus on virality, engagement, and retention
-- Each scene must have duration_seconds of at least 3 seconds
-${continuationContext}
-${platformPrompts[platform]}
-Respond with ONLY valid JSON (no markdown, no code blocks).`;
+          const systemPrompt = buildSystemPrompt(platform, trendMode || null, storyProfile, previousScenes || [], tier);
 
           const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
             method: "POST",
@@ -144,10 +167,10 @@ Respond with ONLY valid JSON (no markdown, no code blocks).`;
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              model: "google/gemini-3-flash-preview",
+              model: tier === "free" ? "google/gemini-3-flash-preview" : "google/gemini-2.5-flash",
               messages: [
                 { role: "system", content: systemPrompt },
-                { role: "user", content: `Create optimized ${platform} content for: ${prompt.trim()}` },
+                { role: "user", content: `Create optimized ${platform} content for: ${finalPrompt}` },
               ],
             }),
           });
@@ -178,13 +201,12 @@ Respond with ONLY valid JSON (no markdown, no code blocks).`;
         }
       }
 
-      // Small delay between batches to avoid rate limits
       if (i + batchSize < validPlatforms.length) {
         await new Promise(r => setTimeout(r, 500));
       }
     }
 
-    return new Response(JSON.stringify({ content: results, errors }), {
+    return new Response(JSON.stringify({ content: results, errors, tier }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
