@@ -426,9 +426,9 @@ export default function Home() {
                 <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">AI Output</span>
                 <span className="ml-auto text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-bold">Generated in ~3s</span>
               </div>
-              <div className="bg-secondary/50 rounded-xl p-5 border border-border/30 min-h-[120px]">
-                <p className="text-sm text-foreground/90 leading-relaxed font-mono">
-                  <TypingText text={aiExamples[activeExample].after} inView={exampleInView} />
+              <div className="bg-secondary/50 rounded-xl p-5 border border-border/30">
+                <p className="text-sm text-foreground/90 leading-relaxed font-mono whitespace-pre-wrap">
+                  {aiExamples[activeExample].after}
                 </p>
               </div>
             </div>
