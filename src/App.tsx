@@ -55,6 +55,7 @@ const App = () => (
               <Route path="/my-creations" element={<MyCreations />} />
               <Route path="/template-marketplace" element={<TemplateMarketplace />} />
               <Route path="/tiktok-templates" element={<TikTokTemplates />} />
+              <Route path="/content-creator" element={<ContentCreator />} />
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/terms" element={<Terms />} />
               <Route path="*" element={<NotFound />} />
