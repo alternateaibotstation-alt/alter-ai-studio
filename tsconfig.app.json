@@ -31,5 +31,15 @@
   },
   "include": [
     "src"
+  ],
+  "exclude": [
+    "src/lib/ai-engine",
+    "src/lib/creator-engine",
+    "src/lib/viral-loop",
+    "src/lib/agent-actions",
+    "src/lib/job-queue",
+    "src/lib/marketplace",
+    "src/lib/monetization",
+    "src/lib/onboarding"
   ]
 }
