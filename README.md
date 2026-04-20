@@ -1,97 +1,127 @@
-# ONE-Stop AI Platform
+# Alterai.im — AI Studio for Creators
 
-## Platform Overview
+> **Live site:** [https://alterai.im](https://alterai.im)
+> **Owner:** Carley Lenon — sole owner and operator
+> **Contact:** [alternateaibotstation@gmail.com](mailto:alternateaibotstation@gmail.com)
 
-ONE-Stop is a creator-first AI platform designed to empower content creators and AI entrepreneurs. It provides a comprehensive suite of tools to build, launch, and monetize AI bots, generate multi-platform content (text, image, video, voice), and automate various creative tasks. Our goal is to streamline the content creation workflow, allowing users to produce high-quality, platform-optimized content efficiently and profitably.
-
-## Key Features
-
-*   **AI Bot Builder:** Create custom AI personalities with unique voices, knowledge, and behaviors. Bots can remember past creations (tones, avatars, products) to ensure continuity across content. Publish your bots to the marketplace or keep them private for your audience.
-*   **Multi-Platform Content Generation:** Generate optimized content for various social media platforms including TikTok, Instagram, LinkedIn, Twitter, Facebook, and Pinterest from a single prompt.
-*   **Voice & Video Studio:** Produce AI voiceovers and compile videos, enhancing your content with dynamic multimedia elements.
-*   **Credit System:** A transparent credit system governs usage across the platform, allowing for flexible consumption of AI services.
-*   **Bring Your Own Key (BYOK):** Users have the option to integrate their own OpenAI or Gemini API keys, bypassing platform usage limits and potentially reducing costs.
-*   **Template Marketplace:** Access a library of daily updated, copy-and-paste fillable templates based on trending content for each platform. Creators can also build and sell their own templates, fostering a vibrant community and new revenue streams.
-
-## How It Works
-
-1.  **Create Your AI Bot:** Define your bot's personality, knowledge base, and behavior. Train it to understand your brand's unique voice and style.
-2.  **Generate Content:** Use your custom bot or select from a range of pre-built tools to generate text, images, voiceovers, or even full video compilations. Leverage our template marketplace for trending ideas.
-3.  **Optimize & Publish:** ONE-Stop automatically optimizes your content for various social media platforms. Review, refine, and publish directly to your desired channels.
-4.  **Monetize & Scale:** Track your bot's performance, user engagement, and revenue through our intuitive dashboard. Monetize your creations through flexible pricing models and scale your content empire.
-
-## Cost Optimization Strategy
-
-ONE-Stop employs a sophisticated AI routing system to optimize costs while maintaining high-quality output:
-
-*   **Hybrid Model Routing:** Requests are intelligently routed between Google Gemini (for cost-effectiveness and high-volume tasks) and OpenAI (for superior quality and complex reasoning).
-    *   **Free Users:** All requests are routed to Gemini to minimize operational costs.
-    *   **Pro Users:** Benefit from hybrid routing, balancing cost and quality based on task requirements.
-    *   **Power Users:** Prioritize OpenAI for premium outputs, with fallback to Gemini for less critical tasks.
-    *   **Emotional/Conversational Tasks:** Primarily handled by OpenAI for nuanced interactions.
-    *   **Bulk Content Generation:** Optimized for Gemini to ensure efficiency and cost savings.
-*   **Credit Usage & Profit Margin:** Each AI request consumes credits, which are priced to ensure a minimum 18% profit margin. Dynamic markup is applied based on user tier and model used.
-*   **BYO API Key:** Users providing their own API keys incur no platform cost for those specific requests, offering them maximum control over their spending.
-*   **Failsafes:** The system includes mechanisms to block requests if credits are exhausted, throttle excessive usage, and automatically fallback to cheaper models if primary options are unavailable or too costly.
-
-## Tech Stack
-
-*   **Frontend:** React, TypeScript, Vite, TailwindCSS
-*   **Backend:** Supabase (Auth, Database, Edge Functions)
-*   **AI Models:** Google Gemini, OpenAI
-*   **Payments:** Stripe
-
-## Installation Instructions & Environment Variables
-
-To set up the ONE-Stop platform locally, follow these steps:
-
-1.  **Clone the repository:**
-    ```bash
-    git clone https://github.com/alternateaibotstation-alt/alter-ai-studio.git
-    cd alter-ai-studio
-    ```
-2.  **Install dependencies:**
-    ```bash
-    npm install
-    ```
-3.  **Environment Variables:** Create a `.env.local` file in the root directory and populate it with your Supabase and other API keys. Refer to `.env.example` for required variables.
-    ```
-    # Supabase
-    VITE_SUPABASE_URL=YOUR_SUPABASE_URL
-    VITE_SUPABASE_ANON_KEY=YOUR_SUPABASE_ANON_KEY
-
-    # Stripe
-    VITE_STRIPE_PUBLIC_KEY=YOUR_STRIPE_PUBLIC_KEY
-
-    # OpenAI (optional, for BYOK)
-    VITE_OPENAI_API_KEY=YOUR_OPENAI_API_KEY
-
-    # Google Gemini (optional, if not using Supabase Edge Functions for Gemini)
-    VITE_GEMINI_API_KEY=YOUR_GEMINI_API_KEY
-    ```
-4.  **Run the development server:**
-    ```bash
-    npm run dev
-    ```
-
-## Legal & Compliance Notice
-
-This project is proprietary and all rights are reserved by Carley B. Lenon. Unauthorized copying, modification, distribution, or commercial use is strictly prohibited. For detailed legal terms, please refer to the `legal/` directory.
-
-## Contributing Instructions
-
-Currently, contributions are not open to the public. Please contact the owner for any collaboration inquiries.
-
-## Contact & Support Info
-
-For inquiries, support, or collaboration, please contact: carleylenon@gmail.com
+Alterai.im is a creator-first AI platform for building AI companions, generating multi-platform content (TikTok, Instagram, YouTube, X, Facebook, Pinterest, LinkedIn), producing AI voiceovers, and selling templates — all from one dashboard. No API keys required.
 
 ---
 
-© 2026 Carley B. Lenon. All rights reserved.
+## ✨ Features
 
-This repository and all its contents, including code, documentation, and assets, are proprietary.
-No part of this repository may be copied, modified, distributed, or used for commercial purposes
-without express written permission from Carley B. Lenon.
+- **AI Companions** — Chat with built-in ultra-realistic personas or create and sell your own.
+- **Content Studio** — Generate hooks, scripts, captions, hashtags, and full TikTok-ready scenes from a single prompt.
+- **Image & Video Studio** — AI image generation, scene compiling, and on-canvas editing (Graffiti Studio).
+- **Voiceover** — ElevenLabs-powered TTS for narration and TikTok scenes.
+- **Templates Marketplace** — Buy, sell, and remix high-converting templates. Bi-weekly official drops.
+- **My Creations** — Private, watermark-free storage of every video, image, and chat output.
+- **Subscriptions & One-off Purchases** — Stripe-powered Free / Pro / Power tiers plus pay-per-bot.
+- **Referrals** — Reward users with bonus messages for inviting friends.
+- **Admin Dashboard** — Platform analytics, user management, and template moderation.
 
-For inquiries, contact: carleylenon@gmail.com
+## 🏗 Architecture
+
+```
+Browser (Vite + React SPA, hosted on Vercel)
+        │
+        ▼
+Lovable Cloud (Supabase)
+  ├── Auth (email/password + Google)
+  ├── Postgres + Row-Level Security
+  ├── Storage (private user-creations bucket)
+  └── Edge Functions
+        ├── chat / chat-with-memory
+        ├── content-studio / content-studio-v2
+        ├── ai-engine-v2 (model routing)
+        ├── generate-image
+        ├── elevenlabs-tts
+        ├── create-checkout / create-bot-checkout
+        ├── stripe-webhook
+        ├── customer-portal
+        ├── usage-tracking
+        ├── referral
+        └── admin-analytics
+```
+
+All third-party secrets (OpenAI, Gemini, ElevenLabs, Stripe) live **only** inside Supabase Edge Functions. Nothing sensitive is exposed to the browser.
+
+## 🔧 Tech Stack
+
+- **Frontend:** React 18, Vite 5, TypeScript, TailwindCSS, shadcn/ui, Framer Motion
+- **Backend:** Supabase (Postgres, Auth, Storage, Edge Functions / Deno)
+- **AI:** OpenAI GPT-5 family, Google Gemini 2.5 / 3.x, ElevenLabs TTS — routed internally by tier
+- **Payments:** Stripe (Checkout + Customer Portal + Webhooks)
+- **Hosting:** Vercel (frontend) + Lovable Cloud (backend)
+- **Domain:** alterai.im
+
+## 🚀 Deployment
+
+The project is deployed two ways:
+
+| Environment | URL | Notes |
+|---|---|---|
+| **Production (custom domain)** | [alterai.im](https://alterai.im) | Vercel-hosted, auto-deploys from `main` |
+| **Lovable preview** | `*.lovable.app` | Auto-deploys on every Lovable edit |
+
+### Required Vercel Environment Variables
+
+Only **3** variables are needed on Vercel — everything else lives in Lovable Cloud / Supabase:
+
+```
+VITE_SUPABASE_URL=https://celvxwiympkuceitdgxo.supabase.co
+VITE_SUPABASE_PUBLISHABLE_KEY=<anon key>
+VITE_SUPABASE_PROJECT_ID=celvxwiympkuceitdgxo
+```
+
+Do **not** put `STRIPE_SECRET_KEY`, `OPENAI_API_KEY`, `ELEVENLABS_API_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, or `DATABASE_URL` on Vercel — they belong in Lovable Cloud's Edge Function secrets only.
+
+### `vercel.json`
+
+The repo includes a `vercel.json` that:
+- Sets the build command (`npm run build`) and output directory (`dist`)
+- Adds an SPA rewrite so React Router deep links work on refresh
+
+## 💻 Local Development
+
+```bash
+git clone https://github.com/alternateaibotstation-alt/alter-ai-studio.git
+cd alter-ai-studio
+npm install
+npm run dev
+```
+
+Create a `.env.local` with the same 3 `VITE_SUPABASE_*` vars listed above (also auto-provided by Lovable).
+
+## 📜 Legal & Policies
+
+All policies are in the `legal/` directory and rendered live at `/legal/<slug>`:
+
+- [Terms of Service](legal/terms.md)
+- [Privacy Policy](legal/privacy.md)
+- [Cookie Policy](legal/cookies.md)
+- [Acceptable Use Policy](legal/acceptable-use.md)
+- [Content Policy](legal/content-policy.md)
+- [Community Guidelines](legal/community.md)
+- [DMCA Policy](legal/dmca.md)
+- [Disclaimer](legal/disclaimer.md)
+- [Payment & Refund Policy](legal/payment-policy.md)
+- [API Usage Policy](legal/api-usage.md)
+
+A public [FAQ](https://alterai.im/faq) covers billing, content rights, and support.
+
+## 📄 License & Ownership
+
+**Alterai.im is proprietary software, solely owned and operated by Carley Lenon.**
+
+© 2024–2026 Carley Lenon. All rights reserved. No part of this repository — including code, design, brand assets, prompts, or documentation — may be copied, modified, redistributed, sublicensed, sold, or used to train derivative models or competing products without prior written permission from the owner.
+
+This repository is published for transparency and continuous deployment only. It is **not** open source.
+
+## 📬 Contact
+
+- **Owner:** Carley Lenon
+- **Email:** [alternateaibotstation@gmail.com](mailto:alternateaibotstation@gmail.com)
+- **Site:** [https://alterai.im](https://alterai.im)
+
+For business inquiries, partnerships, DMCA notices, or support requests, email the address above. Response time: 1–2 business days.
