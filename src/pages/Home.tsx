@@ -11,6 +11,7 @@ import {
 import Navbar from "@/components/Navbar";
 import SiteFooter from "@/components/SiteFooter";
 import bgLogo from "@/assets/bg-logo.png";
+import chromeTexture from "@/assets/chrome-texture.jpg";
 
 /* ─── Animation Variants ─── */
 const fadeUp = {
@@ -271,10 +272,21 @@ export default function Home() {
 
       {/* ═══════════════════════ HERO ═══════════════════════ */}
       <section className="relative pt-28 pb-20 px-4 overflow-hidden">
+        {/* Chrome marble texture overlay */}
+        <div
+          className="absolute inset-0 pointer-events-none opacity-[0.08] dark:opacity-[0.12] mix-blend-overlay dark:mix-blend-soft-light"
+          style={{
+            backgroundImage: `url(${chromeTexture})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            maskImage: "radial-gradient(ellipse at center, black 40%, transparent 80%)",
+            WebkitMaskImage: "radial-gradient(ellipse at center, black 40%, transparent 80%)",
+          }}
+        />
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[900px] h-[600px] rounded-full bg-[hsl(260,80%,55%/0.06)] blur-[140px]" />
-          <div className="absolute top-32 left-1/4 w-[500px] h-[500px] rounded-full bg-[hsl(210,90%,55%/0.05)] blur-[120px]" />
-          <div className="absolute top-60 right-1/4 w-[400px] h-[400px] rounded-full bg-[hsl(330,85%,50%/0.04)] blur-[100px]" />
+          <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[900px] h-[600px] rounded-full bg-[hsl(var(--primary)/0.08)] blur-[140px]" />
+          <div className="absolute top-32 left-1/4 w-[500px] h-[500px] rounded-full bg-[hsl(var(--accent)/0.06)] blur-[120px]" />
+          <div className="absolute top-60 right-1/4 w-[400px] h-[400px] rounded-full bg-[hsl(var(--primary-glow)/0.05)] blur-[100px]" />
         </div>
 
         <FloatingOrb className="top-32 left-[15%] w-2 h-2 bg-[hsl(260,80%,60%/0.4)]" />
