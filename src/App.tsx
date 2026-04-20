@@ -25,6 +25,8 @@ import MyCreations from "./pages/MyCreations";
 import TemplateMarketplace from "./pages/TemplateMarketplace";
 import TikTokTemplates from "./pages/TikTokTemplates";
 import ContentCreator from "./pages/ContentCreator";
+import LegalPage from "./pages/LegalPage";
+import FAQ from "./pages/FAQ";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -58,6 +60,8 @@ const App = () => (
               <Route path="/content-creator" element={<ContentCreator />} />
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/terms" element={<Terms />} />
+              <Route path="/faq" element={<FAQ />} />
+              <Route path="/legal/:slug" element={<LegalPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

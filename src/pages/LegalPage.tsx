@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, Navigate, Link } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
-import { Navbar } from "@/components/Navbar";
+import Navbar from "@/components/Navbar";
 import SiteFooter from "@/components/SiteFooter";
 import { Card } from "@/components/ui/card";
 
