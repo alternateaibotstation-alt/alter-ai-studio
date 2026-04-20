@@ -28,6 +28,7 @@ import ContentCreator from "./pages/ContentCreator";
 import LegalPage from "./pages/LegalPage";
 import FAQ from "./pages/FAQ";
 import NotFound from "./pages/NotFound";
+import CookieConsent from "./components/CookieConsent";
 
 const queryClient = new QueryClient();
 
@@ -39,6 +40,7 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
+            <CookieConsent />
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/marketplace" element={<Marketplace />} />
