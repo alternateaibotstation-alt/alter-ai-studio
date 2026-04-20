@@ -4,94 +4,115 @@
 @tailwind components;
 @tailwind utilities;
 
+/* =====================================================
+   Chrome × Copper palette
+   Inspired by liquid chrome + dark navy/copper marble.
+   - Base: deep midnight navy
+   - Mid: cool chrome silver-blue
+   - Accent: warm champagne / copper gold
+   ===================================================== */
+
 @layer base {
   :root {
-    --background: 0 0% 98%;
-    --foreground: 225 25% 12%;
+    /* Light = polished chrome */
+    --background: 220 25% 97%;
+    --foreground: 222 35% 12%;
 
     --card: 0 0% 100%;
-    --card-foreground: 225 25% 12%;
+    --card-foreground: 222 35% 12%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 225 25% 12%;
+    --popover-foreground: 222 35% 12%;
 
-    --primary: 330 85% 50%;
-    --primary-foreground: 0 0% 100%;
+    /* Primary = warm copper/champagne */
+    --primary: 28 75% 52%;
+    --primary-foreground: 30 40% 98%;
+    --primary-glow: 36 90% 65%;
 
-    --secondary: 220 14% 92%;
-    --secondary-foreground: 225 25% 12%;
+    --secondary: 215 20% 90%;
+    --secondary-foreground: 222 35% 12%;
 
-    --muted: 220 14% 92%;
-    --muted-foreground: 215 16% 47%;
+    --muted: 215 20% 92%;
+    --muted-foreground: 220 12% 42%;
 
-    --accent: 190 90% 40%;
-    --accent-foreground: 0 0% 100%;
+    /* Accent = chrome silver-blue */
+    --accent: 210 35% 70%;
+    --accent-foreground: 222 35% 12%;
 
-    --destructive: 0 84% 60%;
+    --destructive: 0 75% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 13% 87%;
-    --input: 220 13% 87%;
-    --ring: 330 85% 50%;
-    --radius: 0.5rem;
+    --border: 215 20% 84%;
+    --input: 215 20% 84%;
+    --ring: 28 75% 52%;
+    --radius: 0.625rem;
 
-    --sidebar-background: 0 0% 96%;
-    --sidebar-foreground: 215 16% 47%;
-    --sidebar-primary: 330 85% 50%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 14% 92%;
-    --sidebar-accent-foreground: 225 25% 12%;
-    --sidebar-border: 220 13% 87%;
-    --sidebar-ring: 330 85% 50%;
+    --sidebar-background: 220 25% 95%;
+    --sidebar-foreground: 220 12% 42%;
+    --sidebar-primary: 28 75% 52%;
+    --sidebar-primary-foreground: 30 40% 98%;
+    --sidebar-accent: 215 20% 90%;
+    --sidebar-accent-foreground: 222 35% 12%;
+    --sidebar-border: 215 20% 84%;
+    --sidebar-ring: 28 75% 52%;
 
-    --gradient-primary: linear-gradient(135deg, hsl(330 85% 50%), hsl(270 70% 55%));
-    --gradient-hero: linear-gradient(180deg, hsl(0 0% 98%) 0%, hsl(220 14% 96%) 50%, hsl(0 0% 98%) 100%);
-    --shadow-glow: 0 0 40px -10px hsl(330 85% 50% / 0.2);
-    --shadow-card: 0 1px 3px 0 hsl(0 0% 0% / 0.06);
+    /* Chrome + copper gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(28 75% 52%) 0%, hsl(36 90% 65%) 50%, hsl(45 80% 70%) 100%);
+    --gradient-chrome: linear-gradient(135deg, hsl(210 30% 88%) 0%, hsl(220 20% 78%) 25%, hsl(215 25% 92%) 50%, hsl(220 22% 82%) 75%, hsl(210 30% 90%) 100%);
+    --gradient-hero: radial-gradient(ellipse at top, hsl(220 25% 92%) 0%, hsl(220 25% 97%) 60%);
+    --shadow-glow: 0 0 50px -12px hsl(28 75% 52% / 0.35);
+    --shadow-card: 0 1px 3px 0 hsl(222 35% 12% / 0.08);
+    --shadow-chrome: 0 8px 32px -8px hsl(220 30% 40% / 0.18);
   }
 
   .dark {
-    --background: 225 20% 18%;
-    --foreground: 210 40% 96%;
+    /* Dark = deep navy marble with copper veins */
+    --background: 222 38% 9%;
+    --foreground: 210 25% 94%;
 
-    --card: 225 18% 23%;
-    --card-foreground: 210 40% 96%;
+    --card: 222 32% 13%;
+    --card-foreground: 210 25% 94%;
 
-    --popover: 225 18% 23%;
-    --popover-foreground: 210 40% 96%;
+    --popover: 222 32% 13%;
+    --popover-foreground: 210 25% 94%;
 
-    --primary: 330 85% 55%;
-    --primary-foreground: 0 0% 100%;
+    /* Primary = warm copper glow */
+    --primary: 30 85% 58%;
+    --primary-foreground: 222 38% 9%;
+    --primary-glow: 38 95% 68%;
 
-    --secondary: 225 16% 28%;
-    --secondary-foreground: 210 40% 96%;
+    --secondary: 222 25% 18%;
+    --secondary-foreground: 210 25% 94%;
 
-    --muted: 225 16% 28%;
-    --muted-foreground: 215 20% 65%;
+    --muted: 222 25% 18%;
+    --muted-foreground: 215 15% 65%;
 
-    --accent: 190 90% 50%;
-    --accent-foreground: 0 0% 100%;
+    /* Accent = liquid chrome silver-blue */
+    --accent: 210 30% 65%;
+    --accent-foreground: 222 38% 9%;
 
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 75% 55%;
+    --destructive-foreground: 210 25% 94%;
 
-    --border: 225 16% 30%;
-    --input: 225 16% 30%;
-    --ring: 330 85% 55%;
+    --border: 222 22% 22%;
+    --input: 222 22% 22%;
+    --ring: 30 85% 58%;
 
-    --sidebar-background: 225 20% 16%;
-    --sidebar-foreground: 215 20% 65%;
-    --sidebar-primary: 330 85% 55%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 225 16% 25%;
-    --sidebar-accent-foreground: 210 40% 96%;
-    --sidebar-border: 225 16% 30%;
-    --sidebar-ring: 330 85% 55%;
+    --sidebar-background: 222 38% 8%;
+    --sidebar-foreground: 215 15% 65%;
+    --sidebar-primary: 30 85% 58%;
+    --sidebar-primary-foreground: 222 38% 9%;
+    --sidebar-accent: 222 25% 16%;
+    --sidebar-accent-foreground: 210 25% 94%;
+    --sidebar-border: 222 22% 22%;
+    --sidebar-ring: 30 85% 58%;
 
-    --gradient-primary: linear-gradient(135deg, hsl(330 85% 55%), hsl(270 70% 58%));
-    --gradient-hero: linear-gradient(180deg, hsl(225 20% 18%) 0%, hsl(230 18% 22%) 50%, hsl(225 20% 18%) 100%);
-    --shadow-glow: 0 0 40px -10px hsl(330 85% 55% / 0.25);
+    --gradient-primary: linear-gradient(135deg, hsl(30 85% 58%) 0%, hsl(38 95% 68%) 50%, hsl(45 85% 72%) 100%);
+    --gradient-chrome: linear-gradient(135deg, hsl(220 30% 22%) 0%, hsl(210 25% 35%) 25%, hsl(220 35% 18%) 50%, hsl(215 30% 32%) 75%, hsl(220 30% 25%) 100%);
+    --gradient-hero: radial-gradient(ellipse at top, hsl(222 38% 14%) 0%, hsl(222 38% 9%) 70%);
+    --shadow-glow: 0 0 60px -10px hsl(30 85% 58% / 0.4);
     --shadow-card: 0 1px 0 0 hsl(0 0% 100% / 0.06);
+    --shadow-chrome: 0 12px 40px -8px hsl(0 0% 0% / 0.5);
   }
 }
 
@@ -104,6 +125,13 @@
     @apply bg-background text-foreground font-sans antialiased;
     font-family: 'Inter', sans-serif;
     letter-spacing: -0.01em;
+
+    /* Subtle liquid-chrome flow across the whole site */
+    background-image:
+      radial-gradient(ellipse 80% 60% at 15% 0%, hsl(var(--accent) / 0.08), transparent 60%),
+      radial-gradient(ellipse 70% 50% at 85% 100%, hsl(var(--primary) / 0.10), transparent 60%),
+      radial-gradient(ellipse 60% 40% at 50% 50%, hsl(var(--primary-glow) / 0.04), transparent 70%);
+    background-attachment: fixed;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -118,9 +146,10 @@
   }
 
   .card-hover {
-    @apply transition-all duration-200 hover:border-primary/30;
+    @apply transition-all duration-300 hover:border-primary/40;
     &:hover {
       box-shadow: var(--shadow-glow);
+      transform: translateY(-1px);
     }
   }
 
@@ -132,4 +161,59 @@
   .hero-gradient {
     background: var(--gradient-hero);
   }
+
+  /* Liquid chrome surface — use on hero panels, feature cards, etc. */
+  .chrome-surface {
+    background: var(--gradient-chrome);
+    box-shadow: var(--shadow-chrome);
+  }
+
+  /* Animated liquid-chrome wave background overlay */
+  .chrome-wave {
+    position: relative;
+    isolation: isolate;
+  }
+  .chrome-wave::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background:
+      conic-gradient(
+        from 180deg at 50% 50%,
+        hsl(var(--accent) / 0.15) 0deg,
+        hsl(var(--primary) / 0.18) 90deg,
+        hsl(var(--primary-glow) / 0.12) 180deg,
+        hsl(var(--accent) / 0.15) 270deg,
+        hsl(var(--accent) / 0.15) 360deg
+      );
+    filter: blur(60px);
+    opacity: 0.6;
+    animation: chrome-flow 18s ease-in-out infinite;
+  }
+
+  /* Copper accent shadow on hover */
+  .copper-glow {
+    box-shadow: 0 0 0 1px hsl(var(--primary) / 0.3), 0 8px 30px -8px hsl(var(--primary) / 0.4);
+  }
+}
+
+@layer utilities {
+  .text-chrome {
+    background: var(--gradient-chrome);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .text-copper {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+}
+
+@keyframes chrome-flow {
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(180deg) scale(1.1); }
 }
