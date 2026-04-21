@@ -337,6 +337,62 @@ export default function Home() {
             No coding required · Start for free · Cancel anytime
           </motion.p>
 
+          {/* Social proof strip */}
+          <motion.div
+            className="mt-10 flex flex-col items-center gap-5"
+            initial="hidden" animate="visible" variants={fadeUp} custom={4}
+          >
+            <div className="flex items-center gap-4">
+              {/* Stacked avatars */}
+              <div className="flex -space-x-2">
+                {[
+                  "linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)))",
+                  "linear-gradient(135deg, hsl(var(--accent)), hsl(var(--primary-glow)))",
+                  "linear-gradient(135deg, hsl(var(--primary-glow)), hsl(var(--primary)))",
+                  "linear-gradient(135deg, hsl(var(--accent)), hsl(var(--primary)))",
+                  "linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)))",
+                ].map((bg, i) => (
+                  <div
+                    key={i}
+                    className="w-8 h-8 rounded-full ring-2 ring-background"
+                    style={{ background: bg }}
+                    aria-hidden="true"
+                  />
+                ))}
+              </div>
+
+              {/* Star rating */}
+              <div className="flex flex-col items-start">
+                <div className="flex items-center gap-0.5">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Star key={i} className="w-3.5 h-3.5 fill-primary text-primary" />
+                  ))}
+                  <span className="ml-1.5 text-sm font-semibold text-foreground">4.9</span>
+                </div>
+                <span className="text-xs text-muted-foreground">
+                  Loved by <span className="font-semibold text-foreground">1,200+</span> creators
+                </span>
+              </div>
+            </div>
+
+            {/* "Built for" platform logos */}
+            <div className="flex flex-col items-center gap-2.5">
+              <span className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground/70 font-semibold">
+                Built for content on
+              </span>
+              <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 opacity-70">
+                {["TikTok", "Instagram", "YouTube", "X", "LinkedIn", "Threads"].map((p) => (
+                  <span
+                    key={p}
+                    className="text-sm font-bold tracking-tight text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {p}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+
           {/* Animated counters */}
           <motion.div
             className="mt-20 grid grid-cols-3 gap-4 max-w-lg mx-auto"
