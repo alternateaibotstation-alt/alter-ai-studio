@@ -6,6 +6,7 @@ import {
   Sun, Leaf, MessageCircleHeart, Rocket, Dumbbell, ChevronRight,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
+import SEO from "@/components/SEO";
 import BotCard from "@/components/BotCard";
 import { api, type Bot } from "@/lib/api";
 import { useFavorites } from "@/hooks/use-favorites";
@@ -104,6 +105,11 @@ export default function Marketplace() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO
+        title="Marketplace — Discover AI Bots Built by Creators"
+        description="Browse a curated marketplace of AI bots for spirituality, mental health, relationships, business, and self-improvement. Chat instantly or buy premium companions."
+        path="/marketplace"
+      />
       <Navbar />
       <section className="relative pt-28 pb-8 px-4 overflow-hidden">
         <div

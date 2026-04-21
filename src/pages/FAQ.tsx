@@ -1,5 +1,6 @@
 import Navbar from "@/components/Navbar";
 import SiteFooter from "@/components/SiteFooter";
+import SEO from "@/components/SEO";
 import {
   Accordion,
   AccordionContent,
@@ -57,6 +58,11 @@ const faqs = [
 const FAQ = () => {
   return (
     <div className="min-h-screen bg-background">
+      <SEO
+        title="FAQ — Answers About Alterai.im, Billing & Policies"
+        description="Common questions about Alterai.im: pricing, content rights, refunds, supported platforms, allowed content, and how to sell templates or bots."
+        path="/faq"
+      />
       <Navbar />
       <main className="container mx-auto px-4 py-12 max-w-3xl">
         <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">Frequently Asked Questions</h1>
