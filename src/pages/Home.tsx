@@ -271,75 +271,75 @@ export default function Home() {
       <Navbar />
 
       {/* ═══════════════════════ HERO ═══════════════════════ */}
-      <section className="relative pt-28 pb-20 px-4 overflow-hidden">
-        {/* Chrome marble texture overlay */}
+      <section className="relative pt-40 pb-36 sm:pt-48 sm:pb-44 px-4 overflow-hidden">
+        {/* Chrome marble texture overlay — stronger presence */}
         <div
-          className="absolute inset-0 pointer-events-none opacity-[0.08] dark:opacity-[0.12] mix-blend-overlay dark:mix-blend-soft-light"
+          className="absolute inset-0 pointer-events-none opacity-[0.18] dark:opacity-[0.15] mix-blend-multiply dark:mix-blend-soft-light"
           style={{
             backgroundImage: `url(${chromeTexture})`,
             backgroundSize: "cover",
             backgroundPosition: "center",
-            maskImage: "radial-gradient(ellipse at center, black 40%, transparent 80%)",
-            WebkitMaskImage: "radial-gradient(ellipse at center, black 40%, transparent 80%)",
+            maskImage: "radial-gradient(ellipse at center, black 30%, transparent 85%)",
+            WebkitMaskImage: "radial-gradient(ellipse at center, black 30%, transparent 85%)",
           }}
         />
+        {/* Soft copper / chrome glow wash */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[900px] h-[600px] rounded-full bg-[hsl(var(--primary)/0.08)] blur-[140px]" />
-          <div className="absolute top-32 left-1/4 w-[500px] h-[500px] rounded-full bg-[hsl(var(--accent)/0.06)] blur-[120px]" />
-          <div className="absolute top-60 right-1/4 w-[400px] h-[400px] rounded-full bg-[hsl(var(--primary-glow)/0.05)] blur-[100px]" />
+          <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-[1100px] h-[700px] rounded-full bg-[hsl(var(--primary)/0.10)] blur-[160px]" />
+          <div className="absolute top-40 left-[10%] w-[500px] h-[500px] rounded-full bg-[hsl(var(--accent)/0.35)] blur-[140px]" />
+          <div className="absolute top-72 right-[10%] w-[450px] h-[450px] rounded-full bg-[hsl(var(--primary-glow)/0.18)] blur-[130px]" />
         </div>
 
-        <FloatingOrb className="top-32 left-[15%] w-2 h-2 bg-[hsl(260,80%,60%/0.4)]" />
-        <FloatingOrb className="top-48 right-[20%] w-1.5 h-1.5 bg-[hsl(210,90%,60%/0.4)]" />
-        <FloatingOrb className="bottom-32 left-[30%] w-1 h-1 bg-[hsl(330,85%,55%/0.5)]" />
+        <FloatingOrb className="top-40 left-[15%] w-2 h-2 bg-[hsl(var(--primary)/0.4)]" />
+        <FloatingOrb className="top-56 right-[20%] w-1.5 h-1.5 bg-[hsl(var(--accent)/0.6)]" />
+        <FloatingOrb className="bottom-40 left-[30%] w-1 h-1 bg-[hsl(var(--primary-glow)/0.5)]" />
 
         <motion.div className="container mx-auto text-center max-w-4xl relative z-10" style={{ opacity: heroOpacity, scale: heroScale }}>
           <motion.div
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[hsl(260,60%,55%/0.3)] bg-[hsl(260,60%,55%/0.08)] text-sm text-[hsl(260,80%,70%)] mb-7"
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/30 bg-primary/5 text-sm text-primary mb-10 backdrop-blur-sm"
             initial="hidden" animate="visible" variants={fadeUp} custom={0}
           >
             <Sparkles className="w-3.5 h-3.5" />
-            <span className="font-medium">AI-Powered Creation Platform</span>
+            <span className="font-medium tracking-wide">AI-Powered Creation Platform</span>
           </motion.div>
 
           <motion.h1
-            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-foreground leading-[1.06]"
+            className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold tracking-tight leading-[1.02]"
             initial="hidden" animate="visible" variants={fadeUp} custom={1}
           >
-            Build AI that works
+            <span className="text-foreground">Build AI that works</span>
             <br />
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-[hsl(260,80%,65%)] via-[hsl(210,90%,60%)] to-[hsl(260,80%,65%)]">
-              across every platform
-            </span>
+            <span className="text-copper">across every platform</span>
           </motion.h1>
 
           <motion.p
-            className="mt-6 text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed"
+            className="mt-10 text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed"
             initial="hidden" animate="visible" variants={fadeUp} custom={2}
           >
             Create AI bots, generate viral content for six platforms, and produce voice-powered videos — all from a single workspace.
           </motion.p>
 
-          <motion.div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4" initial="hidden" animate="visible" variants={fadeUp} custom={3}>
+          <motion.div className="mt-14 flex flex-col sm:flex-row items-center justify-center gap-4" initial="hidden" animate="visible" variants={fadeUp} custom={3}>
             <Button
               size="lg"
-              className="h-14 px-8 text-base font-semibold bg-gradient-to-r from-[hsl(260,80%,55%)] to-[hsl(210,85%,55%)] hover:from-[hsl(260,80%,60%)] hover:to-[hsl(210,85%,60%)] text-white shadow-lg shadow-[hsl(260,80%,55%/0.25)] border-0"
+              className="h-14 px-8 text-base font-semibold text-primary-foreground border-0 copper-glow transition-all duration-300 hover:scale-[1.02]"
+              style={{ backgroundImage: "var(--gradient-primary)" }}
               asChild
             >
               <Link to="/auth">Start building your AI now <ArrowRight className="w-4 h-4 ml-2" /></Link>
             </Button>
-            <Button size="lg" variant="outline" className="h-14 px-8 text-base border-border/60 hover:border-[hsl(260,60%,55%/0.4)] hover:bg-[hsl(260,60%,55%/0.05)]" asChild>
+            <Button size="lg" variant="outline" className="h-14 px-8 text-base border-border/60 hover:border-primary/40 hover:bg-primary/5 backdrop-blur-sm" asChild>
               <Link to="/marketplace"><Play className="w-4 h-4 mr-2" /> Explore marketplace</Link>
             </Button>
           </motion.div>
 
-          <motion.p className="mt-4 text-sm text-muted-foreground/70" initial="hidden" animate="visible" variants={fadeUp} custom={4}>
+          <motion.p className="mt-6 text-sm text-muted-foreground/70" initial="hidden" animate="visible" variants={fadeUp} custom={4}>
             No coding required · Start for free · Cancel anytime
           </motion.p>
 
           {/* Animated counters */}
           <motion.div
-            className="mt-12 grid grid-cols-3 gap-4 max-w-lg mx-auto"
+            className="mt-20 grid grid-cols-3 gap-4 max-w-lg mx-auto"
             initial="hidden" animate="visible" variants={fadeUp} custom={5}
           >
             {[
