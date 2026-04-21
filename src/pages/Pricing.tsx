@@ -1,4 +1,5 @@
 import Navbar from "@/components/Navbar";
+import SEO from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Check, Zap, Crown, Star } from "lucide-react";
@@ -84,6 +85,11 @@ export default function Pricing() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO
+        title="Pricing — Plans for Creators & Power Users"
+        description="Simple, transparent pricing for Alterai.im. Start free, upgrade to Pro or Power for unlimited AI bots, multi-platform content generation, voiceovers, and video creation."
+        path="/pricing"
+      />
       <Navbar />
       <section className="relative pt-28 pb-10 px-4 overflow-hidden">
         <div

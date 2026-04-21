@@ -3,7 +3,21 @@ import { useParams, Navigate, Link } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import Navbar from "@/components/Navbar";
 import SiteFooter from "@/components/SiteFooter";
+import SEO from "@/components/SEO";
 import { Card } from "@/components/ui/card";
+
+const descriptionMap: Record<string, string> = {
+  "terms": "Read the Alterai.im Terms of Service governing use of our AI platform, accounts, content, and subscriptions.",
+  "privacy": "Learn how Alterai.im collects, uses, and protects your personal data, creations, and chat history.",
+  "cookies": "Details on cookies and similar technologies used by Alterai.im to operate, secure, and improve the platform.",
+  "acceptable-use": "Rules for acceptable use of Alterai.im — what's allowed and prohibited on our AI creation platform.",
+  "content-policy": "Alterai.im content policy: prohibited categories, TikTok-friendly outputs, and creator responsibilities.",
+  "community": "Community Guidelines for creators, marketplace sellers, and chat users on Alterai.im.",
+  "dmca": "DMCA takedown procedure for copyright complaints on Alterai.im content, bots, and templates.",
+  "disclaimer": "Disclaimer about AI-generated content, accuracy, and limitations on Alterai.im.",
+  "payment-policy": "Payment, subscription, refund, and payout policy for Alterai.im creators and customers.",
+  "api-usage": "Acceptable API usage rules and limits for Alterai.im managed AI services.",
+};
 
 // Eagerly import all legal markdown files at build time
 const legalFiles = import.meta.glob("/legal/*.md", { query: "?raw", import: "default", eager: true }) as Record<string, string>;
@@ -39,6 +53,12 @@ const LegalPage = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO
+        title={`${title} — Alterai.im`}
+        description={descriptionMap[slug] ?? `${title} for Alterai.im — official policy document.`}
+        path={`/legal/${slug}`}
+        type="article"
+      />
       <Navbar />
       <main className="container mx-auto px-4 py-12 max-w-3xl">
         <Link to="/" className="text-sm text-muted-foreground hover:text-foreground">← Back home</Link>
