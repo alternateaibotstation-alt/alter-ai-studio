@@ -85,13 +85,32 @@ export default function Pricing() {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <div className="container mx-auto pt-24 pb-16 px-4 max-w-5xl">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-foreground">Choose Your Plan</h1>
-          <p className="text-muted-foreground mt-3 max-w-lg mx-auto">
+      <section className="relative pt-28 pb-10 px-4 overflow-hidden">
+        <div
+          className="absolute inset-0 pointer-events-none opacity-[0.18] dark:opacity-[0.15] mix-blend-multiply dark:mix-blend-soft-light"
+          style={{
+            backgroundImage: `url(${chromeTexture})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            maskImage: "radial-gradient(ellipse at center, black 30%, transparent 85%)",
+            WebkitMaskImage: "radial-gradient(ellipse at center, black 30%, transparent 85%)",
+          }}
+        />
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-[900px] h-[500px] rounded-full bg-[hsl(var(--primary)/0.10)] blur-[140px]" />
+          <div className="absolute top-20 right-[15%] w-[400px] h-[400px] rounded-full bg-[hsl(var(--accent)/0.25)] blur-[120px]" />
+        </div>
+        <div className="container mx-auto max-w-5xl relative z-10 text-center">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight leading-[1.05]">
+            <span className="text-copper">Choose Your Plan</span>
+          </h1>
+          <p className="text-muted-foreground mt-5 max-w-lg mx-auto text-lg">
             Unlock the full power of Alter AI with a plan that suits your needs
           </p>
         </div>
+      </section>
+      <div className="container mx-auto pb-16 px-4 max-w-5xl">
+        <div className="mb-4" />
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {tiers.map((t) => {
