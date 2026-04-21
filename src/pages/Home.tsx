@@ -12,6 +12,19 @@ import Navbar from "@/components/Navbar";
 import SiteFooter from "@/components/SiteFooter";
 import bgLogo from "@/assets/bg-logo.png";
 import chromeTexture from "@/assets/chrome-texture.jpg";
+import creator1 from "@/assets/creators/creator-1.jpg";
+import creator2 from "@/assets/creators/creator-2.jpg";
+import creator3 from "@/assets/creators/creator-3.jpg";
+import creator4 from "@/assets/creators/creator-4.jpg";
+import creator5 from "@/assets/creators/creator-5.jpg";
+
+const creatorAvatars = [
+  { src: creator1, alt: "Creator Maya" },
+  { src: creator2, alt: "Creator Jordan" },
+  { src: creator3, alt: "Creator Aaliyah" },
+  { src: creator4, alt: "Creator Kenji" },
+  { src: creator5, alt: "Creator Sofia" },
+];
 
 /* ─── Animation Variants ─── */
 const fadeUp = {
@@ -345,18 +358,15 @@ export default function Home() {
             <div className="flex items-center gap-4">
               {/* Stacked avatars */}
               <div className="flex -space-x-2">
-                {[
-                  "linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)))",
-                  "linear-gradient(135deg, hsl(var(--accent)), hsl(var(--primary-glow)))",
-                  "linear-gradient(135deg, hsl(var(--primary-glow)), hsl(var(--primary)))",
-                  "linear-gradient(135deg, hsl(var(--accent)), hsl(var(--primary)))",
-                  "linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)))",
-                ].map((bg, i) => (
-                  <div
+                {creatorAvatars.map((c, i) => (
+                  <img
                     key={i}
-                    className="w-8 h-8 rounded-full ring-2 ring-background"
-                    style={{ background: bg }}
-                    aria-hidden="true"
+                    src={c.src}
+                    alt={c.alt}
+                    loading="lazy"
+                    width={32}
+                    height={32}
+                    className="w-8 h-8 rounded-full ring-2 ring-background object-cover bg-muted"
                   />
                 ))}
               </div>
