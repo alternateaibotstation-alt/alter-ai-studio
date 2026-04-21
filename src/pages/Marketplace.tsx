@@ -105,10 +105,29 @@ export default function Marketplace() {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <div className="container mx-auto pt-24 pb-16 px-4">
-        <h1 className="text-3xl font-bold text-foreground">Marketplace</h1>
-        <p className="text-muted-foreground mt-1">Discover AI bots built by the community</p>
-
+      <section className="relative pt-28 pb-8 px-4 overflow-hidden">
+        <div
+          className="absolute inset-0 pointer-events-none opacity-[0.18] dark:opacity-[0.15] mix-blend-multiply dark:mix-blend-soft-light"
+          style={{
+            backgroundImage: `url(${chromeTexture})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            maskImage: "radial-gradient(ellipse at center, black 30%, transparent 85%)",
+            WebkitMaskImage: "radial-gradient(ellipse at center, black 30%, transparent 85%)",
+          }}
+        />
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-[900px] h-[500px] rounded-full bg-[hsl(var(--primary)/0.10)] blur-[140px]" />
+          <div className="absolute top-20 left-[10%] w-[400px] h-[400px] rounded-full bg-[hsl(var(--accent)/0.25)] blur-[120px]" />
+        </div>
+        <div className="container mx-auto relative z-10">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight leading-[1.05]">
+            <span className="text-copper">Marketplace</span>
+          </h1>
+          <p className="text-muted-foreground mt-4 text-lg">Discover AI bots built by the community</p>
+        </div>
+      </section>
+      <div className="container mx-auto pb-16 px-4">
         {/* Search & Favorites filter */}
         <div className="mt-6 flex items-center gap-3">
           <div className="relative max-w-md flex-1">
