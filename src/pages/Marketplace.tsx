@@ -10,6 +10,7 @@ import BotCard from "@/components/BotCard";
 import { api, type Bot } from "@/lib/api";
 import { useFavorites } from "@/hooks/use-favorites";
 import { cn } from "@/lib/utils";
+import chromeTexture from "@/assets/chrome-texture.jpg";
 
 const categories = [
   {
