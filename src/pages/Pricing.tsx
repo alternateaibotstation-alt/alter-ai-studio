@@ -2,6 +2,7 @@ import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Check, Zap, Crown, Star } from "lucide-react";
+import chromeTexture from "@/assets/chrome-texture.jpg";
 import { TIER_CONFIG, TIER_LIMITS } from "@/lib/tiers";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { supabase } from "@/integrations/supabase/client";
