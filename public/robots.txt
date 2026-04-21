@@ -12,3 +12,12 @@ Allow: /
 
 User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /profile
+Disallow: /purchases
+Disallow: /success
+Disallow: /my-creations
+Disallow: /chat/
+
+Sitemap: https://alterai.im/sitemap.xml
