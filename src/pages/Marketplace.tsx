@@ -11,6 +11,7 @@ import BotCard from "@/components/BotCard";
 import { api, type Bot } from "@/lib/api";
 import { useFavorites } from "@/hooks/use-favorites";
 import { cn } from "@/lib/utils";
+import { sampleBots } from "@/data/sample-bots";
 import chromeTexture from "@/assets/chrome-texture.jpg";
 
 const categories = [
@@ -85,9 +86,17 @@ export default function Marketplace() {
   const { isFavorite, toggleFavorite, favoriteIds } = useFavorites();
 
   useEffect(() => {
+    // Seed with sample bots immediately so the grid is never empty.
+    setBots(sampleBots);
     api.getPublicBots()
-      .then((data) => setBots(Array.isArray(data) ? data : []))
-      .catch(() => setBots([]))
+      .then((data) => {
+        const live = Array.isArray(data) ? data : [];
+        // Merge live bots first, then sample bots that don't duplicate a category-heavy live set.
+        const liveIds = new Set(live.map((b) => b.id));
+        const merged = [...live, ...sampleBots.filter((b) => !liveIds.has(b.id))];
+        setBots(merged);
+      })
+      .catch(() => setBots(sampleBots))
       .finally(() => setLoading(false));
   }, []);
 
