@@ -5,6 +5,11 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
 import AppLayout from "@/components/AppLayout";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import { verifyDeploymentBase } from "@/lib/base-check";
+
+// Run once at module load (production only) to surface base/publicPath
+// mismatches in the browser console before they cause silent asset 404s.
+verifyDeploymentBase();
 import Home from "./pages/Home";
 import Marketplace from "./pages/Marketplace";
 import Chat from "./pages/Chat";
