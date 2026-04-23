@@ -444,6 +444,69 @@ export default function Home() {
         </motion.div>
       </section>
 
+      {/* ═══════════════════════ CTA — CONTENT CREATOR ENGINE ═══════════════════════ */}
+      <section className="py-16 px-4 relative">
+        <div className="container mx-auto max-w-5xl">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+            className="relative overflow-hidden rounded-3xl border border-primary/30 bg-gradient-to-br from-card/80 via-card/60 to-[hsl(var(--primary)/0.08)] backdrop-blur-md p-8 sm:p-12 shadow-2xl shadow-[hsl(var(--primary)/0.12)]"
+          >
+            {/* glow accents */}
+            <div className="absolute -top-20 -right-20 w-72 h-72 rounded-full bg-[hsl(var(--primary)/0.18)] blur-[100px] pointer-events-none" />
+            <div className="absolute -bottom-20 -left-20 w-72 h-72 rounded-full bg-[hsl(var(--accent)/0.25)] blur-[100px] pointer-events-none" />
+
+            <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center gap-8 justify-between">
+              <div className="flex-1">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-primary/30 bg-primary/10 text-xs font-semibold text-primary mb-4">
+                  <Wand2 className="w-3.5 h-3.5" />
+                  <span className="tracking-wide uppercase">Content Creator Engine</span>
+                </div>
+                <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground leading-tight">
+                  Turn one idea into <span className="text-copper">viral-ready content</span>
+                </h2>
+                <p className="mt-4 text-base sm:text-lg text-muted-foreground max-w-xl leading-relaxed">
+                  The Content Creator Engine writes hooks, scripts, captions, and platform-tuned posts in seconds — with smart context, viral patterns, and tier-based output quality.
+                </p>
+                <div className="mt-6 flex flex-wrap gap-3">
+                  {["Viral hooks", "Multi-platform", "Smart context", "Tiered quality"].map((tag) => (
+                    <span
+                      key={tag}
+                      className="text-xs font-medium px-3 py-1.5 rounded-full bg-secondary/60 border border-border/50 text-foreground/80"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-3 w-full md:w-auto shrink-0">
+                <Button
+                  size="lg"
+                  className="h-13 px-8 text-base font-semibold text-primary-foreground border-0 copper-glow transition-all duration-300 hover:scale-[1.02]"
+                  style={{ backgroundImage: "var(--gradient-primary)" }}
+                  asChild
+                >
+                  <Link to="/content-creator">
+                    Launch Content Creator <ArrowRight className="w-4 h-4 ml-2" />
+                  </Link>
+                </Button>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="h-13 px-8 text-sm border-border/60 hover:border-primary/40 hover:bg-primary/5"
+                  asChild
+                >
+                  <Link to="/content-studio">See Content Studio</Link>
+                </Button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
       {/* ═══════════════════════ VISUAL PROOF — AI OUTPUT EXAMPLES ═══════════════════════ */}
       <section ref={exampleRef} className="py-24 px-4 bg-secondary/30 relative overflow-hidden">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] rounded-full bg-[hsl(260,80%,55%/0.04)] blur-[120px]" />
