@@ -320,34 +320,41 @@ export default function Home() {
             className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold tracking-tight leading-[1.02]"
             initial="hidden" animate="visible" variants={fadeUp} custom={1}
           >
-            <span className="text-foreground">Build AI that works</span>
+            <span className="text-foreground">1 prompt.</span>
             <br />
-            <span className="text-copper">across every platform</span>
+            <span className="text-copper">6 platforms. Done.</span>
           </motion.h1>
 
           <motion.p
-            className="mt-10 text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed"
+            className="mt-8 text-xl sm:text-2xl text-foreground/90 max-w-2xl mx-auto leading-snug font-medium"
             initial="hidden" animate="visible" variants={fadeUp} custom={2}
           >
-            Create AI bots, generate viral content for six platforms, and produce voice-powered videos — all from a single workspace.
+            Type one idea. Get ready-to-post content for TikTok, Instagram, YouTube, X, LinkedIn & Pinterest in seconds.
           </motion.p>
 
-          <motion.div className="mt-14 flex flex-col sm:flex-row items-center justify-center gap-4" initial="hidden" animate="visible" variants={fadeUp} custom={3}>
+          <motion.p
+            className="mt-4 text-base text-muted-foreground max-w-xl mx-auto"
+            initial="hidden" animate="visible" variants={fadeUp} custom={2}
+          >
+            No writing. No editing. No guessing. Just paste, click, post.
+          </motion.p>
+
+          <motion.div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4" initial="hidden" animate="visible" variants={fadeUp} custom={3}>
             <Button
               size="lg"
               className="h-14 px-8 text-base font-semibold text-primary-foreground border-0 copper-glow transition-all duration-300 hover:scale-[1.02]"
               style={{ backgroundImage: "var(--gradient-primary)" }}
               asChild
             >
-              <Link to="/auth">Start building your AI now <ArrowRight className="w-4 h-4 ml-2" /></Link>
+              <Link to="/auth">Try it free — 1 prompt, 6 posts <ArrowRight className="w-4 h-4 ml-2" /></Link>
             </Button>
             <Button size="lg" variant="outline" className="h-14 px-8 text-base border-border/60 hover:border-primary/40 hover:bg-primary/5 backdrop-blur-sm" asChild>
-              <Link to="/marketplace"><Play className="w-4 h-4 mr-2" /> Explore marketplace</Link>
+              <Link to="/content-creator"><Play className="w-4 h-4 mr-2" /> See how it works</Link>
             </Button>
           </motion.div>
 
           <motion.p className="mt-6 text-sm text-muted-foreground/70" initial="hidden" animate="visible" variants={fadeUp} custom={4}>
-            No coding required · Start for free · Cancel anytime
+            Free forever plan · No credit card · Post in 60 seconds
           </motion.p>
 
           {/* Social proof strip */}
