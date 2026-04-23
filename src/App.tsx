@@ -36,10 +36,10 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
       <TooltipProvider>
-        <SubscriptionProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
+        <BrowserRouter>
+          <SubscriptionProvider>
+            <Toaster />
+            <Sonner />
             <CookieConsent />
             <Routes>
               <Route path="/" element={<Home />} />
@@ -66,8 +66,8 @@ const App = () => (
               <Route path="/legal/:slug" element={<LegalPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
-          </BrowserRouter>
-        </SubscriptionProvider>
+          </SubscriptionProvider>
+        </BrowserRouter>
       </TooltipProvider>
     </ThemeProvider>
   </QueryClientProvider>
