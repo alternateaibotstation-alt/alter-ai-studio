@@ -4,6 +4,7 @@ import { ThemeProvider } from "next-themes";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
 import AppLayout from "@/components/AppLayout";
+import ErrorBoundary from "@/components/ErrorBoundary";
 import Home from "./pages/Home";
 import Marketplace from "./pages/Marketplace";
 import Chat from "./pages/Chat";
@@ -46,33 +47,35 @@ const App = () => (
       <TooltipProvider>
         <BrowserRouter>
           <SubscriptionProvider>
-            <Routes>
-              <Route element={<AppLayout />}>
-                <Route path="/" element={<Home />} />
-                <Route path="/marketplace" element={<Marketplace />} />
-                <Route path="/chat/:id" element={<Chat />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/auth" element={<Auth />} />
-                <Route path="/purchases" element={<Purchases />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/success" element={<Success />} />
-                <Route path="/art-studio" element={<ArtStudio />} />
-                <Route path="/pricing" element={<Pricing />} />
-                <Route path="/admin" element={<AdminDashboard />} />
-                <Route path="/companions" element={<Companions />} />
-                <Route path="/companion/:id" element={<CompanionProfile />} />
-                <Route path="/content-studio" element={<ContentStudio />} />
-                <Route path="/my-creations" element={<MyCreations />} />
-                <Route path="/template-marketplace" element={<TemplateMarketplace />} />
-                <Route path="/tiktok-templates" element={<TikTokTemplates />} />
-                <Route path="/content-creator" element={<ContentCreator />} />
-                <Route path="/privacy" element={<Privacy />} />
-                <Route path="/terms" element={<Terms />} />
-                <Route path="/faq" element={<FAQ />} />
-                <Route path="/legal/:slug" element={<LegalPage />} />
-                <Route path="*" element={<NotFound />} />
-              </Route>
-            </Routes>
+            <ErrorBoundary>
+              <Routes>
+                <Route element={<AppLayout />}>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/marketplace" element={<Marketplace />} />
+                  <Route path="/chat/:id" element={<Chat />} />
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/auth" element={<Auth />} />
+                  <Route path="/purchases" element={<Purchases />} />
+                  <Route path="/profile" element={<Profile />} />
+                  <Route path="/success" element={<Success />} />
+                  <Route path="/art-studio" element={<ArtStudio />} />
+                  <Route path="/pricing" element={<Pricing />} />
+                  <Route path="/admin" element={<AdminDashboard />} />
+                  <Route path="/companions" element={<Companions />} />
+                  <Route path="/companion/:id" element={<CompanionProfile />} />
+                  <Route path="/content-studio" element={<ContentStudio />} />
+                  <Route path="/my-creations" element={<MyCreations />} />
+                  <Route path="/template-marketplace" element={<TemplateMarketplace />} />
+                  <Route path="/tiktok-templates" element={<TikTokTemplates />} />
+                  <Route path="/content-creator" element={<ContentCreator />} />
+                  <Route path="/privacy" element={<Privacy />} />
+                  <Route path="/terms" element={<Terms />} />
+                  <Route path="/faq" element={<FAQ />} />
+                  <Route path="/legal/:slug" element={<LegalPage />} />
+                  <Route path="*" element={<NotFound />} />
+                </Route>
+              </Routes>
+            </ErrorBoundary>
           </SubscriptionProvider>
         </BrowserRouter>
       </TooltipProvider>
