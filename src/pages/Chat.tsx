@@ -243,15 +243,16 @@ export default function Chat() {
       return;
     }
 
-    const creditCheck = await validateCredits(files.some((file) => file.type.startsWith("image/")) ? "image_generation" : "chat_message");
+    const files = [...attachedFiles];
+    const billableAction = files.some((file) => file.type.startsWith("image/")) ? "image_generation" : "chat_message";
+    const creditCheck = await validateCredits(billableAction);
     if (!creditCheck.allowed) {
-      setPaywallReason(files.some((file) => file.type.startsWith("image/")) ? "images" : "messages");
+      setPaywallReason(billableAction === "image_generation" ? "images" : "messages");
       setPaywallOpen(true);
       return;
     }
 
     const userContent = input.trim();
-    const files = [...attachedFiles];
 
     // Build display content for the message
     const displayParts: string[] = [];
