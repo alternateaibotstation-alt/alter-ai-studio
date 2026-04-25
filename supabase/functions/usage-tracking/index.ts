@@ -107,23 +107,28 @@ async function recordUsage(
  * Get usage stats
  */
 async function getUsageStats(supabaseClient: any, userId: string): Promise<any> {
-  const { data, error } = await supabaseClient
-    .rpc('get_user_usage_stats', { p_user_id: userId })
-    .single();
-
-  if (error) throw error;
+  const usage = await getCurrentUsage(supabaseClient, userId);
+  const tier = await getPlan(supabaseClient, userId);
+  const limits = PLAN_LIMITS[tier] || PLAN_LIMITS.free;
+  const usedToday = usedCreditsFromUsage(usage);
 
   return {
-    tier: data.tier,
+    tier,
+    credits: {
+      balance: Math.max(0, limits.dailyCredits - usedToday),
+      usedToday,
+      dailyLimit: limits.dailyCredits,
+      monthlyLimit: limits.monthlyCredits,
+    },
     monthlyUsage: {
-      tokens: data.monthly_tokens,
-      cost: data.monthly_cost,
+      credits: usedToday,
+      cost: usedToday * 0.001,
     },
     dailyUsage: {
-      tokens: data.daily_tokens,
-      cost: data.daily_cost,
+      credits: usedToday,
+      cost: usedToday * 0.001,
     },
-    percentageUsed: data.percentage_used,
+    percentageUsed: Math.min(100, Math.round((usedToday / Math.max(1, limits.dailyCredits)) * 100)),
   };
 }
 
@@ -136,19 +141,17 @@ async function checkAction(
   resourceType: string,
   amount: number = 1
 ): Promise<any> {
-  const { data, error } = await supabaseClient
-    .rpc('can_perform_action', {
-      p_user_id: userId,
-      p_resource_type: resourceType,
-      p_amount: amount,
-    })
-    .single();
-
-  if (error) throw error;
+  const usage = await getCurrentUsage(supabaseClient, userId);
+  const plan = await getPlan(supabaseClient, userId);
+  const limits = PLAN_LIMITS[plan] || PLAN_LIMITS.free;
+  const usedToday = usedCreditsFromUsage(usage);
+  const balance = Math.max(0, limits.dailyCredits - usedToday);
+  const allowed = balance >= amount;
 
   return {
-    allowed: data.allowed,
-    reason: data.reason,
+    allowed,
+    balance,
+    reason: allowed ? null : 'INSUFFICIENT_CREDITS',
   };
 }
 
@@ -156,25 +159,10 @@ async function checkAction(
  * Get cost breakdown
  */
 async function getCostBreakdown(supabaseClient: any, userId: string): Promise<any> {
-  const { data: summaryData, error: summaryError } = await supabaseClient
-    .from('usage_summary')
-    .select('*')
-    .eq('user_id', userId)
-    .eq('date', new Date().toISOString().split('T')[0])
-    .single();
-
-  if (summaryError && summaryError.code !== 'PGRST116') throw summaryError;
-
+  const usage = await getCurrentUsage(supabaseClient, userId);
   const breakdown: Record<string, number> = {};
-
-  if (summaryData) {
-    breakdown.messages = (summaryData.messages_used || 0) * COST_CONFIG.messages;
-    breakdown.images = (summaryData.images_used || 0) * COST_CONFIG.images;
-    breakdown.videos = (summaryData.videos_used || 0) * COST_CONFIG.videos;
-    breakdown.audio = (summaryData.audio_used || 0) * COST_CONFIG.audio;
-    breakdown.tokens = (summaryData.tokens_used || 0) * COST_CONFIG.tokens;
-    breakdown.api_calls = (summaryData.api_calls || 0) * COST_CONFIG.api_calls;
-  }
+  breakdown.chat_message = (usage?.messages_used_today || 0) * COST_CONFIG.chat_message;
+  breakdown.image_generation = (usage?.images_used_today || 0) * COST_CONFIG.image_generation;
 
   const totalCost = Object.values(breakdown).reduce((a, b) => a + b, 0);
 
