@@ -33,6 +33,9 @@ import ContentCreator from "./pages/ContentCreator";
 import LegalPage from "./pages/LegalPage";
 import FAQ from "./pages/FAQ";
 import NotFound from "./pages/NotFound";
+import SaaSDashboard from "../apps/dashboard/pages/SaaSDashboard";
+import BlogIndex from "../apps/landing/pages/BlogIndex";
+import BlogArticle from "../apps/landing/pages/BlogArticle";
 
 const queryClient = new QueryClient();
 
@@ -58,7 +61,10 @@ const App = () => (
                   <Route path="/" element={<Home />} />
                   <Route path="/marketplace" element={<Marketplace />} />
                   <Route path="/chat/:id" element={<Chat />} />
-                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/dashboard" element={<SaaSDashboard />} />
+                  <Route path="/dashboard/legacy" element={<Dashboard />} />
+                  <Route path="/blog" element={<BlogIndex />} />
+                  <Route path="/blog/:slug" element={<BlogArticle />} />
                   <Route path="/auth" element={<Auth />} />
                   <Route path="/purchases" element={<Purchases />} />
                   <Route path="/profile" element={<Profile />} />
