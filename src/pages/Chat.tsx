@@ -14,6 +14,8 @@ import { toast } from "sonner";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import PaywallModal from "@/components/PaywallModal";
 import UsageBadge from "@/components/UsageBadge";
+import { validateCredits, deductAndLogUsage } from "../../modules/billing/credit-guard";
+import { supabase } from "@/integrations/supabase/client";
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`;
 
@@ -32,11 +34,14 @@ async function sendChat({
   onDone: () => void;
   onImageResponse: (text: string, imageUrl: string) => void;
 }) {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) throw new Error("Authentication required");
+
   const resp = await fetch(CHAT_URL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+      Authorization: `Bearer ${session.access_token}`,
     },
     body: JSON.stringify({ botId, messages }),
   });
@@ -238,8 +243,16 @@ export default function Chat() {
       return;
     }
 
-    const userContent = input.trim();
     const files = [...attachedFiles];
+    const billableAction = files.some((file) => file.type.startsWith("image/")) ? "image_generation" : "chat_message";
+    const creditCheck = await validateCredits(billableAction);
+    if (!creditCheck.allowed) {
+      setPaywallReason(billableAction === "image_generation" ? "images" : "messages");
+      setPaywallOpen(true);
+      return;
+    }
+
+    const userContent = input.trim();
 
     // Build display content for the message
     const displayParts: string[] = [];
@@ -312,11 +325,13 @@ export default function Chat() {
             { id: Date.now().toString(), role: "assistant", content, created_at: new Date().toISOString() },
           ]);
           setSending(false);
+          deductAndLogUsage("image_generation").then(refreshSub).catch(() => refreshSub());
           api.saveMessage(botId, "assistant", content);
         },
         onDone: () => {
           setMessages((prev) => prev.map((m) => m.id === "streaming" ? { ...m, id: Date.now().toString() } : m));
           setSending(false);
+          deductAndLogUsage("chat_message").then(refreshSub).catch(() => refreshSub());
           if (assistantSoFar) api.saveMessage(botId, "assistant", assistantSoFar);
         },
       });
