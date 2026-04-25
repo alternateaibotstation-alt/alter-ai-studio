@@ -118,7 +118,7 @@ export default function SaaSDashboard() {
             <CardHeader><CardTitle className="flex items-center gap-2"><History className="h-5 w-5 text-primary" /> Usage history</CardTitle></CardHeader>
             <CardContent className="space-y-3">
               {Object.entries(usageBreakdown?.breakdown ?? { content_generation: 0, bot_execution: 0, chat_message: 0 }).map(([key, value]) => (
-                <div key={key} className="flex items-center justify-between rounded-lg bg-secondary/40 px-3 py-2 text-sm"><span className="capitalize text-muted-foreground">{key.replaceAll("_", " ")}</span><span className="font-medium text-foreground">${Number(value).toFixed(4)}</span></div>
+                <div key={key} className="flex items-center justify-between rounded-lg bg-secondary/40 px-3 py-2 text-sm"><span className="capitalize text-muted-foreground">{key.replace(/_/g, " ")}</span><span className="font-medium text-foreground">${Number(value).toFixed(4)}</span></div>
               ))}
             </CardContent>
           </Card>
