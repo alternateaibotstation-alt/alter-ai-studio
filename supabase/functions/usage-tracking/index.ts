@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
+import { CREDIT_COST_USD, PRODUCT_TO_PLAN, getActionCreditCost, getPlanLimits, normalizeUsageType, usedCreditsFromUsage } from "../_shared/billing-safety.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -11,38 +12,6 @@ interface UsageRequest {
   action: 'record' | 'stats' | 'check' | 'breakdown';
   resourceType?: string;
   amount?: number;
-}
-
-const COST_CONFIG: Record<string, number> = {
-  messages: 0.0001,
-  chat_message: 0.0001,
-  content_generation: 0.0003,
-  bot_execution: 0.0002,
-  image_generation: 0.001,
-  video_generation: 0.01,
-  images: 0.001,
-  videos: 0.01,
-  audio: 0.0005,
-  tokens: 0.000001,
-  api_calls: 0.00001,
-  api_call: 0.00001,
-};
-
-const PLAN_LIMITS: Record<string, { dailyCredits: number; monthlyCredits: number }> = {
-  free: { dailyCredits: 15, monthlyCredits: 150 },
-  starter: { dailyCredits: 40, monthlyCredits: 1200 },
-  creator: { dailyCredits: 140, monthlyCredits: 3500 },
-  pro: { dailyCredits: 400, monthlyCredits: 10000 },
-  studio: { dailyCredits: 1600, monthlyCredits: 40000 },
-};
-
-const PRODUCT_TO_PLAN: Record<string, string> = {
-  prod_UBEIVHEtYoy7QP: 'creator',
-  prod_UBEJiRN7lDcB4u: 'studio',
-};
-
-function normalizeResource(resourceType: string): 'message' | 'image' {
-  return ['images', 'image_generation'].includes(resourceType) ? 'image' : 'message';
 }
 
 async function getPlan(supabaseClient: any, userId: string): Promise<string> {
@@ -62,10 +31,6 @@ async function getCurrentUsage(supabaseClient: any, userId: string): Promise<any
   return data;
 }
 
-function usedCreditsFromUsage(usage: any): number {
-  return Number(usage?.messages_used_today || 0) + Number(usage?.images_used_today || 0) * 8;
-}
-
 /**
  * Record usage
  */
@@ -75,10 +40,15 @@ async function recordUsage(
   resourceType: string,
   amount: number
 ): Promise<any> {
-  const cost = (COST_CONFIG[resourceType] || 0) * amount;
-  const usageType = normalizeResource(resourceType);
+  const creditsRequired = getActionCreditCost(resourceType, amount);
+  const precheck = await checkAction(supabaseClient, userId, resourceType, creditsRequired);
+  if (!precheck.allowed) return { ...precheck, recorded: false };
 
-  for (let i = 0; i < Math.max(1, amount); i++) {
+  const cost = creditsRequired * CREDIT_COST_USD;
+  const usageType = normalizeUsageType(resourceType);
+  const unitsToRecord = usageType === 'image' ? Math.ceil(creditsRequired / getActionCreditCost('image_generation')) : creditsRequired;
+
+  for (let i = 0; i < Math.max(1, unitsToRecord); i++) {
     const { error } = await supabaseClient.rpc('increment_usage', {
       p_user_id: userId,
       p_type: usageType,
@@ -88,17 +58,19 @@ async function recordUsage(
 
   const usage = await getCurrentUsage(supabaseClient, userId);
   const plan = await getPlan(supabaseClient, userId);
-  const limits = PLAN_LIMITS[plan] || PLAN_LIMITS.free;
+  const limits = getPlanLimits(plan);
 
   return {
     resourceType,
-    amount,
+    amount: creditsRequired,
     cost,
     credits: {
       usedToday: usedCreditsFromUsage(usage),
       balance: Math.max(0, limits.dailyCredits - usedCreditsFromUsage(usage)),
       dailyLimit: limits.dailyCredits,
+      monthlyLimit: limits.monthlyCredits,
     },
+    profitability: limits,
     recorded: true,
   };
 }
@@ -109,7 +81,7 @@ async function recordUsage(
 async function getUsageStats(supabaseClient: any, userId: string): Promise<any> {
   const usage = await getCurrentUsage(supabaseClient, userId);
   const tier = await getPlan(supabaseClient, userId);
-  const limits = PLAN_LIMITS[tier] || PLAN_LIMITS.free;
+  const limits = getPlanLimits(tier);
   const usedToday = usedCreditsFromUsage(usage);
 
   return {
@@ -122,12 +94,13 @@ async function getUsageStats(supabaseClient: any, userId: string): Promise<any> 
     },
     monthlyUsage: {
       credits: usedToday,
-      cost: usedToday * 0.001,
+      cost: usedToday * CREDIT_COST_USD,
     },
     dailyUsage: {
       credits: usedToday,
-      cost: usedToday * 0.001,
+      cost: usedToday * CREDIT_COST_USD,
     },
+    profitability: limits,
     percentageUsed: Math.min(100, Math.round((usedToday / Math.max(1, limits.dailyCredits)) * 100)),
   };
 }
@@ -141,16 +114,20 @@ async function checkAction(
   resourceType: string,
   amount: number = 1
 ): Promise<any> {
+  const creditsRequired = getActionCreditCost(resourceType, amount);
   const usage = await getCurrentUsage(supabaseClient, userId);
   const plan = await getPlan(supabaseClient, userId);
-  const limits = PLAN_LIMITS[plan] || PLAN_LIMITS.free;
+  const limits = getPlanLimits(plan);
   const usedToday = usedCreditsFromUsage(usage);
   const balance = Math.max(0, limits.dailyCredits - usedToday);
-  const allowed = balance >= amount;
+  const allowed = balance >= creditsRequired;
 
   return {
     allowed,
+    creditsRequired,
     balance,
+    plan,
+    profitability: limits,
     reason: allowed ? null : 'INSUFFICIENT_CREDITS',
   };
 }
@@ -161,8 +138,8 @@ async function checkAction(
 async function getCostBreakdown(supabaseClient: any, userId: string): Promise<any> {
   const usage = await getCurrentUsage(supabaseClient, userId);
   const breakdown: Record<string, number> = {};
-  breakdown.chat_message = (usage?.messages_used_today || 0) * COST_CONFIG.chat_message;
-  breakdown.image_generation = (usage?.images_used_today || 0) * COST_CONFIG.image_generation;
+  breakdown.chat_message = (usage?.messages_used_today || 0) * CREDIT_COST_USD;
+  breakdown.image_generation = (usage?.images_used_today || 0) * getActionCreditCost('image_generation') * CREDIT_COST_USD;
 
   const totalCost = Object.values(breakdown).reduce((a, b) => a + b, 0);
 
@@ -247,10 +224,11 @@ serve(async (req) => {
     );
   } catch (error) {
     console.error("Error in usage tracking:", error);
+    const errorMessage = error instanceof Error ? error.message : "Internal server error";
     return new Response(
       JSON.stringify({
         success: false,
-        error: error.message || "Internal server error",
+        error: errorMessage,
       }),
       {
         status: 500,
