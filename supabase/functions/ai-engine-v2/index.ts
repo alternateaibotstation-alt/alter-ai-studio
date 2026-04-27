@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
+import { ACTION_CREDIT_COST, CREDIT_COST_USD, PRODUCT_TO_PLAN, getActionCreditCost, getPlanLimits, normalizeUsageType, usedCreditsFromUsage } from "../_shared/billing-safety.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -28,28 +29,6 @@ interface AIRequest {
   stream?: boolean;
 }
 
-const PLAN_LIMITS: Record<string, { dailyCredits: number; monthlyCredits: number }> = {
-  free: { dailyCredits: 15, monthlyCredits: 150 },
-  starter: { dailyCredits: 40, monthlyCredits: 1200 },
-  creator: { dailyCredits: 140, monthlyCredits: 3500 },
-  pro: { dailyCredits: 400, monthlyCredits: 10000 },
-  studio: { dailyCredits: 1600, monthlyCredits: 40000 },
-};
-
-const ACTION_CREDIT_COST: Record<BillableAction, number> = {
-  chat_message: 1,
-  api_call: 1,
-  bot_execution: 2,
-  content_generation: 3,
-  image_generation: 8,
-  video_generation: 30,
-};
-
-const PRODUCT_TO_PLAN: Record<string, string> = {
-  prod_UBEIVHEtYoy7QP: "creator",
-  prod_UBEJiRN7lDcB4u: "studio",
-};
-
 const MODEL_BY_COMPLEXITY = {
   low: "google/gemini-2.5-flash-lite",
   medium: "google/gemini-2.5-flash",
@@ -61,14 +40,6 @@ function jsonResponse(body: Record<string, unknown>, status = 200) {
     status,
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
-}
-
-function getActionCreditCost(action: BillableAction, quantity = 1) {
-  return Math.max(1, Math.ceil((ACTION_CREDIT_COST[action] ?? ACTION_CREDIT_COST.api_call) * quantity));
-}
-
-function normalizeUsageType(action: BillableAction): "message" | "image" {
-  return action === "image_generation" || action === "video_generation" ? "image" : "message";
 }
 
 function inferAction(request: AIRequest): BillableAction {
@@ -115,19 +86,15 @@ async function getCurrentUsage(supabaseClient: any, userId: string) {
   return data;
 }
 
-function usedCreditsFromUsage(usage: any): number {
-  return Number(usage?.messages_used_today || 0) + Number(usage?.images_used_today || 0) * ACTION_CREDIT_COST.image_generation;
-}
-
 async function assertAndDeductCredits(supabaseClient: any, userId: string, action: BillableAction) {
   const creditsRequired = getActionCreditCost(action);
   const usage = await getCurrentUsage(supabaseClient, userId);
   const plan = await getPlan(supabaseClient, userId);
-  const limits = PLAN_LIMITS[plan] || PLAN_LIMITS.free;
+  const limits = getPlanLimits(plan);
   const balance = Math.max(0, limits.dailyCredits - usedCreditsFromUsage(usage));
 
   if (balance < creditsRequired) {
-    return { allowed: false, plan, creditsRequired, balance, reason: "INSUFFICIENT_CREDITS" };
+    return { allowed: false, plan, creditsRequired, balance, reason: "INSUFFICIENT_CREDITS", profitability: limits };
   }
 
   const usageType = normalizeUsageType(action);
@@ -137,7 +104,7 @@ async function assertAndDeductCredits(supabaseClient: any, userId: string, actio
     if (error) throw error;
   }
 
-  return { allowed: true, plan, creditsRequired, balance: balance - creditsRequired, reason: null };
+  return { allowed: true, plan, creditsRequired, balance: balance - creditsRequired, reason: null, profitability: limits };
 }
 
 async function logAIRequest(supabaseClient: any, payload: Record<string, unknown>) {
