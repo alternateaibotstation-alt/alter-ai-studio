@@ -33,9 +33,9 @@ import ContentCreator from "./pages/ContentCreator";
 import LegalPage from "./pages/LegalPage";
 import FAQ from "./pages/FAQ";
 import NotFound from "./pages/NotFound";
-import SaaSDashboard from "../apps/dashboard/pages/SaaSDashboard";
-import BlogIndex from "../apps/landing/pages/BlogIndex";
-import BlogArticle from "../apps/landing/pages/BlogArticle";
+import SaaSDashboard from "@apps/dashboard/pages/SaaSDashboard";
+import BlogIndex from "@apps/landing/pages/BlogIndex";
+import BlogArticle from "@apps/landing/pages/BlogArticle";
 
 const queryClient = new QueryClient();
 

@@ -14,7 +14,7 @@ import { toast } from "sonner";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import PaywallModal from "@/components/PaywallModal";
 import UsageBadge from "@/components/UsageBadge";
-import { validateCredits, deductAndLogUsage } from "../../modules/billing/credit-guard";
+import { validateCredits, deductAndLogUsage } from "@modules/billing";
 import { supabase } from "@/integrations/supabase/client";
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`;

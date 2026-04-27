@@ -1,5 +1,5 @@
 import { api, type Bot } from "@/lib/api";
-import { runAIRequest } from "../ai-engine/gateway";
+import { runAIRequest } from "@modules/ai-engine";
 
 export type BotDraft = Pick<Bot, "name" | "description" | "persona" | "category" | "model" | "suggested_prompts">;
 

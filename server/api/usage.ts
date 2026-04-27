@@ -1,4 +1,4 @@
-import { getUsageBreakdown, trackUsageEvent } from "../../modules/analytics/usage-tracker";
+import { getUsageBreakdown, trackUsageEvent } from "@modules/analytics";
 
 export const usageEndpoint = {
   breakdown: getUsageBreakdown,

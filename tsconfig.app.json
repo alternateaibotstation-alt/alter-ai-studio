@@ -19,6 +19,18 @@
     "paths": {
       "@/*": [
         "./src/*"
+      ],
+      "@apps/*": [
+        "./apps/*"
+      ],
+      "@modules/*": [
+        "./modules/*"
+      ],
+      "@server/*": [
+        "./server/*"
+      ],
+      "@shared/*": [
+        "./lib/*"
       ]
     },
     "skipLibCheck": true,
@@ -30,7 +42,11 @@
     "useDefineForClassFields": true
   },
   "include": [
-    "src"
+    "src",
+    "apps",
+    "modules",
+    "server",
+    "lib"
   ],
   "exclude": [
     "src/lib/ai-engine",
