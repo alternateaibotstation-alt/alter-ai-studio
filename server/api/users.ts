@@ -1,4 +1,4 @@
-import { getSession, requireAuthenticatedUser, signOut } from "../../modules/auth";
+import { getSession, requireAuthenticatedUser, signOut } from "@modules/auth";
 
 export const usersEndpoint = {
   session: getSession,
