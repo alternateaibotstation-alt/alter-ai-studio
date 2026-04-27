@@ -7,304 +7,263 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-// Model configuration with costs and capabilities
-const MODELS = {
-  "gpt-4-turbo": {
-    provider: "openai",
-    cost: 0.03,
-    latency: "high",
-    quality: "highest",
-    capabilities: ["reasoning", "analysis", "complex"],
-  },
-  "gpt-4-mini": {
-    provider: "openai",
-    cost: 0.015,
-    latency: "medium",
-    quality: "high",
-    capabilities: ["general", "content", "chat"],
-  },
-  "gemini-3-flash": {
-    provider: "google",
-    cost: 0.01,
-    latency: "low",
-    quality: "good",
-    capabilities: ["fast", "general", "content"],
-  },
-  "gemini-2-flash-lite": {
-    provider: "google",
-    cost: 0.005,
-    latency: "very-low",
-    quality: "fair",
-    capabilities: ["quick", "simple"],
-  },
-  "claude-3-opus": {
-    provider: "anthropic",
-    cost: 0.025,
-    latency: "high",
-    quality: "highest",
-    capabilities: ["reasoning", "analysis", "nuanced"],
-  },
-};
+type BillableAction = "chat_message" | "image_generation" | "video_generation" | "content_generation" | "bot_execution" | "api_call";
+type ChatRole = "system" | "user" | "assistant";
 
 interface AIRequest {
-  botId: string;
-  messages: Array<{ role: string; content: string }>;
+  prompt?: string;
+  model?: string;
+  action?: BillableAction;
+  systemPrompt?: string;
+  metadata?: Record<string, unknown>;
+  botId?: string;
+  messages?: Array<{ role: ChatRole | string; content: string }>;
   taskType?: "chat" | "content" | "analysis" | "generation";
-  context?: Record<string, any>;
-  generateImage?: boolean;
+  context?: Record<string, unknown>;
   parameters?: {
     temperature?: number;
     maxTokens?: number;
     topP?: number;
   };
+  stream?: boolean;
 }
 
-/**
- * Analyze request complexity
- */
-function analyzeComplexity(
-  messages: Array<{ role: string; content: string }>
-): "low" | "medium" | "high" {
-  const lastMessage = messages[messages.length - 1]?.content || "";
-  const messageLength = lastMessage.length;
-  const hasComplexKeywords = /analyze|debug|solve|reason|complex|algorithm/i.test(
-    lastMessage
-  );
+const PLAN_LIMITS: Record<string, { dailyCredits: number; monthlyCredits: number }> = {
+  free: { dailyCredits: 15, monthlyCredits: 150 },
+  starter: { dailyCredits: 40, monthlyCredits: 1200 },
+  creator: { dailyCredits: 140, monthlyCredits: 3500 },
+  pro: { dailyCredits: 400, monthlyCredits: 10000 },
+  studio: { dailyCredits: 1600, monthlyCredits: 40000 },
+};
 
-  if (messageLength > 1000 || hasComplexKeywords) {
-    return "high";
-  }
-  if (messageLength > 300) {
-    return "medium";
-  }
+const ACTION_CREDIT_COST: Record<BillableAction, number> = {
+  chat_message: 1,
+  api_call: 1,
+  bot_execution: 2,
+  content_generation: 3,
+  image_generation: 8,
+  video_generation: 30,
+};
+
+const PRODUCT_TO_PLAN: Record<string, string> = {
+  prod_UBEIVHEtYoy7QP: "creator",
+  prod_UBEJiRN7lDcB4u: "studio",
+};
+
+const MODEL_BY_COMPLEXITY = {
+  low: "google/gemini-2.5-flash-lite",
+  medium: "google/gemini-2.5-flash",
+  high: "google/gemini-3-flash-preview",
+};
+
+function jsonResponse(body: Record<string, unknown>, status = 200) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
+}
+
+function getActionCreditCost(action: BillableAction, quantity = 1) {
+  return Math.max(1, Math.ceil((ACTION_CREDIT_COST[action] ?? ACTION_CREDIT_COST.api_call) * quantity));
+}
+
+function normalizeUsageType(action: BillableAction): "message" | "image" {
+  return action === "image_generation" || action === "video_generation" ? "image" : "message";
+}
+
+function inferAction(request: AIRequest): BillableAction {
+  if (request.action) return request.action;
+  if (request.taskType === "content" || request.taskType === "generation") return "content_generation";
+  if (request.botId) return "bot_execution";
+  return "chat_message";
+}
+
+function analyzeComplexity(text: string): "low" | "medium" | "high" {
+  const hasComplexKeywords = /analyze|debug|solve|reason|complex|algorithm|strategy|architecture/i.test(text);
+  if (text.length > 1200 || hasComplexKeywords) return "high";
+  if (text.length > 350) return "medium";
   return "low";
 }
 
-/**
- * Route request to appropriate model based on tier and complexity
- */
-function routeModel(
-  userTier: string,
-  complexity: "low" | "medium" | "high",
-  taskType: string
-): string {
-  if (userTier === "power") {
-    if (complexity === "high") return "gpt-4-turbo";
-    if (complexity === "medium") return "gpt-4-mini";
-    return "gemini-3-flash";
-  }
+async function authenticateUser(supabaseClient: any, req: Request) {
+  const authHeader = req.headers.get("Authorization");
+  if (!authHeader) throw new Error("Authentication required");
 
-  if (userTier === "pro") {
-    if (complexity === "high") return "gpt-4-mini";
-    if (complexity === "medium") return "gemini-3-flash";
-    return "gemini-2-flash-lite";
-  }
+  const token = authHeader.replace("Bearer ", "");
+  const anonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
+  if (!token || token === anonKey) throw new Error("Authentication required");
 
-  // Free tier
-  if (complexity === "high") return "gemini-3-flash";
-  return "gemini-2-flash-lite";
+  const { data, error } = await supabaseClient.auth.getUser(token);
+  if (error || !data?.user) throw new Error("Authentication required");
+  return data.user;
 }
 
-/**
- * Call AI model with streaming support
- */
-async function callAIModel(
-  model: string,
-  messages: Array<{ role: "system" | "user" | "assistant"; content: string }>,
-  parameters?: {
-    temperature?: number;
-    maxTokens?: number;
-    topP?: number;
+async function getPlan(supabaseClient: any, userId: string): Promise<string> {
+  const { data } = await supabaseClient
+    .from("subscriptions")
+    .select("product_id,status")
+    .eq("user_id", userId)
+    .eq("status", "active")
+    .maybeSingle();
+
+  return PRODUCT_TO_PLAN[data?.product_id] || "free";
+}
+
+async function getCurrentUsage(supabaseClient: any, userId: string) {
+  const { data, error } = await supabaseClient.rpc("get_or_reset_usage", { p_user_id: userId });
+  if (error) throw error;
+  return data;
+}
+
+function usedCreditsFromUsage(usage: any): number {
+  return Number(usage?.messages_used_today || 0) + Number(usage?.images_used_today || 0) * ACTION_CREDIT_COST.image_generation;
+}
+
+async function assertAndDeductCredits(supabaseClient: any, userId: string, action: BillableAction) {
+  const creditsRequired = getActionCreditCost(action);
+  const usage = await getCurrentUsage(supabaseClient, userId);
+  const plan = await getPlan(supabaseClient, userId);
+  const limits = PLAN_LIMITS[plan] || PLAN_LIMITS.free;
+  const balance = Math.max(0, limits.dailyCredits - usedCreditsFromUsage(usage));
+
+  if (balance < creditsRequired) {
+    return { allowed: false, plan, creditsRequired, balance, reason: "INSUFFICIENT_CREDITS" };
   }
-): Promise<ReadableStream<Uint8Array>> {
-  const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-  const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
 
-  const fetchUrl = "https://ai.gateway.lovable.dev/v1/chat/completions";
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${LOVABLE_API_KEY}`,
-  };
+  const usageType = normalizeUsageType(action);
+  const unitsToRecord = usageType === "image" ? Math.ceil(creditsRequired / ACTION_CREDIT_COST.image_generation) : creditsRequired;
+  for (let i = 0; i < unitsToRecord; i++) {
+    const { error } = await supabaseClient.rpc("increment_usage", { p_user_id: userId, p_type: usageType });
+    if (error) throw error;
+  }
 
-  const body = JSON.stringify({
-    model,
-    messages,
-    stream: true,
-    temperature: parameters?.temperature || 0.7,
-    max_tokens: parameters?.maxTokens || 2048,
-    top_p: parameters?.topP || 0.9,
-  });
+  return { allowed: true, plan, creditsRequired, balance: balance - creditsRequired, reason: null };
+}
 
-  const response = await fetch(fetchUrl, {
+async function logAIRequest(supabaseClient: any, payload: Record<string, unknown>) {
+  try {
+    await supabaseClient.from("ai_requests").insert(payload);
+  } catch (error) {
+    console.warn("AI request audit insert skipped", error);
+  }
+}
+
+async function resolveMessages(supabaseClient: any, request: AIRequest) {
+  const action = inferAction(request);
+  const prompt = String(request.prompt || request.messages?.at(-1)?.content || "").trim();
+  if (!prompt && !request.messages?.length) throw new Error("prompt or messages are required");
+
+  let systemPrompt = request.systemPrompt || "You are Alterai.im, a helpful, brand-safe AI assistant for creator workflows.";
+
+  if (request.botId) {
+    const { data: bot } = await supabaseClient.from("bots").select("id,name,persona").eq("id", request.botId).single();
+    if (!bot) throw new Error("Bot not found");
+    systemPrompt = bot.persona || `You are ${bot.name}, a helpful assistant.`;
+  }
+
+  if (request.context && Object.keys(request.context).length > 0) {
+    systemPrompt += "\n\nContext:\n";
+    for (const [key, value] of Object.entries(request.context)) {
+      systemPrompt += `${key}: ${JSON.stringify(value)}\n`;
+    }
+  }
+
+  const messages = request.messages?.length
+    ? [{ role: "system" as ChatRole, content: systemPrompt }, ...request.messages.map((msg) => ({ role: msg.role as ChatRole, content: msg.content }))]
+    : [
+        { role: "system" as ChatRole, content: systemPrompt },
+        { role: "user" as ChatRole, content: prompt },
+      ];
+
+  return { action, prompt, messages };
+}
+
+async function callAIModel(request: AIRequest, messages: Array<{ role: ChatRole; content: string }>, stream: boolean) {
+  const lovableApiKey = Deno.env.get("LOVABLE_API_KEY");
+  if (!lovableApiKey) throw new Error("AI gateway is not configured");
+
+  const prompt = messages.map((message) => message.content).join("\n");
+  const complexity = analyzeComplexity(prompt);
+  const model = request.model || MODEL_BY_COMPLEXITY[complexity];
+
+  const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
     method: "POST",
-    headers,
-    body,
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${lovableApiKey}`,
+    },
+    body: JSON.stringify({
+      model,
+      messages,
+      stream,
+      temperature: request.parameters?.temperature ?? 0.7,
+      max_tokens: request.parameters?.maxTokens ?? 2048,
+      top_p: request.parameters?.topP ?? 0.9,
+    }),
   });
 
   if (!response.ok) {
-    throw new Error(`AI API error: ${response.statusText}`);
+    const details = await response.text();
+    throw new Error(`AI gateway error: ${response.status} ${details}`);
   }
 
-  return response.body!;
-}
-
-/**
- * Get user tier from Stripe subscription
- */
-async function getUserTier(
-  supabaseClient: any,
-  userId: string,
-  userEmail: string
-): Promise<string> {
-  try {
-    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
-    if (!stripeKey) return "free";
-
-    const { default: Stripe } = await import("https://esm.sh/stripe@18.5.0");
-    const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
-
-    const customers = await stripe.customers.list({
-      email: userEmail,
-      limit: 1,
-    });
-
-    if (customers.data.length === 0) return "free";
-
-    const subs = await stripe.subscriptions.list({
-      customer: customers.data[0].id,
-      status: "active",
-      limit: 1,
-    });
-
-    if (subs.data.length === 0) return "free";
-
-    const productId = subs.data[0].items.data[0].price.product;
-    if (productId === "prod_UBEJiRN7lDcB4u") return "power";
-    if (productId === "prod_UBEIVHEtYoy7QP") return "pro";
-
-    return "free";
-  } catch (error) {
-    console.error("Error fetching user tier:", error);
-    return "free";
-  }
+  return { response, model };
 }
 
 serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
-  }
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  if (req.method !== "POST") return jsonResponse({ error: "Method not allowed" }, 405);
+
+  const supabaseClient = createClient(
+    Deno.env.get("SUPABASE_URL") ?? "",
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+    { auth: { persistSession: false } },
+  );
 
   try {
+    const user = await authenticateUser(supabaseClient, req);
     const requestData: AIRequest = await req.json();
-    const { botId, messages, taskType = "chat", context, parameters } =
-      requestData;
+    const { action, prompt, messages } = await resolveMessages(supabaseClient, requestData);
+    const creditState = await assertAndDeductCredits(supabaseClient, user.id, action);
 
-    if (!botId || !messages || messages.length === 0) {
-      return new Response(
-        JSON.stringify({
-          error: "botId and messages are required",
-        }),
-        {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
-      );
+    if (!creditState.allowed) {
+      return jsonResponse({ error: creditState.reason, result: creditState }, 403);
     }
 
-    const supabaseClient = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
-    );
+    const shouldStream = requestData.stream === true || Boolean(requestData.botId && requestData.messages?.length && !requestData.prompt);
+    await logAIRequest(supabaseClient, {
+      user_id: user.id,
+      bot_id: requestData.botId || null,
+      task_type: action,
+      tier: creditState.plan,
+      credits_used: creditState.creditsRequired,
+      metadata: { promptLength: prompt.length, ...requestData.metadata },
+      created_at: new Date().toISOString(),
+    });
 
-    // Extract user info from auth header
-    let userId: string | null = null;
-    let userTier = "free";
-    let userEmail: string | null = null;
+    const { response, model } = await callAIModel(requestData, messages, shouldStream);
 
-    const authHeader = req.headers.get("Authorization");
-    if (authHeader) {
-      const token = authHeader.replace("Bearer ", "");
-      const anonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
-
-      if (token !== anonKey) {
-        const { data: userData } = await supabaseClient.auth.getUser(token);
-        if (userData?.user) {
-          userId = userData.user.id;
-          userEmail = userData.user.email;
-
-          // Get user tier
-          userTier = await getUserTier(supabaseClient, userId, userEmail!);
-
-          // Log request for usage tracking
-          await supabaseClient.from("ai_requests").insert({
-            user_id: userId,
-            bot_id: botId,
-            task_type: taskType,
-            tier: userTier,
-            created_at: new Date().toISOString(),
-          });
-        }
-      }
-    }
-
-    // Get bot persona
-    const { data: bot } = await supabaseClient
-      .from("bots")
-      .select("*")
-      .eq("id", botId)
-      .single();
-
-    if (!bot) {
-      return new Response(JSON.stringify({ error: "Bot not found" }), {
-        status: 404,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+    if (shouldStream) {
+      return new Response(response.body, {
+        headers: { ...corsHeaders, "Content-Type": "text/event-stream", "Cache-Control": "no-cache" },
       });
     }
 
-    // Analyze complexity and route model
-    const complexity = analyzeComplexity(messages);
-    const selectedModel = routeModel(userTier, complexity, taskType);
+    const data = await response.json();
+    const output = data?.choices?.[0]?.message?.content ?? data?.output ?? data?.content ?? "";
 
-    // Build system prompt with context injection
-    let systemPrompt = bot.persona || `You are ${bot.name}, a helpful assistant.`;
-
-    if (context && Object.keys(context).length > 0) {
-      systemPrompt += "\n\n## Context Information\n";
-      Object.entries(context).forEach(([key, value]) => {
-        systemPrompt += `${key}: ${JSON.stringify(value)}\n`;
-      });
-    }
-
-    // Prepare messages
-    const apiMessages = [
-      { role: "system", content: systemPrompt },
-      ...messages.map((msg) => ({
-        role: msg.role as "user" | "assistant",
-        content: msg.content,
-      })),
-    ];
-
-    // Call AI model
-    const stream = await callAIModel(selectedModel, apiMessages, parameters);
-
-    // Return streaming response
-    return new Response(stream, {
-      headers: {
-        ...corsHeaders,
-        "Content-Type": "text/event-stream",
-        "Cache-Control": "no-cache",
-      },
+    return jsonResponse({
+      output,
+      content: output,
+      model,
+      creditsUsed: creditState.creditsRequired,
+      balance: creditState.balance,
+      requestId: crypto.randomUUID(),
     });
   } catch (error) {
     console.error("Error in AI engine:", error);
-    return new Response(
-      JSON.stringify({
-        error: error.message || "Internal server error",
-      }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
-    );
+    const message = error instanceof Error ? error.message : "Internal server error";
+    const status = message.includes("Authentication required") ? 401 : message.includes("required") || message.includes("not found") ? 400 : 500;
+    return jsonResponse({ error: message }, status);
   }
 });
