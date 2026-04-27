@@ -114,16 +114,20 @@ async function checkAction(
   resourceType: string,
   amount: number = 1
 ): Promise<any> {
+  const creditsRequired = getActionCreditCost(resourceType, amount);
   const usage = await getCurrentUsage(supabaseClient, userId);
   const plan = await getPlan(supabaseClient, userId);
-  const limits = PLAN_LIMITS[plan] || PLAN_LIMITS.free;
+  const limits = getPlanLimits(plan);
   const usedToday = usedCreditsFromUsage(usage);
   const balance = Math.max(0, limits.dailyCredits - usedToday);
-  const allowed = balance >= amount;
+  const allowed = balance >= creditsRequired;
 
   return {
     allowed,
+    creditsRequired,
     balance,
+    plan,
+    profitability: limits,
     reason: allowed ? null : 'INSUFFICIENT_CREDITS',
   };
 }
@@ -134,8 +138,8 @@ async function checkAction(
 async function getCostBreakdown(supabaseClient: any, userId: string): Promise<any> {
   const usage = await getCurrentUsage(supabaseClient, userId);
   const breakdown: Record<string, number> = {};
-  breakdown.chat_message = (usage?.messages_used_today || 0) * COST_CONFIG.chat_message;
-  breakdown.image_generation = (usage?.images_used_today || 0) * COST_CONFIG.image_generation;
+  breakdown.chat_message = (usage?.messages_used_today || 0) * CREDIT_COST_USD;
+  breakdown.image_generation = (usage?.images_used_today || 0) * getActionCreditCost('image_generation') * CREDIT_COST_USD;
 
   const totalCost = Object.values(breakdown).reduce((a, b) => a + b, 0);
 
