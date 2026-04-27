@@ -1,5 +1,4 @@
-import { runAIRequest } from "../ai-engine/gateway";
-import { buildSafePrompt, PROMPT_PRESETS } from "../ai-engine/prompt-system";
+import { buildSafePrompt, PROMPT_PRESETS, runAIRequest } from "@modules/ai-engine";
 
 export function generateTikTokScript(prompt: string) {
   return runAIRequest({ action: "content_generation", prompt: buildSafePrompt(PROMPT_PRESETS.tiktok, prompt) });
