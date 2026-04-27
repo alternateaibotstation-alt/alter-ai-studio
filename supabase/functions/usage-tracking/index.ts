@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
+import { CREDIT_COST_USD, PRODUCT_TO_PLAN, getActionCreditCost, getPlanLimits, normalizeUsageType, usedCreditsFromUsage } from "../_shared/billing-safety.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -11,38 +12,6 @@ interface UsageRequest {
   action: 'record' | 'stats' | 'check' | 'breakdown';
   resourceType?: string;
   amount?: number;
-}
-
-const COST_CONFIG: Record<string, number> = {
-  messages: 0.0001,
-  chat_message: 0.0001,
-  content_generation: 0.0003,
-  bot_execution: 0.0002,
-  image_generation: 0.001,
-  video_generation: 0.01,
-  images: 0.001,
-  videos: 0.01,
-  audio: 0.0005,
-  tokens: 0.000001,
-  api_calls: 0.00001,
-  api_call: 0.00001,
-};
-
-const PLAN_LIMITS: Record<string, { dailyCredits: number; monthlyCredits: number }> = {
-  free: { dailyCredits: 15, monthlyCredits: 150 },
-  starter: { dailyCredits: 40, monthlyCredits: 1200 },
-  creator: { dailyCredits: 140, monthlyCredits: 3500 },
-  pro: { dailyCredits: 400, monthlyCredits: 10000 },
-  studio: { dailyCredits: 1600, monthlyCredits: 40000 },
-};
-
-const PRODUCT_TO_PLAN: Record<string, string> = {
-  prod_UBEIVHEtYoy7QP: 'creator',
-  prod_UBEJiRN7lDcB4u: 'studio',
-};
-
-function normalizeResource(resourceType: string): 'message' | 'image' {
-  return ['images', 'image_generation'].includes(resourceType) ? 'image' : 'message';
 }
 
 async function getPlan(supabaseClient: any, userId: string): Promise<string> {
@@ -60,10 +29,6 @@ async function getCurrentUsage(supabaseClient: any, userId: string): Promise<any
   const { data, error } = await supabaseClient.rpc('get_or_reset_usage', { p_user_id: userId });
   if (error) throw error;
   return data;
-}
-
-function usedCreditsFromUsage(usage: any): number {
-  return Number(usage?.messages_used_today || 0) + Number(usage?.images_used_today || 0) * 8;
 }
 
 /**
