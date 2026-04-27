@@ -40,10 +40,15 @@ async function recordUsage(
   resourceType: string,
   amount: number
 ): Promise<any> {
-  const cost = (COST_CONFIG[resourceType] || 0) * amount;
-  const usageType = normalizeResource(resourceType);
+  const creditsRequired = getActionCreditCost(resourceType, amount);
+  const precheck = await checkAction(supabaseClient, userId, resourceType, creditsRequired);
+  if (!precheck.allowed) return { ...precheck, recorded: false };
 
-  for (let i = 0; i < Math.max(1, amount); i++) {
+  const cost = creditsRequired * CREDIT_COST_USD;
+  const usageType = normalizeUsageType(resourceType);
+  const unitsToRecord = usageType === 'image' ? Math.ceil(creditsRequired / getActionCreditCost('image_generation')) : creditsRequired;
+
+  for (let i = 0; i < Math.max(1, unitsToRecord); i++) {
     const { error } = await supabaseClient.rpc('increment_usage', {
       p_user_id: userId,
       p_type: usageType,
@@ -53,17 +58,19 @@ async function recordUsage(
 
   const usage = await getCurrentUsage(supabaseClient, userId);
   const plan = await getPlan(supabaseClient, userId);
-  const limits = PLAN_LIMITS[plan] || PLAN_LIMITS.free;
+  const limits = getPlanLimits(plan);
 
   return {
     resourceType,
-    amount,
+    amount: creditsRequired,
     cost,
     credits: {
       usedToday: usedCreditsFromUsage(usage),
       balance: Math.max(0, limits.dailyCredits - usedCreditsFromUsage(usage)),
       dailyLimit: limits.dailyCredits,
+      monthlyLimit: limits.monthlyCredits,
     },
+    profitability: limits,
     recorded: true,
   };
 }
@@ -74,7 +81,7 @@ async function recordUsage(
 async function getUsageStats(supabaseClient: any, userId: string): Promise<any> {
   const usage = await getCurrentUsage(supabaseClient, userId);
   const tier = await getPlan(supabaseClient, userId);
-  const limits = PLAN_LIMITS[tier] || PLAN_LIMITS.free;
+  const limits = getPlanLimits(tier);
   const usedToday = usedCreditsFromUsage(usage);
 
   return {
@@ -87,12 +94,13 @@ async function getUsageStats(supabaseClient: any, userId: string): Promise<any> 
     },
     monthlyUsage: {
       credits: usedToday,
-      cost: usedToday * 0.001,
+      cost: usedToday * CREDIT_COST_USD,
     },
     dailyUsage: {
       credits: usedToday,
-      cost: usedToday * 0.001,
+      cost: usedToday * CREDIT_COST_USD,
     },
+    profitability: limits,
     percentageUsed: Math.min(100, Math.round((usedToday / Math.max(1, limits.dailyCredits)) * 100)),
   };
 }
