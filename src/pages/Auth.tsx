@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,8 +21,10 @@ export default function Auth() {
   const failedAttempts = useRef(0);
   const lastSubmitTime = useRef(0);
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
+  const redirectTo = (location.state as { from?: string } | null)?.from || "/dashboard";
 
   // Pre-fill referral code from URL param (e.g. /auth?ref=ABC123)
   useState(() => {
@@ -65,7 +67,7 @@ export default function Auth() {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         toast({ title: "Welcome back!" });
-        navigate("/dashboard");
+        navigate(redirectTo, { replace: true });
       } else {
         const { data: signUpData, error } = await supabase.auth.signUp({
           email,
