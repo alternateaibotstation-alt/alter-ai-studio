@@ -4,9 +4,22 @@
     "noImplicitAny": false,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
+    "baseUrl": ".",
     "paths": {
       "@/*": [
         "./src/*"
+      ],
+      "@apps/*": [
+        "./apps/*"
+      ],
+      "@modules/*": [
+        "./modules/*"
+      ],
+      "@server/*": [
+        "./server/*"
+      ],
+      "@shared/*": [
+        "./lib/*"
       ]
     },
     "skipLibCheck": true,
