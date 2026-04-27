@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
 import AppLayout from "@/components/AppLayout";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import RequireAuth from "@/components/RequireAuth";
 import { verifyDeploymentBase } from "@/lib/base-check";
 
 // Run once at module load (production only) to surface base/publicPath
@@ -33,6 +34,7 @@ import ContentCreator from "./pages/ContentCreator";
 import LegalPage from "./pages/LegalPage";
 import FAQ from "./pages/FAQ";
 import NotFound from "./pages/NotFound";
+import LandingHome from "@apps/landing/pages/LandingHome";
 import SaaSDashboard from "@apps/dashboard/pages/SaaSDashboard";
 import BlogIndex from "@apps/landing/pages/BlogIndex";
 import BlogArticle from "@apps/landing/pages/BlogArticle";
@@ -58,11 +60,11 @@ const App = () => (
             <ErrorBoundary>
               <Routes>
                 <Route element={<AppLayout />}>
-                  <Route path="/" element={<Home />} />
+                  <Route path="/" element={<LandingHome />} />
                   <Route path="/marketplace" element={<Marketplace />} />
                   <Route path="/chat/:id" element={<Chat />} />
-                  <Route path="/dashboard" element={<SaaSDashboard />} />
-                  <Route path="/dashboard/legacy" element={<Dashboard />} />
+                  <Route path="/dashboard" element={<RequireAuth><SaaSDashboard /></RequireAuth>} />
+                  <Route path="/dashboard/legacy" element={<RequireAuth><Dashboard /></RequireAuth>} />
                   <Route path="/blog" element={<BlogIndex />} />
                   <Route path="/blog/:slug" element={<BlogArticle />} />
                   <Route path="/auth" element={<Auth />} />
