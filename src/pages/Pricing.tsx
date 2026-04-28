@@ -8,16 +8,16 @@ import { TIER_CONFIG, TIER_LIMITS } from "@/lib/tiers";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Loader2 } from "lucide-react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 
 const tiers: Array<{
   key: "free" | "starter" | "creator" | "pro" | "studio";
   name: string;
   price: number;
   icon: typeof Star;
-  features: string[];
+  features: readonly string[];
   priceId?: string;
   popular?: boolean;
 }> = [
