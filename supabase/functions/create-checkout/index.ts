@@ -45,7 +45,7 @@ serve(async (req) => {
       client_reference_id: user.id,
       line_items: [{ price: priceId, quantity: 1 }],
       mode: "subscription",
-      success_url: `${req.headers.get("origin")}/success?subscription=true`,
+      success_url: `${req.headers.get("origin")}/success?subscription=true&tier=${tier}&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${req.headers.get("origin")}/pricing?checkout_cancelled=true&tier=${tier}`,
       metadata: {
         user_id: user.id,
