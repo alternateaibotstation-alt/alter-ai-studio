@@ -24,7 +24,8 @@ export default function Auth() {
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
-  const redirectTo = (location.state as { from?: string } | null)?.from || "/dashboard";
+  const redirectState = location.state as { from?: string; checkout?: { tier?: string; priceId?: string } } | null;
+  const redirectTo = redirectState?.from || "/dashboard";
 
   // Pre-fill referral code from URL param (e.g. /auth?ref=ABC123)
   useState(() => {
@@ -67,7 +68,7 @@ export default function Auth() {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         toast({ title: "Welcome back!" });
-        navigate(redirectTo, { replace: true });
+        navigate(redirectTo, { replace: true, state: redirectState?.checkout ? { checkout: redirectState.checkout } : null });
       } else {
         const { data: signUpData, error } = await supabase.auth.signUp({
           email,
