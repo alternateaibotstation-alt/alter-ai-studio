@@ -95,6 +95,7 @@ export default function Pricing() {
   const location = useLocation();
   const resumedCheckout = useRef(false);
   const coupon = searchParams.get("coupon");
+  const currentTier = tier === "power" ? "studio" : tier;
 
   const handleUpgrade = async (selectedTier: "free" | "starter" | "creator" | "pro" | "studio", selectedPriceId?: string) => {
     const { data: { session } } = await supabase.auth.getSession();
@@ -186,7 +187,7 @@ export default function Pricing() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-6">
           {tiers.map((t) => {
-            const isCurrent = tier === t.key;
+            const isCurrent = currentTier === t.key;
             const Icon = t.icon;
 
             return (
@@ -213,7 +214,7 @@ export default function Pricing() {
                   ))}
                 </ul>
                 {isCurrent ? (
-                  <Button variant="outline" onClick={handleManage}>
+                  <Button variant="outline" disabled={t.key === "free"} onClick={t.key === "free" ? undefined : handleManage}>
                     {t.key === "free" ? "Current Plan" : "Manage Subscription"}
                   </Button>
                 ) : (
