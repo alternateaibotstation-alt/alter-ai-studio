@@ -92,6 +92,8 @@ export default function Pricing() {
   const [loadingTier, setLoadingTier] = useState<string | null>(null);
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const location = useLocation();
+  const resumedCheckout = useRef(false);
   const coupon = searchParams.get("coupon");
 
   const handleUpgrade = async (selectedTier: "free" | "starter" | "creator" | "pro" | "studio", selectedPriceId?: string) => {
@@ -135,6 +137,17 @@ export default function Pricing() {
       toast.error(err.message || "Failed to open portal");
     }
   };
+
+  useEffect(() => {
+    const checkout = (location.state as { checkout?: { tier?: string; priceId?: string } } | null)?.checkout;
+    const selectedTier = tiers.find((item) => item.key === checkout?.tier);
+
+    if (resumedCheckout.current || !selectedTier || selectedTier.key === "free") return;
+
+    resumedCheckout.current = true;
+    void handleUpgrade(selectedTier.key, checkout?.priceId || selectedTier.priceId);
+    navigate(location.pathname, { replace: true, state: null });
+  }, [location.pathname, location.state, navigate]);
 
   return (
     <div className="min-h-screen bg-background">
