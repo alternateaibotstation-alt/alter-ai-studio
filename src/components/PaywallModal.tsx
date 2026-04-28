@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Zap, Crown, Check } from "lucide-react";
+import { Loader2, Zap, Crown, Check, Rocket } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { TIER_CONFIG } from "@/lib/tiers";
 import { useSubscription } from "@/contexts/SubscriptionContext";
@@ -42,12 +42,13 @@ export default function PaywallModal({ open, onOpenChange, reason = "messages" }
     premium_bot: "This bot requires a subscription to continue.",
   };
 
-  const handleUpgrade = async (selectedTier: "pro" | "power") => {
+  const handleUpgrade = async (selectedTier: "creator" | "pro" | "studio") => {
+    const priceId = TIER_CONFIG[selectedTier].price_id;
     setLoadingTier(selectedTier);
     const loadingToast = toast.loading("Preparing secure checkout…");
     try {
       const { data, error } = await supabase.functions.invoke("create-checkout", {
-        body: { tier: selectedTier },
+        body: { tier: selectedTier, priceId },
       });
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
@@ -73,20 +74,20 @@ export default function PaywallModal({ open, onOpenChange, reason = "messages" }
         </DialogHeader>
 
         <div className="grid gap-4 mt-4">
-          {(["pro", "power"] as const).map((t) => {
+          {(["creator", "pro", "studio"] as const).map((t) => {
             const config = TIER_CONFIG[t];
-            const isCurrent = tier === t;
-            const Icon = t === "power" ? Crown : Zap;
+            const isCurrent = (tier === "power" ? "studio" : tier) === t;
+            const Icon = t === "studio" ? Crown : t === "creator" ? Rocket : Zap;
 
             return (
               <div key={t} className={`rounded-xl border p-4 space-y-3 ${
-                t === "power" ? "border-primary bg-primary/5" : "border-border bg-card"
+                t === "creator" ? "border-primary bg-primary/5" : "border-border bg-card"
               }`}>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Icon className={`w-5 h-5 ${t === "power" ? "text-primary" : "text-accent"}`} />
+                    <Icon className={`w-5 h-5 ${t === "creator" ? "text-primary" : "text-accent"}`} />
                     <span className="font-semibold text-foreground">{config.name}</span>
-                    {t === "power" && <Badge variant="secondary" className="text-xs">Best Value</Badge>}
+                    {t === "creator" && <Badge variant="secondary" className="text-xs">Most Popular</Badge>}
                   </div>
                   <span className="text-lg font-bold text-foreground">${config.price}/mo</span>
                 </div>
@@ -100,7 +101,7 @@ export default function PaywallModal({ open, onOpenChange, reason = "messages" }
                 </ul>
                 <Button
                   className="w-full"
-                  variant={t === "power" ? "default" : "outline"}
+                  variant={t === "creator" ? "default" : "outline"}
                   disabled={isCurrent || loadingTier !== null}
                   onClick={() => handleUpgrade(t)}
                 >
