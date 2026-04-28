@@ -1,42 +1,77 @@
-export type UserTier = "free" | "pro" | "power";
+export type UserTier = "free" | "starter" | "creator" | "pro" | "studio" | "power";
 
 export const TIER_LIMITS = {
-  free: { messages: 15, images: 2 },
-  pro: { messages: 500, images: 50 },
-  power: { messages: 2000, images: 250 },
+  free: { messages: 15, images: 0 },
+  starter: { messages: 150, images: 10 },
+  creator: { messages: 500, images: 50 },
+  pro: { messages: 1200, images: 125 },
+  studio: { messages: 2500, images: 300 },
+  power: { messages: 2500, images: 300 },
 } as const;
 
 export const TIER_MODELS = {
   free: "openai/gpt-4.1-mini",
+  starter: "openai/gpt-4.1-mini",
+  creator: "openai/gpt-4.1",
   pro: "openai/gpt-4.1",
+  studio: "openai/gpt-4.1",
   power: "openai/gpt-4.1",
 } as const;
 
 export const TIER_CONFIG = {
-  pro: {
-    price_id: "price_1TCrq74NFqfF77IyKyIACANQ",
-    product_id: "prod_UBEIVHEtYoy7QP",
-    price: 9,
+  starter: {
+    price_id: "price_1TR0AG4NFqfF77Iy6XvkH0pQ",
+    product_id: "prod_UPppL11VbgtS7Y",
+    price: 12,
+    name: "Starter",
+    features: [
+      "Limited image generation",
+      "Basic content tools",
+      "Text and caption generation",
+      "Profit-safe monthly credits",
+    ],
+  },
+  creator: {
+    price_id: "price_1TR0E94NFqfF77IyqlUOxmkc",
+    product_id: "prod_UPptYZrD81LoLZ",
+    price: 29,
     name: "Creator",
     features: [
-      "500 messages/day",
-      "50 image generations/day",
-      "3,500 monthly credits",
-      "Higher-quality AI models",
-      "Faster responses",
+      "Images + captions",
+      "Light video usage",
+      "Creator workflow tools",
+      "Higher monthly credit pool",
+    ],
+  },
+  pro: {
+    price_id: "price_1TR0Fb4NFqfF77IygzdnqHji",
+    product_id: "prod_UPpvzCc8g4hOwA",
+    price: 59,
+    name: "Pro",
+    features: [
+      "Full video generation",
+      "Limited high-value video credits",
+      "Priority AI processing",
+      "Advanced creator tools",
+    ],
+  },
+  studio: {
+    price_id: "price_1TR0G34NFqfF77IyvMKP0ggx",
+    product_id: "prod_UPpvkKvZISbXEs",
+    price: 99,
+    name: "Studio",
+    features: [
+      "Bulk generation",
+      "API access",
+      "Team features",
+      "Largest protected credit pool",
     ],
   },
   power: {
-    price_id: "price_1TCrqY4NFqfF77IysRR6Lq4Z",
-    product_id: "prod_UBEJiRN7lDcB4u",
-    price: 29,
+    price_id: "price_1TR0G34NFqfF77IyvMKP0ggx",
+    product_id: "prod_UPpvkKvZISbXEs",
+    price: 99,
     name: "Studio",
-    features: [
-      "2,000 messages/day",
-      "250 image generations/day",
-      "40,000 monthly credits",
-      "Priority processing",
-      "Access to best AI models",
-    ],
+    features: ["Bulk generation", "API access", "Team features", "Largest protected credit pool"],
   },
 } as const;

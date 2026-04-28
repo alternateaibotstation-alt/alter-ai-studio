@@ -2,17 +2,25 @@ import Navbar from "@/components/Navbar";
 import SEO from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Check, Zap, Crown, Star } from "lucide-react";
+import { Check, Zap, Crown, Star, Rocket, Video } from "lucide-react";
 import chromeTexture from "@/assets/chrome-texture.jpg";
 import { TIER_CONFIG, TIER_LIMITS } from "@/lib/tiers";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Loader2 } from "lucide-react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 
-const tiers = [
+const tiers: Array<{
+  key: "free" | "starter" | "creator" | "pro" | "studio";
+  name: string;
+  price: number;
+  icon: typeof Star;
+  features: readonly string[];
+  priceId?: string;
+  popular?: boolean;
+}> = [
   {
     key: "free" as const,
     name: "Free",
@@ -20,25 +28,44 @@ const tiers = [
     icon: Star,
     features: [
       `${TIER_LIMITS.free.messages} messages/day`,
-      `${TIER_LIMITS.free.images} image generations/day`,
+      "Text only",
+      "No video generation",
       "Basic AI models",
       "Concise responses",
     ],
   },
   {
-    key: "pro" as const,
-    name: TIER_CONFIG.pro.name,
-    price: TIER_CONFIG.pro.price,
+    key: "starter" as const,
+    name: TIER_CONFIG.starter.name,
+    price: TIER_CONFIG.starter.price,
     icon: Zap,
-    features: TIER_CONFIG.pro.features,
+    features: TIER_CONFIG.starter.features,
+    priceId: TIER_CONFIG.starter.price_id,
+  },
+  {
+    key: "creator" as const,
+    name: TIER_CONFIG.creator.name,
+    price: TIER_CONFIG.creator.price,
+    icon: Rocket,
+    features: TIER_CONFIG.creator.features,
+    priceId: TIER_CONFIG.creator.price_id,
     popular: true,
   },
   {
-    key: "power" as const,
-    name: TIER_CONFIG.power.name,
-    price: TIER_CONFIG.power.price,
+    key: "pro" as const,
+    name: TIER_CONFIG.pro.name,
+    price: TIER_CONFIG.pro.price,
+    icon: Video,
+    features: TIER_CONFIG.pro.features,
+    priceId: TIER_CONFIG.pro.price_id,
+  },
+  {
+    key: "studio" as const,
+    name: TIER_CONFIG.studio.name,
+    price: TIER_CONFIG.studio.price,
     icon: Crown,
-    features: TIER_CONFIG.power.features,
+    features: TIER_CONFIG.studio.features,
+    priceId: TIER_CONFIG.studio.price_id,
   },
 ];
 
@@ -65,13 +92,20 @@ export default function Pricing() {
   const [loadingTier, setLoadingTier] = useState<string | null>(null);
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const location = useLocation();
+  const resumedCheckout = useRef(false);
   const coupon = searchParams.get("coupon");
 
-  const handleUpgrade = async (selectedTier: "pro" | "power") => {
+  const handleUpgrade = async (selectedTier: "free" | "starter" | "creator" | "pro" | "studio", selectedPriceId?: string) => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
       toast.error("Please sign in first");
-      navigate("/auth");
+      navigate("/auth", { state: { from: "/pricing", checkout: { tier: selectedTier, priceId: selectedPriceId } } });
+      return;
+    }
+
+    if (selectedTier === "free") {
+      navigate("/dashboard");
       return;
     }
 
@@ -79,7 +113,7 @@ export default function Pricing() {
     const loadingToast = toast.loading("Preparing secure checkout…");
     try {
       const { data, error } = await supabase.functions.invoke("create-checkout", {
-        body: { tier: selectedTier, coupon: coupon || undefined },
+        body: { tier: selectedTier, priceId: selectedPriceId, coupon: coupon || undefined },
       });
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
@@ -104,11 +138,22 @@ export default function Pricing() {
     }
   };
 
+  useEffect(() => {
+    const checkout = (location.state as { checkout?: { tier?: string; priceId?: string } } | null)?.checkout;
+    const selectedTier = tiers.find((item) => item.key === checkout?.tier);
+
+    if (resumedCheckout.current || !selectedTier || selectedTier.key === "free") return;
+
+    resumedCheckout.current = true;
+    void handleUpgrade(selectedTier.key, checkout?.priceId || selectedTier.priceId);
+    navigate(location.pathname, { replace: true, state: null });
+  }, [location.pathname, location.state, navigate]);
+
   return (
     <div className="min-h-screen bg-background">
       <SEO
-        title="Pricing — Plans for Creators & Power Users"
-        description="Simple, transparent pricing for Alterai.im. Start free, upgrade to Pro or Power for unlimited AI bots, multi-platform content generation, voiceovers, and video creation."
+        title="Pricing — AI Creator Plans"
+        description="Credit-based Alterai.im plans for text, images, captions, video generation, bulk workflows, API access, and team features."
         path="/pricing"
       />
       <Navbar />
@@ -139,7 +184,7 @@ export default function Pricing() {
       <div className="container mx-auto pb-16 px-4 max-w-5xl">
         <div className="mb-4" />
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-6">
           {tiers.map((t) => {
             const isCurrent = tier === t.key;
             const Icon = t.icon;
@@ -167,22 +212,20 @@ export default function Pricing() {
                     </li>
                   ))}
                 </ul>
-                {t.key === "free" ? (
-                  <Button variant="outline" disabled={isCurrent}>
-                    {isCurrent ? "Current Plan" : "Free"}
-                  </Button>
-                ) : isCurrent ? (
+                {isCurrent ? (
                   <Button variant="outline" onClick={handleManage}>
-                    Manage Subscription
+                    {t.key === "free" ? "Current Plan" : "Manage Subscription"}
                   </Button>
                 ) : (
                   <Button
                     variant={t.popular ? "default" : "outline"}
                     disabled={loadingTier !== null}
-                    onClick={() => handleUpgrade(t.key as "pro" | "power")}
+                    onClick={() => handleUpgrade(t.key, t.priceId)}
                   >
                     {loadingTier === t.key ? (
                       <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Opening checkout…</>
+                    ) : t.key === "free" ? (
+                      "Start Free"
                     ) : (
                       `Upgrade to ${t.name}`
                     )}
