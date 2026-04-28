@@ -8,8 +8,10 @@ const corsHeaders = {
 };
 
 const TIERS: Record<string, string> = {
-  pro: "price_1TCrq74NFqfF77IyKyIACANQ",
-  power: "price_1TCrqY4NFqfF77IysRR6Lq4Z",
+  starter: "price_1TR0AG4NFqfF77Iy6XvkH0pQ",
+  creator: "price_1TR0E94NFqfF77IyqlUOxmkc",
+  pro: "price_1TR0Fb4NFqfF77IygzdnqHji",
+  studio: "price_1TR0G34NFqfF77IyvMKP0ggx",
 };
 
 serve(async (req) => {
@@ -21,9 +23,10 @@ serve(async (req) => {
   );
 
   try {
-    const { tier, coupon } = await req.json();
+    const { tier, priceId: requestedPriceId, coupon } = await req.json();
     const priceId = TIERS[tier];
     if (!priceId) throw new Error("Invalid tier");
+    if (requestedPriceId && requestedPriceId !== priceId) throw new Error("Selected plan does not match price ID");
 
     const authHeader = req.headers.get("Authorization")!;
     const token = authHeader.replace("Bearer ", "");
@@ -43,7 +46,7 @@ serve(async (req) => {
       line_items: [{ price: priceId, quantity: 1 }],
       mode: "subscription",
       success_url: `${req.headers.get("origin")}/success?subscription=true`,
-      cancel_url: `${req.headers.get("origin")}/marketplace`,
+      cancel_url: `${req.headers.get("origin")}/pricing?checkout_cancelled=true&tier=${tier}`,
       metadata: {
         user_id: user.id,
         tier,
