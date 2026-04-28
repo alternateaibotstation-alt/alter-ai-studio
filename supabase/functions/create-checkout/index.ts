@@ -17,12 +17,32 @@ const PLAN_TO_STRIPE_PRICE = {
 
 type CheckoutPlan = keyof typeof PLAN_TO_STRIPE_PRICE;
 
+type CheckoutRequestDetails = {
+  requestId: string;
+  method: string;
+  origin: string | null;
+  userAgent: string | null;
+  hasAuthHeader: boolean;
+  tier?: unknown;
+  requestedPriceId?: unknown;
+  hasCoupon?: boolean;
+  userId?: string;
+};
+
 const isCheckoutPlan = (value: unknown): value is CheckoutPlan => {
   return typeof value === "string" && value in PLAN_TO_STRIPE_PRICE;
 };
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+
+  const requestDetails: CheckoutRequestDetails = {
+    requestId: crypto.randomUUID(),
+    method: req.method,
+    origin: req.headers.get("origin"),
+    userAgent: req.headers.get("user-agent"),
+    hasAuthHeader: Boolean(req.headers.get("Authorization")),
+  };
 
   const supabaseClient = createClient(
     Deno.env.get("SUPABASE_URL") ?? "",
@@ -31,6 +51,9 @@ serve(async (req) => {
 
   try {
     const { tier, priceId: requestedPriceId, coupon } = await req.json();
+    requestDetails.tier = tier;
+    requestDetails.requestedPriceId = requestedPriceId;
+    requestDetails.hasCoupon = Boolean(coupon);
     if (!isCheckoutPlan(tier)) throw new Error("Invalid tier");
 
     const priceId = PLAN_TO_STRIPE_PRICE[tier];
@@ -47,6 +70,7 @@ serve(async (req) => {
     const { data } = await supabaseClient.auth.getUser(token);
     const user = data.user;
     if (!user?.email) throw new Error("Not authenticated");
+    requestDetails.userId = user.id;
 
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", { apiVersion: "2025-08-27.basil" });
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
@@ -83,6 +107,11 @@ serve(async (req) => {
     });
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error);
+    console.error("[create-checkout] Checkout session creation failed", {
+      ...requestDetails,
+      error: msg,
+      stack: error instanceof Error ? error.stack : undefined,
+    });
     return new Response(JSON.stringify({ error: msg }), {
       status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
