@@ -14,6 +14,24 @@ interface Props {
   reason?: "messages" | "images" | "premium_bot";
 }
 
+const getCheckoutErrorMessage = (error: unknown) => {
+  const message = error instanceof Error ? error.message : String(error || "");
+
+  if (/not authenticated|authorization|jwt|session/i.test(message)) {
+    return "Please sign in again before starting checkout.";
+  }
+
+  if (/invalid tier|price|product/i.test(message)) {
+    return "This plan is not available for checkout yet. Please try another plan or contact support.";
+  }
+
+  if (/network|fetch|failed to send|timeout/i.test(message)) {
+    return "We could not reach checkout. Check your connection and try again.";
+  }
+
+  return "Checkout could not be started right now. Please try again in a moment.";
+};
+
 export default function PaywallModal({ open, onOpenChange, reason = "messages" }: Props) {
   const [loadingTier, setLoadingTier] = useState<string | null>(null);
   const { tier } = useSubscription();
@@ -26,15 +44,18 @@ export default function PaywallModal({ open, onOpenChange, reason = "messages" }
 
   const handleUpgrade = async (selectedTier: "pro" | "power") => {
     setLoadingTier(selectedTier);
+    const loadingToast = toast.loading("Preparing secure checkout…");
     try {
       const { data, error } = await supabase.functions.invoke("create-checkout", {
         body: { tier: selectedTier },
       });
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
+      if (!data?.url) throw new Error("Missing checkout URL");
+      toast.success("Checkout is ready. Opening Stripe…", { id: loadingToast });
       window.open(data.url, "_blank");
     } catch (err: any) {
-      toast.error(err.message || "Failed to start checkout");
+      toast.error(getCheckoutErrorMessage(err), { id: loadingToast });
     } finally {
       setLoadingTier(null);
     }
@@ -84,7 +105,7 @@ export default function PaywallModal({ open, onOpenChange, reason = "messages" }
                   onClick={() => handleUpgrade(t)}
                 >
                   {loadingTier === t ? (
-                    <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Processing...</>
+                    <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Opening checkout…</>
                   ) : isCurrent ? (
                     "Current Plan"
                   ) : (
