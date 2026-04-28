@@ -20,6 +20,15 @@ const toIsoOrNull = (value: unknown) => {
   return null;
 };
 
+const PRODUCT_TO_TIER: Record<string, string> = {
+  prod_UPppL11VbgtS7Y: "starter",
+  prod_UPptYZrD81LoLZ: "creator",
+  prod_UPpvzCc8g4hOwA: "pro",
+  prod_UPpvkKvZISbXEs: "studio",
+  prod_UBEIVHEtYoy7QP: "creator",
+  prod_UBEJiRN7lDcB4u: "studio",
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
@@ -58,8 +67,7 @@ serve(async (req) => {
       subscribed = true;
       subscriptionEnd = sub.current_period_end;
       productId = sub.product_id;
-      if (productId === "prod_UBEJiRN7lDcB4u") tier = "power";
-      else if (productId === "prod_UBEIVHEtYoy7QP") tier = "pro";
+      tier = PRODUCT_TO_TIER[productId] || "free";
     } else {
       // Fallback: query Stripe directly
       const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
@@ -75,9 +83,7 @@ serve(async (req) => {
             const stripeSub = subs.data[0] as any;
             subscribed = true;
             productId = stripeSub.items.data[0].price.product as string;
-
-            if (productId === "prod_UBEJiRN7lDcB4u") tier = "power";
-            else if (productId === "prod_UBEIVHEtYoy7QP") tier = "pro";
+            tier = PRODUCT_TO_TIER[productId] || "free";
 
             const periodEnd = stripeSub.current_period_end;
             const periodStart = stripeSub.current_period_start;
