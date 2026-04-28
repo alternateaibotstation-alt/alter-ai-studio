@@ -26,8 +26,8 @@ export default function Success() {
 
   const currentPlanName = useMemo(() => getPlanName(tier), [tier]);
   const requestedPlanName = useMemo(() => getPlanName(requestedTier), [requestedTier]);
-  const displayPlanName = confirmedDisplayPlan(isSubscriptionCheckout, requestedPlanName, currentPlanName, tier);
   const confirmed = isSubscriptionCheckout && subscribed && tier !== "free";
+  const displayPlanName = isSubscriptionCheckout && !confirmed ? requestedPlanName : currentPlanName;
   const processing = isSubscriptionCheckout && !confirmed && (loading || refreshing || isVerifying);
 
   const refreshStatus = async () => {
