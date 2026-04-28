@@ -35,6 +35,7 @@ const getCheckoutErrorMessage = (error: unknown) => {
 export default function PaywallModal({ open, onOpenChange, reason = "messages" }: Props) {
   const [loadingTier, setLoadingTier] = useState<string | null>(null);
   const { tier } = useSubscription();
+  const isCreatingCheckout = loadingTier !== null;
 
   const reasonText = {
     messages: "You've reached your daily message limit.",
@@ -102,7 +103,8 @@ export default function PaywallModal({ open, onOpenChange, reason = "messages" }
                 <Button
                   className="w-full"
                   variant={t === "creator" ? "default" : "outline"}
-                  disabled={isCurrent || loadingTier !== null}
+                  disabled={isCurrent || isCreatingCheckout}
+                  aria-busy={loadingTier === t}
                   onClick={() => handleUpgrade(t)}
                 >
                   {loadingTier === t ? (
