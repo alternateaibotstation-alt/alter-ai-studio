@@ -7,11 +7,18 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const TIERS: Record<string, string> = {
+const PLAN_TO_STRIPE_PRICE = {
+  free: null,
   starter: "price_1TR0AG4NFqfF77Iy6XvkH0pQ",
   creator: "price_1TR0E94NFqfF77IyqlUOxmkc",
   pro: "price_1TR0Fb4NFqfF77IygzdnqHji",
   studio: "price_1TR0G34NFqfF77IyvMKP0ggx",
+} as const;
+
+type CheckoutPlan = keyof typeof PLAN_TO_STRIPE_PRICE;
+
+const isCheckoutPlan = (value: unknown): value is CheckoutPlan => {
+  return typeof value === "string" && value in PLAN_TO_STRIPE_PRICE;
 };
 
 serve(async (req) => {
@@ -24,8 +31,15 @@ serve(async (req) => {
 
   try {
     const { tier, priceId: requestedPriceId, coupon } = await req.json();
-    const priceId = TIERS[tier];
-    if (!priceId) throw new Error("Invalid tier");
+    if (!isCheckoutPlan(tier)) throw new Error("Invalid tier");
+
+    const priceId = PLAN_TO_STRIPE_PRICE[tier];
+    if (!priceId) {
+      return new Response(JSON.stringify({ checkout_required: false, tier: "free" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     if (requestedPriceId && requestedPriceId !== priceId) throw new Error("Selected plan does not match price ID");
 
     const authHeader = req.headers.get("Authorization")!;
