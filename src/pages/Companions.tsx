@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Heart, Sparkles, Lock, Crown, Search, ArrowRight } from "lucide-react";
+import { Heart, Sparkles, Lock, Crown, Search, ArrowRight, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -108,12 +108,19 @@ export default function Companions() {
   const [category, setCategory] = useState<Category>("all");
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
+  const fetchCompanions = () => {
+    setLoading(true);
+    setError(null);
     api.getPublicBots().then((all) => {
       setBots(all.filter((b) => b.category?.startsWith("companion")));
-    }).catch(() => {}).finally(() => setLoading(false));
-  }, []);
+    }).catch(() => {
+      setError("We couldn't load companions right now. Please check your connection and try again.");
+    }).finally(() => setLoading(false));
+  };
+
+  useEffect(() => { fetchCompanions(); }, []);
 
   const filtered = bots.filter((b) => {
     if (category === "girlfriend" && b.category !== "companion-girlfriend") return false;
@@ -184,6 +191,15 @@ export default function Companions() {
               {[...Array(6)].map((_, i) => (
                 <div key={i} className="h-64 rounded-2xl bg-muted/50 animate-pulse" />
               ))}
+            </div>
+          ) : error ? (
+            <div className="text-center py-16 rounded-2xl border border-border bg-card/60">
+              <Sparkles className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
+              <p className="text-foreground font-medium">Companions didn’t load</p>
+              <p className="text-muted-foreground text-sm mt-1">{error}</p>
+              <Button variant="outline" size="sm" onClick={fetchCompanions} className="mt-4 gap-2">
+                <RefreshCw className="w-4 h-4" /> Retry
+              </Button>
             </div>
           ) : filtered.length > 0 ? (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
