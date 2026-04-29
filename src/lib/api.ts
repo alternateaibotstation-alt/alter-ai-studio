@@ -116,12 +116,13 @@ export const api = {
   saveMessage: async (botId: string, role: "user" | "assistant", content: string): Promise<void> => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return; // silently skip for unauthenticated
-    await supabase.from("messages").insert({
+    const { error } = await supabase.from("messages").insert({
       bot_id: botId,
       user_id: user.id,
       role,
       content,
     });
+    if (error) throw error;
   },
 
   clearMessages: async (botId: string): Promise<void> => {
