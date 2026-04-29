@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Heart, ArrowLeft, Crown, Lock, MessageCircle, Sparkles, Shield } from "lucide-react";
+import { Heart, ArrowLeft, Crown, Lock, MessageCircle, Sparkles, Shield, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Navbar from "@/components/Navbar";
@@ -27,11 +27,18 @@ export default function CompanionProfile() {
   const { tier } = useSubscription();
   const [bot, setBot] = useState<Bot | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
+  const fetchBot = () => {
     if (!id) return;
-    api.getBotById(id).then(setBot).catch(() => {}).finally(() => setLoading(false));
-  }, [id]);
+    setLoading(true);
+    setError(null);
+    api.getBotById(id).then(setBot).catch(() => {
+      setError("We couldn't load this companion. Please try again in a moment.");
+    }).finally(() => setLoading(false));
+  };
+
+  useEffect(() => { fetchBot(); }, [id]);
 
   if (loading) {
     return (
@@ -39,6 +46,20 @@ export default function CompanionProfile() {
         <Navbar />
         <div className="pt-24 flex items-center justify-center">
           <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="pt-24 px-4 text-center max-w-sm mx-auto">
+          <Sparkles className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
+          <p className="font-medium text-foreground">Companion didn’t load</p>
+          <p className="text-sm text-muted-foreground mt-1">{error}</p>
+          <Button className="mt-4 gap-2" onClick={fetchBot}><RefreshCw className="w-4 h-4" /> Retry</Button>
         </div>
       </div>
     );
