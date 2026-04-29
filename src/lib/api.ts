@@ -135,7 +135,8 @@ export const api = {
     const { data, error } = await supabase.functions.invoke("check-bot-purchase", {
       body: { botId },
     });
-    if (error) return false;
+    if (error) throw new Error(error.message);
+    if (data?.error) throw new Error(data.error);
     return data?.purchased === true;
   },
 
