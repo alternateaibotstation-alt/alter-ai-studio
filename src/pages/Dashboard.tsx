@@ -11,7 +11,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Plus, Pencil, Trash2, MessageSquare, Loader2, Download, Upload, Heart, Palette, Crown } from "lucide-react";
+import { Plus, Pencil, Trash2, MessageSquare, Loader2, Download, Upload, Heart, Palette, Crown, RefreshCw } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import Navbar from "@/components/Navbar";
 import { api, type Bot } from "@/lib/api";
@@ -29,11 +29,17 @@ export default function Dashboard() {
   const [editingBot, setEditingBot] = useState<Bot | null>(null);
   const [form, setForm] = useState({ name: "", description: "", persona: "", category: "wellness", is_public: true, is_premium: false, premium_free_messages: 2, price: 0, avatar_url: "", suggested_prompts: [] as string[], model: "google/gemini-3-flash-preview" });
   const [saving, setSaving] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   const fetchBots = () => {
+    setLoading(true);
+    setLoadError(null);
     api.getUserBots()
       .then((data) => setBots(Array.isArray(data) ? data : []))
-      .catch(() => setBots([]))
+      .catch(() => {
+        setBots([]);
+        setLoadError("We couldn't load your bots. Please check your connection and try again.");
+      })
       .finally(() => setLoading(false));
   };
 
@@ -232,6 +238,15 @@ export default function Dashboard() {
             Array.from({ length: 3 }).map((_, i) => (
               <div key={i} className="h-20 rounded-lg bg-card border border-border animate-pulse" />
             ))
+          ) : loadError ? (
+            <div className="rounded-lg border border-border bg-card p-8 text-center">
+              <MessageSquare className="w-8 h-8 mx-auto mb-3 text-muted-foreground" />
+              <p className="font-medium text-foreground">Bots didn’t load</p>
+              <p className="text-sm text-muted-foreground mt-1">{loadError}</p>
+              <Button variant="outline" size="sm" onClick={fetchBots} className="mt-4 gap-2">
+                <RefreshCw className="w-4 h-4" /> Retry
+              </Button>
+            </div>
           ) : bots.length === 0 ? (
             <button
               onClick={openCreate}
