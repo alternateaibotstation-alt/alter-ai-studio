@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
   Search, ArrowLeft, Sparkles, Brain, Heart, Briefcase, TrendingUp, Star,
-  Sun, Leaf, MessageCircleHeart, Rocket, Dumbbell, ChevronRight,
+  Sun, Leaf, MessageCircleHeart, Rocket, Dumbbell, ChevronRight, RefreshCw,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import SEO from "@/components/SEO";
@@ -83,10 +83,13 @@ export default function Marketplace() {
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [showFavorites, setShowFavorites] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const { isFavorite, toggleFavorite, favoriteIds } = useFavorites();
 
-  useEffect(() => {
+  const fetchBots = () => {
     // Seed with sample bots immediately so the grid is never empty.
+    setLoading(true);
+    setError(null);
     setBots(sampleBots);
     api.getPublicBots()
       .then((data) => {
@@ -96,9 +99,14 @@ export default function Marketplace() {
         const merged = [...live, ...sampleBots.filter((b) => !liveIds.has(b.id))];
         setBots(merged);
       })
-      .catch(() => setBots(sampleBots))
+      .catch(() => {
+        setBots(sampleBots);
+        setError("Live bots couldn't load, so we're showing curated starter bots for now.");
+      })
       .finally(() => setLoading(false));
-  }, []);
+  };
+
+  useEffect(() => { fetchBots(); }, []);
 
   const filtered = bots.filter((bot) => {
     const matchSearch =
@@ -164,6 +172,15 @@ export default function Marketplace() {
             Favorites
           </Button>
         </div>
+
+        {error && (
+          <div className="mt-4 rounded-lg border border-border bg-card px-4 py-3 text-sm text-muted-foreground flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <span>{error}</span>
+            <Button variant="outline" size="sm" onClick={fetchBots} className="gap-2 self-start sm:self-auto">
+              <RefreshCw className="w-3.5 h-3.5" /> Retry
+            </Button>
+          </div>
+        )}
 
         {search ? (
           <>

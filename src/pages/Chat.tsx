@@ -2,7 +2,7 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, Link, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Send, Loader2, Sparkles, Lock, DollarSign, Mic, MicOff, Trash2 } from "lucide-react";
+import { ArrowLeft, Send, Loader2, Sparkles, Lock, DollarSign, Mic, MicOff, Trash2, RefreshCw, AlertCircle } from "lucide-react";
 import { api, type Bot, type ChatMessage } from "@/lib/api";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -20,6 +20,7 @@ import { supabase } from "@/integrations/supabase/client";
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`;
 
 type Msg = { role: "user" | "assistant"; content: any };
+type FailedDraft = { text: string; files: UploadedFile[] };
 
 async function sendChat({
   botId,
@@ -141,6 +142,10 @@ export default function Chat() {
   const [highlightedMsgId, setHighlightedMsgId] = useState<string | null>(null);
   const [paywallOpen, setPaywallOpen] = useState(false);
   const [paywallReason, setPaywallReason] = useState<"messages" | "images" | "premium_bot">("messages");
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [accessError, setAccessError] = useState<string | null>(null);
+  const [historyError, setHistoryError] = useState<string | null>(null);
+  const [failedDraft, setFailedDraft] = useState<FailedDraft | null>(null);
   const { canSendMessage, refresh: refreshSub, tier } = useSubscription();
 
   const handleSearchHighlight = useCallback((msgId: string | null) => {
@@ -175,10 +180,19 @@ export default function Chat() {
     }
   }, [voice.stopSpeaking]);
 
-  useEffect(() => {
+  const loadChat = useCallback(() => {
     if (!botId) return;
+    setLoading(true);
+    setLoadError(null);
+    setAccessError(null);
+    setHistoryError(null);
     api.getBotById(botId)
       .then(async (b) => {
+        if (!b) {
+          setBot(null);
+          setLoadError("We couldn't find this bot. It may have been removed or made private.");
+          return;
+        }
         setBot(b);
         const isFree = !b?.price || b.price === 0;
         if (isFree) {
@@ -189,8 +203,13 @@ export default function Chat() {
           else if (b && b.user_id === user.id) setHasAccess(true);
           else if (searchParams.get("purchased") === "true") setHasAccess(true);
           else {
-            const purchased = await api.checkPurchase(botId);
-            setHasAccess(purchased);
+            try {
+              const purchased = await api.checkPurchase(botId);
+              setHasAccess(purchased);
+            } catch {
+              setHasAccess(null);
+              setAccessError("We couldn't verify your access yet. Retry in a moment if this bot should be available.");
+            }
           }
         }
         try {
@@ -198,12 +217,15 @@ export default function Chat() {
           if (history.length > 0) setMessages(history);
           else if (b?.suggested_prompts?.length) setInput(b.suggested_prompts[0]);
         } catch {
+          setHistoryError("Your chat history didn’t load, but you can still continue the conversation.");
           if (b?.suggested_prompts?.length) setInput(b.suggested_prompts[0]);
         }
       })
-      .catch(() => {})
+      .catch(() => setLoadError("We couldn't load this bot right now. Please check your connection and try again."))
       .finally(() => setLoading(false));
   }, [botId, searchParams]);
+
+  useEffect(() => { loadChat(); }, [loadChat]);
 
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
 
@@ -253,6 +275,7 @@ export default function Chat() {
     }
 
     const userContent = input.trim();
+    setFailedDraft(null);
 
     // Build display content for the message
     const displayParts: string[] = [];
@@ -279,7 +302,9 @@ export default function Chat() {
     setAttachedFiles([]);
     setSending(true);
 
-    api.saveMessage(botId, "user", displayContent);
+    api.saveMessage(botId, "user", displayContent).catch(() => {
+      toast.error("Message sent, but it couldn't be saved to your history.");
+    });
 
     // Build API message content (multimodal if files attached)
     let apiContent: any = userContent;
@@ -326,13 +351,17 @@ export default function Chat() {
           ]);
           setSending(false);
           deductAndLogUsage("image_generation").then(refreshSub).catch(() => refreshSub());
-          api.saveMessage(botId, "assistant", content);
+          api.saveMessage(botId, "assistant", content).catch(() => {
+            toast.error("Reply received, but it couldn't be saved to your history.");
+          });
         },
         onDone: () => {
           setMessages((prev) => prev.map((m) => m.id === "streaming" ? { ...m, id: Date.now().toString() } : m));
           setSending(false);
           deductAndLogUsage("chat_message").then(refreshSub).catch(() => refreshSub());
-          if (assistantSoFar) api.saveMessage(botId, "assistant", assistantSoFar);
+          if (assistantSoFar) api.saveMessage(botId, "assistant", assistantSoFar).catch(() => {
+            toast.error("Reply received, but it couldn't be saved to your history.");
+          });
         },
       });
     } catch (err: any) {
@@ -348,10 +377,11 @@ export default function Chat() {
         setPaywallOpen(true);
         setMessages((prev) => prev.filter((m) => m.id !== userMsg.id && m.id !== "streaming"));
       } else {
-        toast.error(errMsg);
+        setFailedDraft({ text: userContent, files });
+        toast.error("The reply didn't come through. You can retry your last message.");
         setMessages((prev) => [
           ...prev.filter((m) => m.id !== "streaming"),
-          { id: (Date.now() + 1).toString(), role: "assistant", content: "Sorry, an error occurred. Please try again.", created_at: new Date().toISOString() },
+          { id: (Date.now() + 1).toString(), role: "assistant", content: `I couldn't finish that reply. Please retry when you're ready.\n\n_${errMsg}_`, created_at: new Date().toISOString() },
         ]);
       }
       setSending(false);
@@ -359,10 +389,35 @@ export default function Chat() {
     }
   };
 
+  const retryLastMessage = () => {
+    if (!failedDraft || sending) return;
+    setInput(failedDraft.text);
+    setAttachedFiles(failedDraft.files);
+    setFailedDraft(null);
+    setTimeout(() => { document.querySelector<HTMLFormElement>('form')?.requestSubmit(); }, 0);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="w-6 h-6 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center px-4">
+        <div className="text-center max-w-sm space-y-4">
+          <div className="mx-auto w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+            <AlertCircle className="w-6 h-6 text-primary" />
+          </div>
+          <div>
+            <h1 className="text-lg font-semibold text-foreground">Bot didn’t load</h1>
+            <p className="text-sm text-muted-foreground mt-1">{loadError}</p>
+          </div>
+          <Button onClick={loadChat} className="gap-2"><RefreshCw className="w-4 h-4" /> Retry</Button>
+        </div>
       </div>
     );
   }
@@ -411,7 +466,18 @@ export default function Chat() {
         )}
       </header>
 
-      {showPaywall ? (
+      {accessError ? (
+        <div className="flex-1 flex items-center justify-center px-4">
+          <div className="text-center max-w-sm space-y-4">
+            <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+              <Lock className="w-8 h-8 text-primary" />
+            </div>
+            <h2 className="text-xl font-bold text-foreground">Access check failed</h2>
+            <p className="text-muted-foreground text-sm">{accessError}</p>
+            <Button onClick={loadChat} className="w-full gap-2"><RefreshCw className="w-4 h-4" /> Retry access check</Button>
+          </div>
+        </div>
+      ) : showPaywall ? (
         <div className="flex-1 flex items-center justify-center px-4">
           <div className="text-center max-w-sm space-y-4">
             <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
@@ -430,6 +496,22 @@ export default function Chat() {
         <>
           <div className="flex-1 overflow-y-auto">
             <div className="max-w-[800px] mx-auto px-4 py-6 space-y-4">
+              {historyError && (
+                <div className="rounded-lg border border-border bg-card px-4 py-3 text-sm text-muted-foreground flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between">
+                  <span>{historyError}</span>
+                  <Button variant="outline" size="sm" onClick={loadChat} className="gap-2 self-start sm:self-auto">
+                    <RefreshCw className="w-3.5 h-3.5" /> Retry
+                  </Button>
+                </div>
+              )}
+              {failedDraft && (
+                <div className="rounded-lg border border-border bg-card px-4 py-3 text-sm text-muted-foreground flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between">
+                  <span>Your last message didn’t get a reply.</span>
+                  <Button variant="outline" size="sm" onClick={retryLastMessage} disabled={sending} className="gap-2 self-start sm:self-auto">
+                    <RefreshCw className="w-3.5 h-3.5" /> Retry message
+                  </Button>
+                </div>
+              )}
               {messages.length === 0 && (
                 <div className="text-center py-20">
                   <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
