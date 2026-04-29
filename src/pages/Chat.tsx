@@ -275,6 +275,7 @@ export default function Chat() {
     }
 
     const userContent = input.trim();
+    setFailedDraft(null);
 
     // Build display content for the message
     const displayParts: string[] = [];
@@ -301,7 +302,9 @@ export default function Chat() {
     setAttachedFiles([]);
     setSending(true);
 
-    api.saveMessage(botId, "user", displayContent);
+    api.saveMessage(botId, "user", displayContent).catch(() => {
+      toast.error("Message sent, but it couldn't be saved to your history.");
+    });
 
     // Build API message content (multimodal if files attached)
     let apiContent: any = userContent;
@@ -348,13 +351,17 @@ export default function Chat() {
           ]);
           setSending(false);
           deductAndLogUsage("image_generation").then(refreshSub).catch(() => refreshSub());
-          api.saveMessage(botId, "assistant", content);
+          api.saveMessage(botId, "assistant", content).catch(() => {
+            toast.error("Reply received, but it couldn't be saved to your history.");
+          });
         },
         onDone: () => {
           setMessages((prev) => prev.map((m) => m.id === "streaming" ? { ...m, id: Date.now().toString() } : m));
           setSending(false);
           deductAndLogUsage("chat_message").then(refreshSub).catch(() => refreshSub());
-          if (assistantSoFar) api.saveMessage(botId, "assistant", assistantSoFar);
+          if (assistantSoFar) api.saveMessage(botId, "assistant", assistantSoFar).catch(() => {
+            toast.error("Reply received, but it couldn't be saved to your history.");
+          });
         },
       });
     } catch (err: any) {
@@ -370,10 +377,11 @@ export default function Chat() {
         setPaywallOpen(true);
         setMessages((prev) => prev.filter((m) => m.id !== userMsg.id && m.id !== "streaming"));
       } else {
-        toast.error(errMsg);
+        setFailedDraft({ text: userContent, files });
+        toast.error("The reply didn't come through. You can retry your last message.");
         setMessages((prev) => [
           ...prev.filter((m) => m.id !== "streaming"),
-          { id: (Date.now() + 1).toString(), role: "assistant", content: "Sorry, an error occurred. Please try again.", created_at: new Date().toISOString() },
+          { id: (Date.now() + 1).toString(), role: "assistant", content: `I couldn't finish that reply. Please retry when you're ready.\n\n_${errMsg}_`, created_at: new Date().toISOString() },
         ]);
       }
       setSending(false);
