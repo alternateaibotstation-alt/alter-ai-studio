@@ -389,10 +389,35 @@ export default function Chat() {
     }
   };
 
+  const retryLastMessage = () => {
+    if (!failedDraft || sending) return;
+    setInput(failedDraft.text);
+    setAttachedFiles(failedDraft.files);
+    setFailedDraft(null);
+    setTimeout(() => { document.querySelector<HTMLFormElement>('form')?.requestSubmit(); }, 0);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="w-6 h-6 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center px-4">
+        <div className="text-center max-w-sm space-y-4">
+          <div className="mx-auto w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+            <AlertCircle className="w-6 h-6 text-primary" />
+          </div>
+          <div>
+            <h1 className="text-lg font-semibold text-foreground">Bot didn’t load</h1>
+            <p className="text-sm text-muted-foreground mt-1">{loadError}</p>
+          </div>
+          <Button onClick={loadChat} className="gap-2"><RefreshCw className="w-4 h-4" /> Retry</Button>
+        </div>
       </div>
     );
   }
@@ -441,7 +466,18 @@ export default function Chat() {
         )}
       </header>
 
-      {showPaywall ? (
+      {accessError ? (
+        <div className="flex-1 flex items-center justify-center px-4">
+          <div className="text-center max-w-sm space-y-4">
+            <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+              <Lock className="w-8 h-8 text-primary" />
+            </div>
+            <h2 className="text-xl font-bold text-foreground">Access check failed</h2>
+            <p className="text-muted-foreground text-sm">{accessError}</p>
+            <Button onClick={loadChat} className="w-full gap-2"><RefreshCw className="w-4 h-4" /> Retry access check</Button>
+          </div>
+        </div>
+      ) : showPaywall ? (
         <div className="flex-1 flex items-center justify-center px-4">
           <div className="text-center max-w-sm space-y-4">
             <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
@@ -460,6 +496,22 @@ export default function Chat() {
         <>
           <div className="flex-1 overflow-y-auto">
             <div className="max-w-[800px] mx-auto px-4 py-6 space-y-4">
+              {historyError && (
+                <div className="rounded-lg border border-border bg-card px-4 py-3 text-sm text-muted-foreground flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between">
+                  <span>{historyError}</span>
+                  <Button variant="outline" size="sm" onClick={loadChat} className="gap-2 self-start sm:self-auto">
+                    <RefreshCw className="w-3.5 h-3.5" /> Retry
+                  </Button>
+                </div>
+              )}
+              {failedDraft && (
+                <div className="rounded-lg border border-border bg-card px-4 py-3 text-sm text-muted-foreground flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between">
+                  <span>Your last message didn’t get a reply.</span>
+                  <Button variant="outline" size="sm" onClick={retryLastMessage} disabled={sending} className="gap-2 self-start sm:self-auto">
+                    <RefreshCw className="w-3.5 h-3.5" /> Retry message
+                  </Button>
+                </div>
+              )}
               {messages.length === 0 && (
                 <div className="text-center py-20">
                   <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
