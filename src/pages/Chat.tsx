@@ -2,7 +2,7 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, Link, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Send, Loader2, Sparkles, Lock, DollarSign, Mic, MicOff, Trash2 } from "lucide-react";
+import { ArrowLeft, Send, Loader2, Sparkles, Lock, DollarSign, Mic, MicOff, Trash2, RefreshCw, AlertCircle } from "lucide-react";
 import { api, type Bot, type ChatMessage } from "@/lib/api";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -20,6 +20,7 @@ import { supabase } from "@/integrations/supabase/client";
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`;
 
 type Msg = { role: "user" | "assistant"; content: any };
+type FailedDraft = { text: string; files: UploadedFile[] };
 
 async function sendChat({
   botId,
@@ -141,6 +142,10 @@ export default function Chat() {
   const [highlightedMsgId, setHighlightedMsgId] = useState<string | null>(null);
   const [paywallOpen, setPaywallOpen] = useState(false);
   const [paywallReason, setPaywallReason] = useState<"messages" | "images" | "premium_bot">("messages");
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [accessError, setAccessError] = useState<string | null>(null);
+  const [historyError, setHistoryError] = useState<string | null>(null);
+  const [failedDraft, setFailedDraft] = useState<FailedDraft | null>(null);
   const { canSendMessage, refresh: refreshSub, tier } = useSubscription();
 
   const handleSearchHighlight = useCallback((msgId: string | null) => {
