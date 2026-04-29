@@ -180,10 +180,19 @@ export default function Chat() {
     }
   }, [voice.stopSpeaking]);
 
-  useEffect(() => {
+  const loadChat = useCallback(() => {
     if (!botId) return;
+    setLoading(true);
+    setLoadError(null);
+    setAccessError(null);
+    setHistoryError(null);
     api.getBotById(botId)
       .then(async (b) => {
+        if (!b) {
+          setBot(null);
+          setLoadError("We couldn't find this bot. It may have been removed or made private.");
+          return;
+        }
         setBot(b);
         const isFree = !b?.price || b.price === 0;
         if (isFree) {
@@ -194,8 +203,13 @@ export default function Chat() {
           else if (b && b.user_id === user.id) setHasAccess(true);
           else if (searchParams.get("purchased") === "true") setHasAccess(true);
           else {
-            const purchased = await api.checkPurchase(botId);
-            setHasAccess(purchased);
+            try {
+              const purchased = await api.checkPurchase(botId);
+              setHasAccess(purchased);
+            } catch {
+              setHasAccess(null);
+              setAccessError("We couldn't verify your access yet. Retry in a moment if this bot should be available.");
+            }
           }
         }
         try {
@@ -203,12 +217,15 @@ export default function Chat() {
           if (history.length > 0) setMessages(history);
           else if (b?.suggested_prompts?.length) setInput(b.suggested_prompts[0]);
         } catch {
+          setHistoryError("Your chat history didn’t load, but you can still continue the conversation.");
           if (b?.suggested_prompts?.length) setInput(b.suggested_prompts[0]);
         }
       })
-      .catch(() => {})
+      .catch(() => setLoadError("We couldn't load this bot right now. Please check your connection and try again."))
       .finally(() => setLoading(false));
   }, [botId, searchParams]);
+
+  useEffect(() => { loadChat(); }, [loadChat]);
 
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
 
