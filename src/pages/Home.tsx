@@ -933,3 +933,113 @@ export default function Home() {
     </div>
   );
 }
+
+/* ─── Early Access CTA with email capture + confirmation ─── */
+function EarlyAccessSection() {
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState<"idle" | "loading" | "success">("idle");
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    const trimmed = email.trim().toLowerCase();
+    const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed);
+    if (!valid) {
+      toast({ title: "Invalid email", description: "Please enter a valid email address.", variant: "destructive" });
+      return;
+    }
+    if (trimmed.length > 255) {
+      toast({ title: "Email too long", description: "Please use an email under 255 characters.", variant: "destructive" });
+      return;
+    }
+    setStatus("loading");
+    const { error } = await supabase
+      .from("early_access_leads")
+      .insert({ email: trimmed, source: "landing" });
+
+    if (error && !error.message.toLowerCase().includes("duplicate")) {
+      setStatus("idle");
+      toast({ title: "Something went wrong", description: error.message, variant: "destructive" });
+      return;
+    }
+    setStatus("success");
+  };
+
+  return (
+    <section className="py-20 px-4 relative">
+      <div className="container mx-auto max-w-3xl">
+        <motion.div
+          className="relative rounded-[32px] border border-primary/20 bg-gradient-to-br from-[hsl(var(--card))] to-[hsl(var(--secondary)/0.4)] p-8 sm:p-12 text-center overflow-hidden shadow-xl"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 0.6 }}
+        >
+          <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-[500px] h-[300px] rounded-full bg-primary/10 blur-[120px] pointer-events-none" />
+
+          <div className="relative z-10">
+            {status === "success" ? (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.92 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
+                className="flex flex-col items-center"
+              >
+                <div className="w-16 h-16 rounded-full bg-primary/15 border border-primary/30 flex items-center justify-center mb-5">
+                  <CheckCircle2 className="w-8 h-8 text-primary" />
+                </div>
+                <h2 className="text-3xl sm:text-4xl font-extrabold text-foreground mb-3">You're on the list 🎉</h2>
+                <p className="text-muted-foreground max-w-md">
+                  Thanks for signing up! We'll email you the moment early access opens — keep an eye on your inbox.
+                </p>
+              </motion.div>
+            ) : (
+              <>
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-primary/30 bg-primary/5 text-xs text-primary mb-5">
+                  <Sparkles className="w-3 h-3" />
+                  <span className="font-semibold tracking-wide uppercase">Early Access</span>
+                </div>
+                <h2 className="text-3xl sm:text-5xl font-extrabold text-foreground mb-4 leading-tight">
+                  Be first in line for <span className="text-copper">Alterai.im</span>
+                </h2>
+                <p className="text-muted-foreground text-lg mb-8 max-w-xl mx-auto">
+                  Join the early-access list and get exclusive perks, launch pricing, and your invite before everyone else.
+                </p>
+                <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 max-w-lg mx-auto">
+                  <div className="relative flex-1">
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                    <Input
+                      type="email"
+                      required
+                      placeholder="you@example.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      maxLength={255}
+                      className="h-12 pl-9 text-base"
+                      disabled={status === "loading"}
+                      aria-label="Email address for early access"
+                    />
+                  </div>
+                  <Button
+                    type="submit"
+                    size="lg"
+                    className="h-12 px-6 font-semibold copper-glow"
+                    disabled={status === "loading"}
+                  >
+                    {status === "loading" ? (
+                      <><Loader2 className="w-4 h-4 animate-spin" /> Joining...</>
+                    ) : (
+                      <>Get Early Access <ArrowRight className="w-4 h-4" /></>
+                    )}
+                  </Button>
+                </form>
+                <p className="text-xs text-muted-foreground mt-4">
+                  No spam. Unsubscribe anytime. We'll only email you about launch updates.
+                </p>
+              </>
+            )}
+          </div>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
