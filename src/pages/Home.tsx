@@ -113,32 +113,25 @@ const aiExamples = [
 
 const howItWorks = [
   {
-    step: 1, icon: Bot, title: "Create Your AI Bot",
-    desc: "Choose a niche, set a personality, and define your brand voice. Your bot becomes a content expert in your industry.",
-    prompt: '"Create a fitness coach bot that speaks like a motivational drill sergeant"',
-    output: "✅ Bot created: FitSarge — Personality: High-energy, no-excuses motivator with deep nutrition knowledge",
-    color: "from-[hsl(260,80%,60%)] to-[hsl(280,70%,55%)]",
-  },
-  {
-    step: 2, icon: Brain, title: "Add Memory & Context",
-    desc: "Feed it your brand guidelines, audience data, product links, and past content. Smart context means it learns your style and adapts over time.",
-    prompt: '"My audience is 18-25, loves memes, shops on TikTok Shop"',
-    output: "🧠 Context saved — Bot now tailors tone, references, and CTAs for Gen Z TikTok shoppers",
-    color: "from-[hsl(210,90%,55%)] to-[hsl(230,80%,60%)]",
-    contextFeatures: ["Persistent memory", "Learns your style", "Adapts outputs over time"],
-  },
-  {
-    step: 3, icon: Wand2, title: "Generate Content Across Platforms",
-    desc: "One prompt creates optimized content for TikTok, Instagram, LinkedIn, YouTube, Twitter, and Pinterest — each tailored to the platform's format.",
-    prompt: '"Write a product launch post for my new sneaker line"',
-    output: "📱 6 platform-ready posts generated in 8 seconds — each with unique hooks, hashtags, and formatting",
+    step: 1, icon: PenLine, title: "Describe Your Product",
+    desc: "Tell Alterai about your product, audience, and offer. One short brief is all it needs to start crafting your ad.",
+    prompt: '"Eco-friendly water bottle, $29, audience: gym-goers 18-30, offer: 20% off launch week"',
+    output: "✅ Brief locked in — Tone: energetic, Angle: hydration as performance edge, Hook style: POV transformation",
     color: "from-[hsl(330,85%,55%)] to-[hsl(350,80%,50%)]",
   },
   {
-    step: 4, icon: Target, title: "Auto-Optimize with Trends",
-    desc: "Track what performs, let AI suggest improvements, and iterate on your best content. Your bot gets smarter with every post.",
-    prompt: '"Which of my posts performed best this week?"',
-    output: "📊 Your 'Before/After' TikTok template drove 3x more engagement — generating 5 new variations now",
+    step: 2, icon: Wand2, title: "Generate Scripts, Visuals & Voiceovers",
+    desc: "Alterai writes the hook, script, and captions, generates product visuals and scenes, then drops in an AI voiceover — all in one pass.",
+    prompt: '"Make me a 15-second TikTok ad for this"',
+    output: "🎬 Script + 4 scene visuals + AI voiceover generated in ~12s — ready to preview in the scene editor",
+    color: "from-[hsl(210,90%,55%)] to-[hsl(230,80%,60%)]",
+    contextFeatures: ["Hook + script", "Scene visuals", "AI voiceover"],
+  },
+  {
+    step: 3, icon: Download, title: "Export Ready-to-Post Ads",
+    desc: "Export to TikTok, Reels, Shorts, YouTube, or Meta in the right format and aspect ratio. No watermarks. Post or upload to Ads Manager.",
+    prompt: '"Export 9:16 for TikTok and 1:1 for Meta"',
+    output: "📤 2 ad formats exported — TikTok-safe, no watermark, ready to upload to Ads Manager",
     color: "from-[hsl(170,80%,45%)] to-[hsl(190,70%,50%)]",
   },
 ];
