@@ -701,6 +701,69 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ═══════════════════════ WHO IT'S FOR ═══════════════════════ */}
+      <section className="py-24 px-4 relative overflow-hidden">
+        <div className="container mx-auto max-w-6xl">
+          <motion.div className="text-center mb-14" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={0}>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[hsl(330,85%,55%/0.1)] text-[hsl(330,85%,60%)] text-xs font-bold mb-4">
+              <Target className="w-3 h-3" /> WHO IT'S FOR
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-bold text-foreground">Built for the people who ship ads</h2>
+            <p className="mt-4 text-muted-foreground max-w-xl mx-auto">Whether you're testing 50 creatives a week or launching your first product — Alterai fits.</p>
+          </motion.div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {audiences.map((a, i) => (
+              <motion.div
+                key={a.label}
+                className="rounded-2xl border border-border/50 bg-card p-6 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 flex items-start gap-4"
+                initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={i}
+                whileHover={{ y: -3 }}
+              >
+                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-primary/20 to-[hsl(330,85%,55%/0.2)] flex items-center justify-center text-primary shrink-0">
+                  <a.icon className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-foreground">{a.label}</h3>
+                  <p className="text-sm text-muted-foreground mt-1 leading-relaxed">{a.desc}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════ WHY ALTERAI ═══════════════════════ */}
+      <section className="py-24 px-4 bg-secondary/30 relative overflow-hidden">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[400px] rounded-full bg-[hsl(var(--primary)/0.06)] blur-[140px]" />
+        <div className="container mx-auto max-w-6xl relative z-10">
+          <motion.div className="text-center mb-14" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={0}>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold mb-4">
+              <Sparkles className="w-3 h-3" /> WHY ALTERAI.IM
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-bold text-foreground">Built for ads. Tuned for performance.</h2>
+            <p className="mt-4 text-muted-foreground max-w-xl mx-auto">The little things that make the difference between a creative that flops and one that scales.</p>
+          </motion.div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {whyAlterai.map((w, i) => (
+              <motion.div
+                key={w.title}
+                className="rounded-2xl border border-border/50 bg-card p-6 hover:border-primary/30 transition-all duration-300"
+                initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={i}
+                whileHover={{ y: -3 }}
+              >
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary mb-4">
+                  <w.icon className="w-5 h-5" />
+                </div>
+                <h3 className="text-base font-bold text-foreground">{w.title}</h3>
+                <p className="text-sm text-muted-foreground mt-2 leading-relaxed">{w.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ═══════════════════════ TESTIMONIALS ═══════════════════════ */}
       <section className="py-24 px-4 relative overflow-hidden">
         <div className="container mx-auto max-w-6xl">
