@@ -15,7 +15,7 @@ serve(async (req) => {
   );
 
   try {
-    const { action, referralCode, referredUserId } = await req.json();
+    const { action, referralCode } = await req.json();
 
     if (action === "generate") {
       // Generate a referral code for an authenticated user
