@@ -1,7 +1,11 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, FormEvent } from "react";
 import { Link } from "react-router-dom";
 import { motion, useScroll, useTransform, useInView } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
+import { CheckCircle2, Mail, Loader2 } from "lucide-react";
 import {
   ArrowRight, Mic, Video, BarChart3, Layers, Clock, DollarSign,
   Globe, Settings, Shield, Sparkles, ChevronRight, Zap, Check, Star,
@@ -900,6 +904,9 @@ export default function Home() {
           </motion.div>
         </div>
       </section>
+
+      {/* ═══════════════════════ EARLY ACCESS ═══════════════════════ */}
+      <EarlyAccessSection />
 
       {/* ═══════════════════════ FINAL CTA ═══════════════════════ */}
       <section className="py-24 px-4 relative">
