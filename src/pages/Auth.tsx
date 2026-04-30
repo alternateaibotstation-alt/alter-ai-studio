@@ -85,7 +85,6 @@ export default function Auth() {
               body: {
                 action: "redeem",
                 referralCode: trimmedCode,
-                referredUserId: signUpData.user.id,
               },
             });
             if (refData?.success) {
