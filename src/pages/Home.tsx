@@ -165,23 +165,43 @@ const testimonials = [
 
 const pricingTiers = [
   {
-    name: "Free", price: "$0", period: "/forever",
-    desc: "Start creating with zero risk",
-    features: ["15 messages per day", "2 image generations per day", "Access to marketplace", "Basic AI models", "Community templates"],
+    name: "Starter", price: "$0", period: "/forever",
+    desc: "Test the ad engine with zero risk",
+    features: [
+      "5 ad scripts per month",
+      "10 ad image generations per month",
+      "1 video ad export per month (with 9:16 only)",
+      "720p exports · no watermark",
+      "Community ad templates",
+    ],
     cta: "Start Free", ctaVariant: "outline" as const, highlight: false,
   },
   {
-    name: "Pro", price: "$9", period: "/month",
-    desc: "For serious creators scaling content",
-    features: ["Unlimited messages", "20 image generations per day", "Higher-quality AI models", "Faster response times", "Priority support"],
-    cta: "Go Pro", ctaVariant: "default" as const, highlight: true,
+    name: "Creator", price: "$19", period: "/month",
+    desc: "For UGC creators & solo advertisers shipping ads weekly",
+    features: [
+      "150 ad scripts per month",
+      "300 ad image generations per month",
+      "30 video ad exports per month",
+      "All aspect ratios (9:16, 1:1, 4:5, 16:9)",
+      "1080p exports · AI voiceover included",
+      "Full ad template library",
+    ],
+    cta: "Start Creating", ctaVariant: "default" as const, highlight: true,
     badge: "Most Popular",
   },
   {
-    name: "Power", price: "$29", period: "/month",
-    desc: "Unlimited everything for power users",
-    features: ["Unlimited messages", "Unlimited image generation", "Best AI models available", "Priority processing", "Advanced analytics"],
-    cta: "Get Power", ctaVariant: "outline" as const, highlight: false,
+    name: "Studio", price: "$59", period: "/month",
+    desc: "For agencies & dropshippers running multi-product ads",
+    features: [
+      "Unlimited ad scripts",
+      "1,500 ad image generations per month",
+      "150 video ad exports per month",
+      "4K exports · priority render queue",
+      "Premium AI voices & multi-voice scenes",
+      "Brand kits + bulk product ad workflows",
+    ],
+    cta: "Scale With Studio", ctaVariant: "outline" as const, highlight: false,
   },
 ];
 
