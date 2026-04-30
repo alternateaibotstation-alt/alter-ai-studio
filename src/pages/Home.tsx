@@ -182,12 +182,32 @@ const pricingTiers = [
 ];
 
 const heroCapabilities = [
-  { icon: Bot, label: "AI Bots", color: "text-[hsl(270,80%,65%)]", bg: "bg-[hsl(270,80%,65%/0.1)]" },
-  { icon: Video, label: "Content", color: "text-[hsl(210,90%,60%)]", bg: "bg-[hsl(210,90%,60%/0.1)]" },
-  { icon: Mic, label: "Voice", color: "text-[hsl(250,70%,65%)]", bg: "bg-[hsl(250,70%,65%/0.1)]" },
-  { icon: Image, label: "Images", color: "text-[hsl(40,90%,60%)]", bg: "bg-[hsl(40,90%,60%/0.1)]" },
-  { icon: MessageSquare, label: "Chat", color: "text-[hsl(330,80%,60%)]", bg: "bg-[hsl(330,80%,60%/0.1)]" },
-  { icon: TrendingUp, label: "Analytics", color: "text-[hsl(160,70%,50%)]", bg: "bg-[hsl(160,70%,50%/0.1)]" },
+  { icon: PenLine, label: "Scripts", color: "text-[hsl(330,80%,60%)]", bg: "bg-[hsl(330,80%,60%/0.1)]" },
+  { icon: Image, label: "Visuals", color: "text-[hsl(40,90%,60%)]", bg: "bg-[hsl(40,90%,60%/0.1)]" },
+  { icon: Film, label: "Video", color: "text-[hsl(210,90%,60%)]", bg: "bg-[hsl(210,90%,60%/0.1)]" },
+  { icon: Mic, label: "Voiceover", color: "text-[hsl(250,70%,65%)]", bg: "bg-[hsl(250,70%,65%/0.1)]" },
+  { icon: BookTemplate, label: "Templates", color: "text-[hsl(170,80%,55%)]", bg: "bg-[hsl(170,80%,55%/0.1)]" },
+  { icon: Download, label: "Export", color: "text-[hsl(160,70%,50%)]", bg: "bg-[hsl(160,70%,50%/0.1)]" },
+];
+
+/* ─── Audience: Who it's for ─── */
+const audiences = [
+  { icon: Video, label: "UGC Creators", desc: "Ship native-feeling ads that convert" },
+  { icon: Megaphone, label: "TikTok Advertisers", desc: "Scroll-stopping hooks built to scale" },
+  { icon: Briefcase, label: "Small Businesses", desc: "Pro-quality ads without an agency" },
+  { icon: ShoppingBag, label: "Dropshippers", desc: "Test product creatives in minutes" },
+  { icon: Building2, label: "Agencies", desc: "10x client output with one operator" },
+  { icon: Users, label: "Influencers", desc: "Turn promos into branded campaigns" },
+];
+
+/* ─── Why Alterai ─── */
+const whyAlterai = [
+  { icon: Shield, title: "No watermarks", desc: "Every export is clean and post-ready — yours to publish anywhere." },
+  { icon: Layers, title: "Multi-platform formatting", desc: "Auto-resize for TikTok, Reels, Shorts, YouTube, and Meta in one click." },
+  { icon: Check, title: "TikTok-safe content", desc: "Ad outputs follow TikTok-friendly guidelines so your account stays healthy." },
+  { icon: Zap, title: "Fast exports", desc: "Render scripts, visuals, and videos in seconds — not hours." },
+  { icon: Repeat, title: "Unlimited scripts", desc: "Iterate angles and hooks endlessly until the creative converts." },
+  { icon: Globe, title: "Built for ads, not posts", desc: "Every output is engineered to sell — hooks, CTAs, and offers built-in." },
 ];
 
 /* ─── Animated Counter ─── */
