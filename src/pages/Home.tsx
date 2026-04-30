@@ -606,7 +606,7 @@ export default function Home() {
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[hsl(210,90%,55%/0.1)] text-[hsl(210,90%,60%)] text-xs font-bold mb-4">
               <Repeat className="w-3 h-3" /> HOW IT WORKS
             </div>
-            <h2 className="text-3xl sm:text-4xl font-bold text-foreground">From idea to viral content in 4 steps</h2>
+            <h2 className="text-3xl sm:text-4xl font-bold text-foreground">From product to ad in 3 steps</h2>
             <p className="mt-4 text-muted-foreground max-w-xl mx-auto">Your AI learns your brand, remembers your audience, and gets smarter with every post.</p>
           </motion.div>
 
