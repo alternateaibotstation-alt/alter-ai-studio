@@ -327,23 +327,23 @@ export default function Home() {
             initial="hidden" animate="visible" variants={fadeUp} custom={0}
           >
             <Sparkles className="w-3.5 h-3.5" />
-            <span className="font-medium tracking-wide">AI-Powered Creation Platform</span>
+            <span className="font-medium tracking-wide">AI Ad Creation Platform</span>
           </motion.div>
 
           <motion.h1
             className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold tracking-tight leading-[1.02]"
             initial="hidden" animate="visible" variants={fadeUp} custom={1}
           >
-            <span className="text-foreground">1 prompt.</span>
+            <span className="text-foreground">Create ads</span>
             <br />
-            <span className="text-copper">6 platforms. Done.</span>
+            <span className="text-copper">that actually sell.</span>
           </motion.h1>
 
           <motion.p
             className="mt-8 text-xl sm:text-2xl text-foreground/90 max-w-2xl mx-auto leading-snug font-medium"
             initial="hidden" animate="visible" variants={fadeUp} custom={2}
           >
-            Type one idea. Get ready-to-post content for TikTok, Instagram, YouTube, X, LinkedIn & Pinterest in seconds.
+            Generate scripts, visuals, voiceovers, and ready-to-post video ads for TikTok, Reels, Shorts & Meta — in minutes, not weeks.
           </motion.p>
 
           <motion.p
