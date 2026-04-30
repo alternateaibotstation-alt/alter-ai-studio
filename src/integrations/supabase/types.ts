@@ -47,6 +47,13 @@ export type Database = {
             referencedRelation: "bots"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "bot_reviews_bot_id_fkey"
+            columns: ["bot_id"]
+            isOneToOne: false
+            referencedRelation: "public_bots"
+            referencedColumns: ["id"]
+          },
         ]
       }
       bots: {
@@ -181,6 +188,13 @@ export type Database = {
             referencedRelation: "bots"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "favorites_bot_id_fkey"
+            columns: ["bot_id"]
+            isOneToOne: false
+            referencedRelation: "public_bots"
+            referencedColumns: ["id"]
+          },
         ]
       }
       graffiti: {
@@ -272,6 +286,13 @@ export type Database = {
             referencedRelation: "bots"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "messages_bot_id_fkey"
+            columns: ["bot_id"]
+            isOneToOne: false
+            referencedRelation: "public_bots"
+            referencedColumns: ["id"]
+          },
         ]
       }
       profiles: {
@@ -326,6 +347,13 @@ export type Database = {
             columns: ["bot_id"]
             isOneToOne: false
             referencedRelation: "bots"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchases_bot_id_fkey"
+            columns: ["bot_id"]
+            isOneToOne: false
+            referencedRelation: "public_bots"
             referencedColumns: ["id"]
           },
         ]
@@ -509,7 +537,63 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      public_bots: {
+        Row: {
+          avatar_url: string | null
+          category: string | null
+          created_at: string | null
+          description: string | null
+          id: string | null
+          is_premium: boolean | null
+          is_public: boolean | null
+          messages_count: number | null
+          model: string | null
+          name: string | null
+          premium_free_messages: number | null
+          price: number | null
+          status: string | null
+          suggested_prompts: string[] | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string | null
+          is_premium?: boolean | null
+          is_public?: boolean | null
+          messages_count?: number | null
+          model?: string | null
+          name?: string | null
+          premium_free_messages?: number | null
+          price?: number | null
+          status?: string | null
+          suggested_prompts?: string[] | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string | null
+          is_premium?: boolean | null
+          is_public?: boolean | null
+          messages_count?: number | null
+          model?: string | null
+          name?: string | null
+          premium_free_messages?: number | null
+          price?: number | null
+          status?: string | null
+          suggested_prompts?: string[] | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       get_bot_analytics: {

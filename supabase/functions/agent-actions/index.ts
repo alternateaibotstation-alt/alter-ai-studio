@@ -51,16 +51,20 @@ async function executeAction(
       throw new Error(`Tool integration not configured: ${toolId}`);
     }
 
-    // Add credentials to params
+    // Add credentials to params for in-memory execution only
     params.credentials = integration.credentials;
   }
+
+  // Strip credentials before persisting to the audit log so external API keys
+  // are never written to long-lived storage.
+  const { credentials: _omitCredentials, ...safeParams } = params;
 
   // Record action
   const { error: insertError } = await supabaseClient.from('actions').insert({
     id: actionId,
     agent_id: userId,
     tool_id: toolId,
-    params,
+    params: safeParams,
     status: 'executing',
     created_at: new Date().toISOString(),
     executed_at: new Date().toISOString(),
