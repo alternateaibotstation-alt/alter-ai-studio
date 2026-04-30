@@ -51,8 +51,16 @@ serve(async (req) => {
     }
 
     if (action === "redeem") {
-      // Redeem a referral code for a newly signed-up user
-      if (!referralCode || !referredUserId) throw new Error("Missing params");
+      // Redeem requires the redeemer to be authenticated; derive the user id from the JWT
+      // so the referral bonus cannot be granted to an arbitrary account.
+      const authHeader = req.headers.get("Authorization");
+      if (!authHeader) throw new Error("Not authenticated");
+      const token = authHeader.replace("Bearer ", "");
+      const { data: userData } = await supabaseClient.auth.getUser(token);
+      if (!userData?.user) throw new Error("Not authenticated");
+      const referredUserId = userData.user.id;
+
+      if (!referralCode) throw new Error("Missing params");
 
       const { data: referral } = await supabaseClient
         .from("referrals")
