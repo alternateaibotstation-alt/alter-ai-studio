@@ -3,10 +3,11 @@ import { Link } from "react-router-dom";
 import { motion, useScroll, useTransform, useInView } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import {
-  ArrowRight, Bot, Mic, Video, BarChart3, Layers, Clock, DollarSign,
+  ArrowRight, Mic, Video, BarChart3, Layers, Clock, DollarSign,
   Globe, Settings, Shield, Sparkles, ChevronRight, Zap, Check, Star,
   MessageSquare, Image, TrendingUp, Play, BookTemplate, ArrowDown,
-  Brain, Wand2, Target, Repeat, Hash, Quote, Users
+  Brain, Wand2, Target, Repeat, Hash, Quote, Users, Film, Type,
+  Download, Store, Briefcase, ShoppingBag, Megaphone, Building2, PenLine
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import SiteFooter from "@/components/SiteFooter";
@@ -54,28 +55,28 @@ const slideIn = {
 /* ─── Data ─── */
 const features = [
   {
-    icon: Bot, title: "AI Bots", subtitle: "Build once, deploy everywhere",
-    desc: "Create custom AI personalities with unique voices, knowledge, and behaviors. Publish to the marketplace or keep them private for your audience.",
-    accent: "from-[hsl(260,80%,60%)] to-[hsl(280,70%,50%)]", glow: "hsl(270 80% 55% / 0.15)",
-    stats: ["Custom personas", "Smart context", "Marketplace ready"], link: "/marketplace",
+    icon: PenLine, title: "Ad Script Engine", subtitle: "Hooks, scripts & captions that convert",
+    desc: "Generate platform-tuned ad scripts with proven viral hook formulas. Edit inline, regenerate variations, and ship copy that sells in seconds.",
+    accent: "from-[hsl(330,85%,55%)] to-[hsl(350,80%,50%)]", glow: "hsl(330 85% 55% / 0.15)",
+    stats: ["Viral hook library", "Inline editor", "Unlimited variations"], link: "/content-studio",
   },
   {
-    icon: Video, title: "Voice & Video Studio", subtitle: "Generate multi-platform content instantly",
-    desc: "One prompt generates optimized content for TikTok, Instagram, LinkedIn, Twitter, Facebook, and Pinterest — with AI voiceovers and video compilation.",
-    accent: "from-[hsl(200,90%,50%)] to-[hsl(220,80%,60%)]", glow: "hsl(210 90% 55% / 0.15)",
-    stats: ["6 platforms", "AI voiceover", "Video compiler"], link: "/content-studio",
-  },
-  {
-    icon: BarChart3, title: "Analytics & Profit", subtitle: "Track usage, control costs",
-    desc: "See exactly how your bots perform. Set pricing, track revenue, and understand user engagement — all in a clean dashboard.",
-    accent: "from-[hsl(170,80%,45%)] to-[hsl(190,70%,50%)]", glow: "hsl(180 80% 45% / 0.15)",
-    stats: ["Usage analytics", "Revenue tracking", "Flexible pricing"], link: "/dashboard",
-  },
-  {
-    icon: BookTemplate, title: "Template Library", subtitle: "Instant content creation",
-    desc: "Save your best content as reusable templates. Browse the community marketplace, load templates, and generate new variations instantly.",
+    icon: Image, title: "Visuals & Image Studio", subtitle: "Product shots, scenes, thumbnails",
+    desc: "Generate scroll-stopping ad visuals — product shots, lifestyle scenes, thumbnails, and image ads optimized for every feed.",
     accent: "from-[hsl(40,90%,55%)] to-[hsl(25,85%,50%)]", glow: "hsl(35 90% 55% / 0.15)",
-    stats: ["Save & reuse", "Community marketplace", "Platform presets"], link: "/template-marketplace",
+    stats: ["Product shots", "Scene generation", "Multi-aspect export"], link: "/content-studio",
+  },
+  {
+    icon: Film, title: "Video & Voiceover Studio", subtitle: "Scene editor + AI voice in one flow",
+    desc: "Compile scene-by-scene video ads with AI voiceovers, music, and captions. Export TikTok, Reels, Shorts, and YouTube formats — no editor required.",
+    accent: "from-[hsl(200,90%,50%)] to-[hsl(220,80%,60%)]", glow: "hsl(210 90% 55% / 0.15)",
+    stats: ["Scene editor", "AI voiceover", "1-click export"], link: "/content-studio",
+  },
+  {
+    icon: BookTemplate, title: "Ad Template Library", subtitle: "Proven formats, ready to remix",
+    desc: "Start from battle-tested ad templates for UGC, product launches, before/after, hooks, and offers. Drop in your product and ship.",
+    accent: "from-[hsl(170,80%,45%)] to-[hsl(190,70%,50%)]", glow: "hsl(180 80% 45% / 0.15)",
+    stats: ["UGC templates", "TikTok-safe", "Remix & reuse"], link: "/tiktok-templates",
   },
 ];
 
@@ -112,32 +113,25 @@ const aiExamples = [
 
 const howItWorks = [
   {
-    step: 1, icon: Bot, title: "Create Your AI Bot",
-    desc: "Choose a niche, set a personality, and define your brand voice. Your bot becomes a content expert in your industry.",
-    prompt: '"Create a fitness coach bot that speaks like a motivational drill sergeant"',
-    output: "✅ Bot created: FitSarge — Personality: High-energy, no-excuses motivator with deep nutrition knowledge",
-    color: "from-[hsl(260,80%,60%)] to-[hsl(280,70%,55%)]",
-  },
-  {
-    step: 2, icon: Brain, title: "Add Memory & Context",
-    desc: "Feed it your brand guidelines, audience data, product links, and past content. Smart context means it learns your style and adapts over time.",
-    prompt: '"My audience is 18-25, loves memes, shops on TikTok Shop"',
-    output: "🧠 Context saved — Bot now tailors tone, references, and CTAs for Gen Z TikTok shoppers",
-    color: "from-[hsl(210,90%,55%)] to-[hsl(230,80%,60%)]",
-    contextFeatures: ["Persistent memory", "Learns your style", "Adapts outputs over time"],
-  },
-  {
-    step: 3, icon: Wand2, title: "Generate Content Across Platforms",
-    desc: "One prompt creates optimized content for TikTok, Instagram, LinkedIn, YouTube, Twitter, and Pinterest — each tailored to the platform's format.",
-    prompt: '"Write a product launch post for my new sneaker line"',
-    output: "📱 6 platform-ready posts generated in 8 seconds — each with unique hooks, hashtags, and formatting",
+    step: 1, icon: PenLine, title: "Describe Your Product",
+    desc: "Tell Alterai about your product, audience, and offer. One short brief is all it needs to start crafting your ad.",
+    prompt: '"Eco-friendly water bottle, $29, audience: gym-goers 18-30, offer: 20% off launch week"',
+    output: "✅ Brief locked in — Tone: energetic, Angle: hydration as performance edge, Hook style: POV transformation",
     color: "from-[hsl(330,85%,55%)] to-[hsl(350,80%,50%)]",
   },
   {
-    step: 4, icon: Target, title: "Auto-Optimize with Trends",
-    desc: "Track what performs, let AI suggest improvements, and iterate on your best content. Your bot gets smarter with every post.",
-    prompt: '"Which of my posts performed best this week?"',
-    output: "📊 Your 'Before/After' TikTok template drove 3x more engagement — generating 5 new variations now",
+    step: 2, icon: Wand2, title: "Generate Scripts, Visuals & Voiceovers",
+    desc: "Alterai writes the hook, script, and captions, generates product visuals and scenes, then drops in an AI voiceover — all in one pass.",
+    prompt: '"Make me a 15-second TikTok ad for this"',
+    output: "🎬 Script + 4 scene visuals + AI voiceover generated in ~12s — ready to preview in the scene editor",
+    color: "from-[hsl(210,90%,55%)] to-[hsl(230,80%,60%)]",
+    contextFeatures: ["Hook + script", "Scene visuals", "AI voiceover"],
+  },
+  {
+    step: 3, icon: Download, title: "Export Ready-to-Post Ads",
+    desc: "Export to TikTok, Reels, Shorts, YouTube, or Meta in the right format and aspect ratio. No watermarks. Post or upload to Ads Manager.",
+    prompt: '"Export 9:16 for TikTok and 1:1 for Meta"',
+    output: "📤 2 ad formats exported — TikTok-safe, no watermark, ready to upload to Ads Manager",
     color: "from-[hsl(170,80%,45%)] to-[hsl(190,70%,50%)]",
   },
 ];
@@ -188,12 +182,32 @@ const pricingTiers = [
 ];
 
 const heroCapabilities = [
-  { icon: Bot, label: "AI Bots", color: "text-[hsl(270,80%,65%)]", bg: "bg-[hsl(270,80%,65%/0.1)]" },
-  { icon: Video, label: "Content", color: "text-[hsl(210,90%,60%)]", bg: "bg-[hsl(210,90%,60%/0.1)]" },
-  { icon: Mic, label: "Voice", color: "text-[hsl(250,70%,65%)]", bg: "bg-[hsl(250,70%,65%/0.1)]" },
-  { icon: Image, label: "Images", color: "text-[hsl(40,90%,60%)]", bg: "bg-[hsl(40,90%,60%/0.1)]" },
-  { icon: MessageSquare, label: "Chat", color: "text-[hsl(330,80%,60%)]", bg: "bg-[hsl(330,80%,60%/0.1)]" },
-  { icon: TrendingUp, label: "Analytics", color: "text-[hsl(160,70%,50%)]", bg: "bg-[hsl(160,70%,50%/0.1)]" },
+  { icon: PenLine, label: "Scripts", color: "text-[hsl(330,80%,60%)]", bg: "bg-[hsl(330,80%,60%/0.1)]" },
+  { icon: Image, label: "Visuals", color: "text-[hsl(40,90%,60%)]", bg: "bg-[hsl(40,90%,60%/0.1)]" },
+  { icon: Film, label: "Video", color: "text-[hsl(210,90%,60%)]", bg: "bg-[hsl(210,90%,60%/0.1)]" },
+  { icon: Mic, label: "Voiceover", color: "text-[hsl(250,70%,65%)]", bg: "bg-[hsl(250,70%,65%/0.1)]" },
+  { icon: BookTemplate, label: "Templates", color: "text-[hsl(170,80%,55%)]", bg: "bg-[hsl(170,80%,55%/0.1)]" },
+  { icon: Download, label: "Export", color: "text-[hsl(160,70%,50%)]", bg: "bg-[hsl(160,70%,50%/0.1)]" },
+];
+
+/* ─── Audience: Who it's for ─── */
+const audiences = [
+  { icon: Video, label: "UGC Creators", desc: "Ship native-feeling ads that convert" },
+  { icon: Megaphone, label: "TikTok Advertisers", desc: "Scroll-stopping hooks built to scale" },
+  { icon: Briefcase, label: "Small Businesses", desc: "Pro-quality ads without an agency" },
+  { icon: ShoppingBag, label: "Dropshippers", desc: "Test product creatives in minutes" },
+  { icon: Building2, label: "Agencies", desc: "10x client output with one operator" },
+  { icon: Users, label: "Influencers", desc: "Turn promos into branded campaigns" },
+];
+
+/* ─── Why Alterai ─── */
+const whyAlterai = [
+  { icon: Shield, title: "No watermarks", desc: "Every export is clean and post-ready — yours to publish anywhere." },
+  { icon: Layers, title: "Multi-platform formatting", desc: "Auto-resize for TikTok, Reels, Shorts, YouTube, and Meta in one click." },
+  { icon: Check, title: "TikTok-safe content", desc: "Ad outputs follow TikTok-friendly guidelines so your account stays healthy." },
+  { icon: Zap, title: "Fast exports", desc: "Render scripts, visuals, and videos in seconds — not hours." },
+  { icon: Repeat, title: "Unlimited scripts", desc: "Iterate angles and hooks endlessly until the creative converts." },
+  { icon: Globe, title: "Built for ads, not posts", desc: "Every output is engineered to sell — hooks, CTAs, and offers built-in." },
 ];
 
 /* ─── Animated Counter ─── */
@@ -313,23 +327,23 @@ export default function Home() {
             initial="hidden" animate="visible" variants={fadeUp} custom={0}
           >
             <Sparkles className="w-3.5 h-3.5" />
-            <span className="font-medium tracking-wide">AI-Powered Creation Platform</span>
+            <span className="font-medium tracking-wide">AI Ad Creation Platform</span>
           </motion.div>
 
           <motion.h1
             className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold tracking-tight leading-[1.02]"
             initial="hidden" animate="visible" variants={fadeUp} custom={1}
           >
-            <span className="text-foreground">1 prompt.</span>
+            <span className="text-foreground">Create ads</span>
             <br />
-            <span className="text-copper">6 platforms. Done.</span>
+            <span className="text-copper">that actually sell.</span>
           </motion.h1>
 
           <motion.p
             className="mt-8 text-xl sm:text-2xl text-foreground/90 max-w-2xl mx-auto leading-snug font-medium"
             initial="hidden" animate="visible" variants={fadeUp} custom={2}
           >
-            Type one idea. Get ready-to-post content for TikTok, Instagram, YouTube, X, LinkedIn & Pinterest in seconds.
+            Generate scripts, visuals, voiceovers, and ready-to-post video ads for TikTok, Reels, Shorts & Meta — in minutes, not weeks.
           </motion.p>
 
           <motion.p
@@ -592,7 +606,7 @@ export default function Home() {
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[hsl(210,90%,55%/0.1)] text-[hsl(210,90%,60%)] text-xs font-bold mb-4">
               <Repeat className="w-3 h-3" /> HOW IT WORKS
             </div>
-            <h2 className="text-3xl sm:text-4xl font-bold text-foreground">From idea to viral content in 4 steps</h2>
+            <h2 className="text-3xl sm:text-4xl font-bold text-foreground">From product to ad in 3 steps</h2>
             <p className="mt-4 text-muted-foreground max-w-xl mx-auto">Your AI learns your brand, remembers your audience, and gets smarter with every post.</p>
           </motion.div>
 
@@ -643,12 +657,15 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ═══════════════════════ FEATURES ═══════════════════════ */}
+      {/* ═══════════════════════ AD CREATION CENTER ═══════════════════════ */}
       <section ref={featuresRef} className="py-24 px-4 bg-secondary/30 relative">
         <div className="container mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-foreground">Everything you need to scale</h2>
-            <p className="mt-4 text-muted-foreground max-w-xl mx-auto">The ultimate toolkit for creators and AI entrepreneurs.</p>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold mb-4">
+              <Wand2 className="w-3 h-3" /> AD CREATION CENTER
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-bold text-foreground">Every tool you need to ship a winning ad</h2>
+            <p className="mt-4 text-muted-foreground max-w-xl mx-auto">Scripts, visuals, video, voiceover, templates, and exports — all under one roof.</p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-8">
@@ -678,6 +695,69 @@ export default function Home() {
                     <Link to={f.link}>Learn more <ChevronRight className="w-4 h-4" /></Link>
                   </Button>
                 </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════ WHO IT'S FOR ═══════════════════════ */}
+      <section className="py-24 px-4 relative overflow-hidden">
+        <div className="container mx-auto max-w-6xl">
+          <motion.div className="text-center mb-14" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={0}>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[hsl(330,85%,55%/0.1)] text-[hsl(330,85%,60%)] text-xs font-bold mb-4">
+              <Target className="w-3 h-3" /> WHO IT'S FOR
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-bold text-foreground">Built for the people who ship ads</h2>
+            <p className="mt-4 text-muted-foreground max-w-xl mx-auto">Whether you're testing 50 creatives a week or launching your first product — Alterai fits.</p>
+          </motion.div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {audiences.map((a, i) => (
+              <motion.div
+                key={a.label}
+                className="rounded-2xl border border-border/50 bg-card p-6 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 flex items-start gap-4"
+                initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={i}
+                whileHover={{ y: -3 }}
+              >
+                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-primary/20 to-[hsl(330,85%,55%/0.2)] flex items-center justify-center text-primary shrink-0">
+                  <a.icon className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-foreground">{a.label}</h3>
+                  <p className="text-sm text-muted-foreground mt-1 leading-relaxed">{a.desc}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════ WHY ALTERAI ═══════════════════════ */}
+      <section className="py-24 px-4 bg-secondary/30 relative overflow-hidden">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[400px] rounded-full bg-[hsl(var(--primary)/0.06)] blur-[140px]" />
+        <div className="container mx-auto max-w-6xl relative z-10">
+          <motion.div className="text-center mb-14" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={0}>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold mb-4">
+              <Sparkles className="w-3 h-3" /> WHY ALTERAI.IM
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-bold text-foreground">Built for ads. Tuned for performance.</h2>
+            <p className="mt-4 text-muted-foreground max-w-xl mx-auto">The little things that make the difference between a creative that flops and one that scales.</p>
+          </motion.div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {whyAlterai.map((w, i) => (
+              <motion.div
+                key={w.title}
+                className="rounded-2xl border border-border/50 bg-card p-6 hover:border-primary/30 transition-all duration-300"
+                initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={i}
+                whileHover={{ y: -3 }}
+              >
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary mb-4">
+                  <w.icon className="w-5 h-5" />
+                </div>
+                <h3 className="text-base font-bold text-foreground">{w.title}</h3>
+                <p className="text-sm text-muted-foreground mt-2 leading-relaxed">{w.desc}</p>
               </motion.div>
             ))}
           </div>
