@@ -3,10 +3,11 @@ import { Link } from "react-router-dom";
 import { motion, useScroll, useTransform, useInView } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import {
-  ArrowRight, Bot, Mic, Video, BarChart3, Layers, Clock, DollarSign,
+  ArrowRight, Mic, Video, BarChart3, Layers, Clock, DollarSign,
   Globe, Settings, Shield, Sparkles, ChevronRight, Zap, Check, Star,
   MessageSquare, Image, TrendingUp, Play, BookTemplate, ArrowDown,
-  Brain, Wand2, Target, Repeat, Hash, Quote, Users
+  Brain, Wand2, Target, Repeat, Hash, Quote, Users, Film, Type,
+  Download, Store, Briefcase, ShoppingBag, Megaphone, Building2, PenLine
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import SiteFooter from "@/components/SiteFooter";
