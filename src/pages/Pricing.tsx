@@ -306,10 +306,18 @@ export default function Pricing() {
                   <Icon className={`w-5 h-5 ${t.popular ? "text-primary" : "text-muted-foreground"}`} />
                   <h2 className="text-xl font-bold text-foreground">{t.name}</h2>
                 </div>
-                <div className="mb-6">
+                <div className="mb-5">
                   <span className="text-3xl font-bold text-foreground">${t.price}</span>
                   {t.price > 0 && <span className="text-muted-foreground">/mo</span>}
                 </div>
+
+                <UsageCapBars
+                  tierKey={t.key}
+                  isCurrent={isCurrent}
+                  messagesUsed={usage.messages_used_today}
+                  imagesUsed={usage.images_used_today}
+                />
+
                 <ul className="space-y-2.5 mb-8 flex-1">
                   {t.features.map((f) => (
                     <li key={f} className="flex items-start gap-2 text-sm text-muted-foreground">
