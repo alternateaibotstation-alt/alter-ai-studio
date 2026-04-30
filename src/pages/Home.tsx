@@ -55,28 +55,28 @@ const slideIn = {
 /* ─── Data ─── */
 const features = [
   {
-    icon: Bot, title: "AI Bots", subtitle: "Build once, deploy everywhere",
-    desc: "Create custom AI personalities with unique voices, knowledge, and behaviors. Publish to the marketplace or keep them private for your audience.",
-    accent: "from-[hsl(260,80%,60%)] to-[hsl(280,70%,50%)]", glow: "hsl(270 80% 55% / 0.15)",
-    stats: ["Custom personas", "Smart context", "Marketplace ready"], link: "/marketplace",
+    icon: PenLine, title: "Ad Script Engine", subtitle: "Hooks, scripts & captions that convert",
+    desc: "Generate platform-tuned ad scripts with proven viral hook formulas. Edit inline, regenerate variations, and ship copy that sells in seconds.",
+    accent: "from-[hsl(330,85%,55%)] to-[hsl(350,80%,50%)]", glow: "hsl(330 85% 55% / 0.15)",
+    stats: ["Viral hook library", "Inline editor", "Unlimited variations"], link: "/content-studio",
   },
   {
-    icon: Video, title: "Voice & Video Studio", subtitle: "Generate multi-platform content instantly",
-    desc: "One prompt generates optimized content for TikTok, Instagram, LinkedIn, Twitter, Facebook, and Pinterest — with AI voiceovers and video compilation.",
-    accent: "from-[hsl(200,90%,50%)] to-[hsl(220,80%,60%)]", glow: "hsl(210 90% 55% / 0.15)",
-    stats: ["6 platforms", "AI voiceover", "Video compiler"], link: "/content-studio",
-  },
-  {
-    icon: BarChart3, title: "Analytics & Profit", subtitle: "Track usage, control costs",
-    desc: "See exactly how your bots perform. Set pricing, track revenue, and understand user engagement — all in a clean dashboard.",
-    accent: "from-[hsl(170,80%,45%)] to-[hsl(190,70%,50%)]", glow: "hsl(180 80% 45% / 0.15)",
-    stats: ["Usage analytics", "Revenue tracking", "Flexible pricing"], link: "/dashboard",
-  },
-  {
-    icon: BookTemplate, title: "Template Library", subtitle: "Instant content creation",
-    desc: "Save your best content as reusable templates. Browse the community marketplace, load templates, and generate new variations instantly.",
+    icon: Image, title: "Visuals & Image Studio", subtitle: "Product shots, scenes, thumbnails",
+    desc: "Generate scroll-stopping ad visuals — product shots, lifestyle scenes, thumbnails, and image ads optimized for every feed.",
     accent: "from-[hsl(40,90%,55%)] to-[hsl(25,85%,50%)]", glow: "hsl(35 90% 55% / 0.15)",
-    stats: ["Save & reuse", "Community marketplace", "Platform presets"], link: "/template-marketplace",
+    stats: ["Product shots", "Scene generation", "Multi-aspect export"], link: "/content-studio",
+  },
+  {
+    icon: Film, title: "Video & Voiceover Studio", subtitle: "Scene editor + AI voice in one flow",
+    desc: "Compile scene-by-scene video ads with AI voiceovers, music, and captions. Export TikTok, Reels, Shorts, and YouTube formats — no editor required.",
+    accent: "from-[hsl(200,90%,50%)] to-[hsl(220,80%,60%)]", glow: "hsl(210 90% 55% / 0.15)",
+    stats: ["Scene editor", "AI voiceover", "1-click export"], link: "/content-studio",
+  },
+  {
+    icon: BookTemplate, title: "Ad Template Library", subtitle: "Proven formats, ready to remix",
+    desc: "Start from battle-tested ad templates for UGC, product launches, before/after, hooks, and offers. Drop in your product and ship.",
+    accent: "from-[hsl(170,80%,45%)] to-[hsl(190,70%,50%)]", glow: "hsl(180 80% 45% / 0.15)",
+    stats: ["UGC templates", "TikTok-safe", "Remix & reuse"], link: "/tiktok-templates",
   },
 ];
 
