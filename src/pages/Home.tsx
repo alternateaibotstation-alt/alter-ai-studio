@@ -657,12 +657,15 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ═══════════════════════ FEATURES ═══════════════════════ */}
+      {/* ═══════════════════════ AD CREATION CENTER ═══════════════════════ */}
       <section ref={featuresRef} className="py-24 px-4 bg-secondary/30 relative">
         <div className="container mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-foreground">Everything you need to scale</h2>
-            <p className="mt-4 text-muted-foreground max-w-xl mx-auto">The ultimate toolkit for creators and AI entrepreneurs.</p>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold mb-4">
+              <Wand2 className="w-3 h-3" /> AD CREATION CENTER
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-bold text-foreground">Every tool you need to ship a winning ad</h2>
+            <p className="mt-4 text-muted-foreground max-w-xl mx-auto">Scripts, visuals, video, voiceover, templates, and exports — all under one roof.</p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-8">
