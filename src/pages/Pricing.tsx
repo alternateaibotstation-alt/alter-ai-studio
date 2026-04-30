@@ -193,7 +193,7 @@ const getCheckoutErrorMessage = (error: unknown) => {
 };
 
 export default function Pricing() {
-  const { tier } = useSubscription();
+  const { tier, usage } = useSubscription();
   const [loadingTier, setLoadingTier] = useState<string | null>(null);
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
