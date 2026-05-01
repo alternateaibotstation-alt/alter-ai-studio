@@ -118,24 +118,24 @@ const aiExamples = [
 const howItWorks = [
   {
     step: 1, icon: PenLine, title: "Describe Your Product",
-    desc: "Tell Alterai about your product, audience, and offer. One short brief is all it needs to start crafting your ad.",
+    desc: "Tell AlterAI about your product, audience, and offer. Our 5-stage AI pipeline analyzes your product, profiles your audience, then generates conversion-optimized ads.",
     prompt: '"Eco-friendly water bottle, $29, audience: gym-goers 18-30, offer: 20% off launch week"',
-    output: "✅ Brief locked in — Tone: energetic, Angle: hydration as performance edge, Hook style: POV transformation",
+    output: "Pipeline: Product analysis → Audience profiling → Hook generation → Platform-specific ads → Conversion optimization",
     color: "from-[hsl(330,85%,55%)] to-[hsl(350,80%,50%)]",
   },
   {
-    step: 2, icon: Wand2, title: "Generate Scripts, Visuals & Voiceovers",
-    desc: "Alterai writes the hook, script, and captions, generates product visuals and scenes, then drops in an AI voiceover — all in one pass.",
-    prompt: '"Make me a 15-second TikTok ad for this"',
-    output: "🎬 Script + 4 scene visuals + AI voiceover generated in ~12s — ready to preview in the scene editor",
+    step: 2, icon: Wand2, title: "Generate Full Campaign Bundle",
+    desc: "AlterAI generates platform-specific ads for TikTok, Instagram Reels, Facebook, Google Ads, YouTube Shorts, and landing pages — all from your single brief.",
+    prompt: '"Generate a full campaign across TikTok, Facebook, and Google Ads"',
+    output: "6 scroll-stopping hooks + TikTok script + Facebook ad copy + Google Ads headlines — all conversion-optimized",
     color: "from-[hsl(210,90%,55%)] to-[hsl(230,80%,60%)]",
     contextFeatures: ["Hook + script", "Scene visuals", "AI voiceover"],
   },
   {
-    step: 3, icon: Download, title: "Export Ready-to-Post Ads",
-    desc: "Export to TikTok, Reels, Shorts, YouTube, or Meta in the right format and aspect ratio. No watermarks. Post or upload to Ads Manager.",
-    prompt: '"Export 9:16 for TikTok and 1:1 for Meta"',
-    output: "📤 2 ad formats exported — TikTok-safe, no watermark, ready to upload to Ads Manager",
+    step: 3, icon: Download, title: "Export & Launch",
+    desc: "Download your complete campaign bundle — every ad ready to copy-paste into Ads Manager. Regenerate variants, export as JSON or plain text.",
+    prompt: '"Export campaign for my ad team"',
+    output: "Campaign exported — TikTok script, Facebook ad copy, Google Ads headlines, landing page hero copy — all ready to deploy",
     color: "from-[hsl(170,80%,45%)] to-[hsl(190,70%,50%)]",
   },
 ];
@@ -367,14 +367,14 @@ export default function Home() {
             className="mt-8 text-xl sm:text-2xl text-foreground/90 max-w-2xl mx-auto leading-snug font-medium"
             initial="hidden" animate="visible" variants={fadeUp} custom={2}
           >
-            Generate scripts, visuals, voiceovers, and ready-to-post video ads for TikTok, Reels, Shorts & Meta — in minutes, not weeks.
+            Generate complete ad campaigns for TikTok, Instagram Reels, Facebook, Google Ads, YouTube Shorts & landing pages — powered by a 5-stage AI pipeline.
           </motion.p>
 
           <motion.p
             className="mt-4 text-base text-muted-foreground max-w-xl mx-auto"
             initial="hidden" animate="visible" variants={fadeUp} custom={2}
           >
-            No writing. No editing. No guessing. Just paste, click, post.
+            One brief. Every platform. Conversion-optimized. Not a content tool — a performance ad engine.
           </motion.p>
 
           <motion.div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4" initial="hidden" animate="visible" variants={fadeUp} custom={3}>
@@ -384,15 +384,15 @@ export default function Home() {
               style={{ backgroundImage: "var(--gradient-primary)" }}
               asChild
             >
-              <Link to="/auth">Try it free — 1 prompt, 6 posts <ArrowRight className="w-4 h-4 ml-2" /></Link>
+              <Link to="/create-campaign">Generate your first campaign <ArrowRight className="w-4 h-4 ml-2" /></Link>
             </Button>
             <Button size="lg" variant="outline" className="h-14 px-8 text-base border-border/60 hover:border-primary/40 hover:bg-primary/5 backdrop-blur-sm" asChild>
-              <Link to="/content-creator"><Play className="w-4 h-4 mr-2" /> See how it works</Link>
+              <Link to="/campaigns"><Play className="w-4 h-4 mr-2" /> View your campaigns</Link>
             </Button>
           </motion.div>
 
           <motion.p className="mt-6 text-sm text-muted-foreground/70" initial="hidden" animate="visible" variants={fadeUp} custom={4}>
-            Free forever plan · No credit card · Post in 60 seconds
+            Free tier available · No credit card required · Campaign in minutes
           </motion.p>
 
           {/* Social proof strip */}
