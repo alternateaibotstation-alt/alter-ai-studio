@@ -432,7 +432,7 @@ export default function AdCampaignBuilder() {
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                   <p className="text-center text-xs text-muted-foreground">
-                    Uses ~{3 + selectedPlatforms.length * 2 * 3} credits
+                    Uses ~{(3 + selectedPlatforms.length * 2) * 3} credits
                   </p>
                 </CardContent>
               </Card>
