@@ -76,15 +76,16 @@ export default function CampaignResults() {
   const handleRegenerate = async (platform: AdPlatform) => {
     setRegenerating(platform);
     try {
-      const newAd = await regeneratePlatformAd(platform, campaign);
+      const { ad: newAd, creditsUsed: regenCredits } = await regeneratePlatformAd(platform, campaign);
       const updatedCampaign: CampaignResult = {
         ...campaign,
         ads: campaign.ads.map((a) =>
           a.platform === platform ? newAd : a
         ),
+        creditsUsed: campaign.creditsUsed + regenCredits,
       };
       saveCampaign(updatedCampaign);
-      toast.success(`${formatPlatformName(platform)} ad regenerated!`);
+      toast.success(`${formatPlatformName(platform)} ad regenerated! (${regenCredits} credits)`);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Regeneration failed";
       toast.error(msg);

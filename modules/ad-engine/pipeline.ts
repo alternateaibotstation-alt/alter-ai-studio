@@ -161,7 +161,7 @@ export async function runAdPipeline(
 export async function regeneratePlatformAd(
   platform: AdPlatform,
   campaign: CampaignResult
-): Promise<PlatformAdOutput> {
+): Promise<{ ad: PlatformAdOutput; creditsUsed: number }> {
   const prompt = buildPlatformAdPrompt(
     platform,
     campaign.brief,
@@ -169,7 +169,7 @@ export async function regeneratePlatformAd(
     campaign.audienceProfile,
     campaign.hooks
   );
-  const { data } = await runStage<Record<string, unknown>>(
+  const { data, creditsUsed: c1 } = await runStage<Record<string, unknown>>(
     prompt.system,
     prompt.user,
     `regenerate_${platform}`
@@ -180,13 +180,16 @@ export async function regeneratePlatformAd(
     JSON.stringify(data),
     campaign.brief
   );
-  const { data: optimized } = await runStage<Record<string, unknown>>(
+  const { data: optimized, creditsUsed: c2 } = await runStage<Record<string, unknown>>(
     optPrompt.system,
     optPrompt.user,
     `optimize_regen_${platform}`
   );
 
-  return { platform, ad: optimized } as unknown as PlatformAdOutput;
+  return {
+    ad: { platform, ad: optimized } as unknown as PlatformAdOutput,
+    creditsUsed: c1 + c2,
+  };
 }
 
 function formatPlatformName(platform: AdPlatform): string {
