@@ -39,13 +39,9 @@ export default function Navbar() {
 
   const links = [
     { to: "/", label: "Home" },
-    { to: "/companions", label: "Companions" },
-    { to: "/marketplace", label: "Marketplace" },
+    { to: "/create-campaign", label: "Create Campaign" },
+    { to: "/campaigns", label: "Campaigns" },
     { to: "/content-studio", label: "Content Studio" },
-    { to: "/tiktok-templates", label: "TikTok Templates" },
-    { to: "/my-creations", label: "My Creations" },
-    { to: "/art-studio", label: "Art Studio" },
-    
     { to: "/dashboard", label: "Dashboard" },
     { to: "/pricing", label: "Pricing" },
   ];
@@ -55,7 +51,7 @@ export default function Navbar() {
       <div className="container mx-auto flex items-center justify-between h-16 px-4">
         <Link to="/" className="flex items-center gap-2">
           <Sparkles className="w-5 h-5 text-primary" />
-          <span className="text-lg font-bold tracking-tight text-foreground">Alterai.im</span>
+          <span className="text-lg font-bold tracking-tight text-foreground">AlterAI</span>
         </Link>
 
         {/* Desktop */}

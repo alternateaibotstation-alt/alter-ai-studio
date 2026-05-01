@@ -1,5 +1,5 @@
 export type SaaSPlan = "free" | "starter" | "creator" | "pro" | "studio";
-export type BillableAction = "chat_message" | "image_generation" | "video_generation" | "content_generation" | "bot_execution" | "api_call";
+export type BillableAction = "chat_message" | "image_generation" | "video_generation" | "content_generation" | "bot_execution" | "api_call" | "ad_campaign";
 
 export interface PlanEconomics {
   id: SaaSPlan;
@@ -22,6 +22,7 @@ export const ACTION_CREDIT_COST: Record<BillableAction, number> = {
   content_generation: 3,
   image_generation: 8,
   video_generation: 30,
+  ad_campaign: 15,
 };
 
 export const PLAN_ECONOMICS: Record<SaaSPlan, PlanEconomics> = {

@@ -15,10 +15,10 @@ const legalLinks = [
 ];
 
 const productLinks = [
-  { to: "/marketplace", label: "Marketplace" },
-  { to: "/companions", label: "Companions" },
+  { to: "/create-campaign", label: "Create Campaign" },
+  { to: "/campaigns", label: "My Campaigns" },
   { to: "/content-studio", label: "Content Studio" },
-  { to: "/template-marketplace", label: "Templates" },
+  { to: "/dashboard", label: "Dashboard" },
   { to: "/pricing", label: "Pricing" },
   { to: "/faq", label: "FAQ" },
 ];
@@ -31,10 +31,10 @@ export const SiteFooter = () => {
           <div className="col-span-2 md:col-span-1">
             <div className="flex items-center gap-2 mb-3">
               <Sparkles className="w-5 h-5 text-primary" />
-              <span className="text-lg font-bold tracking-tight text-foreground">Alterai.im</span>
+              <span className="text-lg font-bold tracking-tight text-foreground">AlterAI</span>
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Creator-first AI platform for building, monetizing, and scaling AI-powered content.
+              AI-powered ad campaign generation platform. Create conversion-optimized ads for every platform from a single brief.
             </p>
             <a
               href="mailto:alternateaibotstation@gmail.com"
@@ -74,7 +74,7 @@ export const SiteFooter = () => {
 
         <div className="border-t border-border/50 pt-6 flex flex-col md:flex-row justify-between items-center gap-3">
           <p className="text-xs text-muted-foreground text-center md:text-left">
-            © {new Date().getFullYear()} Alterai.im — Owned and operated by Carley Lenon. All rights reserved.
+            © {new Date().getFullYear()} AlterAI — Owned and operated by Carley Lenon. All rights reserved.
           </p>
           <p className="text-xs text-muted-foreground">
             Contact: <a className="hover:text-foreground" href="mailto:alternateaibotstation@gmail.com">alternateaibotstation@gmail.com</a>

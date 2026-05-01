@@ -38,6 +38,9 @@ import LandingHome from "@apps/landing/pages/LandingHome";
 import SaaSDashboard from "@apps/dashboard/pages/SaaSDashboard";
 import BlogIndex from "@apps/landing/pages/BlogIndex";
 import BlogArticle from "@apps/landing/pages/BlogArticle";
+import AdCampaignBuilder from "./pages/AdCampaignBuilder";
+import CampaignResults from "./pages/CampaignResults";
+import CampaignDashboard from "./pages/CampaignDashboard";
 
 const queryClient = new QueryClient();
 
@@ -81,6 +84,9 @@ const App = () => (
                   <Route path="/template-marketplace" element={<TemplateMarketplace />} />
                   <Route path="/tiktok-templates" element={<TikTokTemplates />} />
                   <Route path="/content-creator" element={<ContentCreator />} />
+                  <Route path="/create-campaign" element={<RequireAuth><AdCampaignBuilder /></RequireAuth>} />
+                  <Route path="/campaign/:id" element={<RequireAuth><CampaignResults /></RequireAuth>} />
+                  <Route path="/campaigns" element={<RequireAuth><CampaignDashboard /></RequireAuth>} />
                   <Route path="/privacy" element={<Privacy />} />
                   <Route path="/terms" element={<Terms />} />
                   <Route path="/faq" element={<FAQ />} />
