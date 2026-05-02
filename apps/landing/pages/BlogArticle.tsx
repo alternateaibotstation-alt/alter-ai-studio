@@ -1,4 +1,5 @@
 import { useParams, Link } from "react-router-dom";
+import ReactMarkdown from "react-markdown";
 import Navbar from "@/components/Navbar";
 import SEO from "@/components/SEO";
 import { Button } from "@/components/ui/button";
@@ -189,37 +190,8 @@ export default function BlogArticle() {
           })}
         </p>
 
-        <div className="prose prose-invert max-w-none">
-          {article.content.split("\n\n").map((paragraph, i) => {
-            if (paragraph.startsWith("## ")) {
-              return (
-                <h2
-                  key={i}
-                  className="text-2xl font-bold mt-8 mb-4"
-                >
-                  {paragraph.replace("## ", "")}
-                </h2>
-              );
-            }
-            if (paragraph.startsWith("### ")) {
-              return (
-                <h3
-                  key={i}
-                  className="text-lg font-semibold mt-6 mb-2"
-                >
-                  {paragraph.replace("### ", "")}
-                </h3>
-              );
-            }
-            return (
-              <p
-                key={i}
-                className="text-muted-foreground mb-4 leading-relaxed"
-              >
-                {paragraph}
-              </p>
-            );
-          })}
+        <div className="prose prose-invert max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-a:text-primary prose-strong:text-foreground prose-li:text-muted-foreground">
+          <ReactMarkdown>{article.content}</ReactMarkdown>
         </div>
 
         <div className="mt-12 p-6 rounded-xl border border-primary/20 bg-primary/5 text-center">

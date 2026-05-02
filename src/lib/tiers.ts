@@ -1,4 +1,4 @@
-export type UserTier = "free" | "starter" | "creator" | "pro" | "studio";
+export type UserTier = "free" | "starter" | "creator" | "pro" | "studio" | "power";
 
 export const TIER_LIMITS = {
   free: { campaigns: 3, images: 0, videos: 0 },
@@ -6,6 +6,7 @@ export const TIER_LIMITS = {
   creator: { campaigns: 80, images: 50, videos: 0 },
   pro: { campaigns: 200, images: 125, videos: 30 },
   studio: { campaigns: 500, images: 300, videos: 100 },
+  power: { campaigns: 500, images: 300, videos: 100 },
 } as const;
 
 export const TIER_MODELS = {

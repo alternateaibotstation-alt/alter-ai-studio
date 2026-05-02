@@ -51,15 +51,31 @@ export async function generateFullCampaign(
   };
 
   try {
-    const estimatedCredits = estimateCampaignCost(input, userPlan);
-    const creditCheck = await reserveCredits(
-      "text_generation",
-      estimatedCredits,
-      userPlan,
-    );
-    if (!creditCheck.allowed) {
+    const imageCount = input.includeImages !== false
+      ? (input.imageCount ?? DEFAULT_CAMPAIGN_CONFIG.imageCount)
+      : 0;
+    const videoCount = input.includeVideo && isVideoAllowed(userPlan)
+      ? (input.videoCount ?? DEFAULT_CAMPAIGN_CONFIG.videoCount)
+      : 0;
+
+    const textCheck = await reserveCredits("text_generation", 1, userPlan);
+    if (!textCheck.allowed) {
       campaign.status = "failed";
       return campaign;
+    }
+    if (imageCount > 0) {
+      const imgCheck = await reserveCredits("image_generation", imageCount, userPlan);
+      if (!imgCheck.allowed) {
+        campaign.status = "failed";
+        return campaign;
+      }
+    }
+    if (videoCount > 0) {
+      const vidCheck = await reserveCredits("video_generation", videoCount, userPlan);
+      if (!vidCheck.allowed) {
+        campaign.status = "failed";
+        return campaign;
+      }
     }
 
     const strategy = await generateCampaignStrategy({
@@ -266,18 +282,4 @@ async function generateVideoAds(
   return ads;
 }
 
-function estimateCampaignCost(input: CampaignInput, userPlan: SaaSPlan): number {
-  let cost = getActionCreditCost("text_generation", 1);
 
-  if (input.includeImages !== false) {
-    const imageCount = input.imageCount ?? DEFAULT_CAMPAIGN_CONFIG.imageCount;
-    cost += getActionCreditCost("image_generation", imageCount);
-  }
-
-  if (input.includeVideo && isVideoAllowed(userPlan)) {
-    const videoCount = input.videoCount ?? DEFAULT_CAMPAIGN_CONFIG.videoCount;
-    cost += getActionCreditCost("video_generation", videoCount);
-  }
-
-  return cost;
-}
