@@ -51,31 +51,10 @@ export async function generateFullCampaign(
   };
 
   try {
-    const imageCount = input.includeImages !== false
-      ? (input.imageCount ?? DEFAULT_CAMPAIGN_CONFIG.imageCount)
-      : 0;
-    const videoCount = input.includeVideo && isVideoAllowed(userPlan)
-      ? (input.videoCount ?? DEFAULT_CAMPAIGN_CONFIG.videoCount)
-      : 0;
-
     const textCheck = await reserveCredits("text_generation", 1, userPlan);
     if (!textCheck.allowed) {
       campaign.status = "failed";
       return campaign;
-    }
-    if (imageCount > 0) {
-      const imgCheck = await reserveCredits("image_generation", imageCount, userPlan);
-      if (!imgCheck.allowed) {
-        campaign.status = "failed";
-        return campaign;
-      }
-    }
-    if (videoCount > 0) {
-      const vidCheck = await reserveCredits("video_generation", videoCount, userPlan);
-      if (!vidCheck.allowed) {
-        campaign.status = "failed";
-        return campaign;
-      }
     }
 
     const strategy = await generateCampaignStrategy({
@@ -105,7 +84,7 @@ export async function generateFullCampaign(
       if (imageAds.length > 0) {
         creditLedger.push({ action: "image_generation", quantity: imageAds.length });
       }
-      totalCreditsUsed += imageAds.length * 8;
+      totalCreditsUsed += getActionCreditCost("image_generation", imageAds.length);
     }
 
     if (input.includeVideo && isVideoAllowed(userPlan)) {
@@ -120,7 +99,7 @@ export async function generateFullCampaign(
       if (videoAds.length > 0) {
         creditLedger.push({ action: "video_generation", quantity: videoAds.length });
       }
-      totalCreditsUsed += videoAds.length * 30;
+      totalCreditsUsed += getActionCreditCost("video_generation", videoAds.length);
     }
 
     campaign.creditsUsed = totalCreditsUsed;
