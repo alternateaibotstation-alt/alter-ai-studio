@@ -6,7 +6,7 @@ import {
 } from "@modules/ad-orchestrator";
 import { composeScenes } from "@modules/ad-composer";
 import { reserveCredits, deductCredits, refundCredits } from "@modules/billing";
-import type { SaaSPlan } from "@modules/billing";
+import type { BillableAction, SaaSPlan } from "@modules/billing";
 import { runMediaGeneration } from "@modules/ai-engine";
 import {
   DEFAULT_CAMPAIGN_CONFIG,
@@ -15,12 +15,18 @@ import {
   type TextAsset,
 } from "./types";
 
+interface CreditLedgerEntry {
+  action: BillableAction;
+  quantity: number;
+}
+
 export async function generateFullCampaign(
   input: CampaignInput,
   userPlan: SaaSPlan = "free",
 ): Promise<GeneratedCampaign> {
   const campaignId = crypto.randomUUID();
   let totalCreditsUsed = 0;
+  const creditLedger: CreditLedgerEntry[] = [];
 
   const campaign: GeneratedCampaign = {
     id: campaignId,
@@ -64,6 +70,7 @@ export async function generateFullCampaign(
     campaign.strategy = strategy;
 
     await deductCredits("text_generation", 1);
+    creditLedger.push({ action: "text_generation", quantity: 1 });
     totalCreditsUsed += 1;
 
     const textAssets = generateTextAssets(strategy);
@@ -78,6 +85,9 @@ export async function generateFullCampaign(
         userPlan,
       );
       campaign.imageAds = imageAds;
+      if (imageAds.length > 0) {
+        creditLedger.push({ action: "image_generation", quantity: imageAds.length });
+      }
       totalCreditsUsed += imageAds.length * 8;
     }
 
@@ -90,16 +100,19 @@ export async function generateFullCampaign(
         userPlan,
       );
       campaign.videoAds = videoAds;
+      if (videoAds.length > 0) {
+        creditLedger.push({ action: "video_generation", quantity: videoAds.length });
+      }
       totalCreditsUsed += videoAds.length * 30;
     }
 
     campaign.creditsUsed = totalCreditsUsed;
     campaign.status = "completed";
     campaign.completedAt = new Date();
-  } catch (error) {
+  } catch {
     campaign.status = "failed";
-    if (totalCreditsUsed > 0) {
-      await refundCredits("campaign_generation", 1).catch(() => {});
+    for (const entry of creditLedger) {
+      await refundCredits(entry.action, entry.quantity).catch(() => {});
     }
   }
 

@@ -86,37 +86,47 @@ function parseStrategyResponse(
   try {
     const cleaned = raw.replace(/```json\n?|```\n?/g, "").trim();
     const parsed = JSON.parse(cleaned) as Partial<ParsedStrategy>;
+
+    const filteredAngles = parsed.emotionalAngles?.filter(
+      (a): a is EmotionalAngle =>
+        ["urgency", "luxury", "fear", "desire", "curiosity", "social_proof", "transformation", "humor"].includes(a),
+    );
+    const filteredPlatforms = parsed.platforms?.filter(
+      (p): p is AdPlatform =>
+        ["tiktok", "instagram", "facebook", "youtube"].includes(p),
+    );
+    const filteredFormats = parsed.adFormats?.filter(
+      (f): f is AdFormat =>
+        ["video", "image", "carousel"].includes(f),
+    );
+
     return {
       targetAudience: parsed.targetAudience ?? defaults.targetAudience,
       emotionalAngles:
-        (parsed.emotionalAngles?.filter(
-          (a): a is EmotionalAngle =>
-            [
-              "urgency",
-              "luxury",
-              "fear",
-              "desire",
-              "curiosity",
-              "social_proof",
-              "transformation",
-              "humor",
-            ].includes(a),
-        ) as EmotionalAngle[]) ?? defaults.emotionalAngles,
+        filteredAngles && filteredAngles.length > 0
+          ? filteredAngles
+          : defaults.emotionalAngles,
       platforms:
-        (parsed.platforms?.filter(
-          (p): p is AdPlatform =>
-            ["tiktok", "instagram", "facebook", "youtube"].includes(p),
-        ) as AdPlatform[]) ?? defaults.platforms,
+        filteredPlatforms && filteredPlatforms.length > 0
+          ? filteredPlatforms
+          : defaults.platforms,
       adFormats:
-        (parsed.adFormats?.filter(
-          (f): f is AdFormat =>
-            ["video", "image", "carousel"].includes(f),
-        ) as AdFormat[]) ?? defaults.adFormats,
-      hooks: parsed.hooks ?? defaults.hooks,
-      ctaVariations: parsed.ctaVariations ?? defaults.ctaVariations,
+        filteredFormats && filteredFormats.length > 0
+          ? filteredFormats
+          : defaults.adFormats,
+      hooks:
+        parsed.hooks && parsed.hooks.length > 0
+          ? parsed.hooks
+          : defaults.hooks,
+      ctaVariations:
+        parsed.ctaVariations && parsed.ctaVariations.length > 0
+          ? parsed.ctaVariations
+          : defaults.ctaVariations,
       audienceTargetingSuggestions:
-        parsed.audienceTargetingSuggestions ??
-        defaults.audienceTargetingSuggestions,
+        parsed.audienceTargetingSuggestions &&
+        parsed.audienceTargetingSuggestions.length > 0
+          ? parsed.audienceTargetingSuggestions
+          : defaults.audienceTargetingSuggestions,
     };
   } catch {
     return defaults;
