@@ -129,7 +129,7 @@ export default function Pricing() {
 
       <div className="pt-28 pb-20 container mx-auto px-4 max-w-6xl">
         <div className="text-center mb-16">
-          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4">
+          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4 font-display">
             Simple, Transparent Pricing
           </h1>
           <p className="text-lg text-muted-foreground max-w-xl mx-auto">
@@ -144,28 +144,28 @@ export default function Pricing() {
             return (
               <div
                 key={plan.key}
-                className={`relative rounded-2xl border p-6 flex flex-col ${
+                className={`relative rounded-2xl p-6 flex flex-col glass-card card-hover ${
                   plan.highlighted
-                    ? "border-primary ring-2 ring-primary/20 bg-primary/5"
-                    : "border-border bg-card/50"
+                    ? "ring-2 ring-cyan-400/30 shadow-lg shadow-cyan-500/10"
+                    : ""
                 }`}
               >
                 {plan.highlighted && (
-                  <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground">
+                  <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-cyan-500 to-purple-600 text-white border-0">
                     Most Popular
                   </Badge>
                 )}
 
                 <div className="mb-4">
                   <plan.icon
-                    className={`w-6 h-6 mb-3 ${plan.highlighted ? "text-primary" : "text-muted-foreground"}`}
+                    className={`w-6 h-6 mb-3 ${plan.highlighted ? "text-cyan-500" : "text-muted-foreground"}`}
                   />
                   <h3 className="text-lg font-bold">{plan.name}</h3>
                   <p className="text-xs text-muted-foreground">{plan.desc}</p>
                 </div>
 
                 <div className="mb-6">
-                  <span className="text-3xl font-extrabold">
+                  <span className="text-3xl font-extrabold gradient-text">
                     ${plan.price}
                   </span>
                   <span className="text-muted-foreground text-sm">/mo</span>

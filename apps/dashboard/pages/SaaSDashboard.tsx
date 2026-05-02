@@ -96,9 +96,9 @@ export default function SaaSDashboard() {
       <Navbar />
       <div className="pt-24 pb-16 container mx-auto px-4 max-w-6xl">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">
+            <h1 className="text-3xl font-bold tracking-tight font-display">
               Ad Campaign Studio
             </h1>
             <p className="text-muted-foreground mt-1">
@@ -106,13 +106,13 @@ export default function SaaSDashboard() {
             </p>
           </div>
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary/50 border border-border">
-              <CreditCard className="w-4 h-4 text-primary" />
+            <div className="glass-card flex items-center gap-2 px-4 py-2 rounded-xl">
+              <CreditCard className="w-4 h-4 text-cyan-500" />
               <span className="text-sm font-medium">
                 {remainingCampaigns()} campaigns left today
               </span>
             </div>
-            <Button variant="outline" size="sm" asChild>
+            <Button variant="outline" size="sm" className="border-border/60 hover:border-cyan-400/40" asChild>
               <Link to="/pricing">
                 <Zap className="w-4 h-4 mr-1" /> Upgrade
               </Link>
@@ -123,10 +123,12 @@ export default function SaaSDashboard() {
         {/* Main Input */}
         <form
           onSubmit={handleGenerate}
-          className="mb-12 p-8 rounded-2xl border border-border bg-card/50 backdrop-blur"
+          className="mb-12 p-8 rounded-2xl glass-card"
         >
           <div className="flex items-center gap-2 mb-4">
-            <Sparkles className="w-5 h-5 text-primary" />
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-400 to-purple-500 flex items-center justify-center">
+              <Sparkles className="w-4 h-4 text-white" />
+            </div>
             <h2 className="text-lg font-semibold">Create Ad Campaign</h2>
           </div>
           <p className="text-muted-foreground mb-6 text-sm">
@@ -145,7 +147,7 @@ export default function SaaSDashboard() {
               type="submit"
               size="lg"
               disabled={generating || !productInput.trim()}
-              className="h-12 px-6"
+              className="h-12 px-6 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 border-0 shadow-lg shadow-cyan-500/20"
             >
               {generating ? (
                 <>

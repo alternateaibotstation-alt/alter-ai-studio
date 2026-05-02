@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import { Sparkles } from "lucide-react";
 
 export default function SiteFooter() {
   return (
@@ -8,8 +7,8 @@ export default function SiteFooter() {
         <div className="grid md:grid-cols-4 gap-8 mb-8">
           <div>
             <Link to="/" className="flex items-center gap-2 mb-3">
-              <Sparkles className="w-4 h-4 text-primary" />
-              <span className="font-bold text-foreground">Alterai.im</span>
+              <img src="/logo.png" alt="Alterai.im" className="w-6 h-6" />
+              <span className="font-bold gradient-text">Alterai.im</span>
             </Link>
             <p className="text-sm text-muted-foreground">
               AI ad campaign generator. Full campaigns in under 60 seconds.

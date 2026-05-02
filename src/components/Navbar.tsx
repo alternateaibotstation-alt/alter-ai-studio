@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Sparkles, Menu, X, User } from "lucide-react";
+import { Menu, X, User } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -51,9 +51,9 @@ export default function Navbar() {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 glass-panel border-b border-border/50">
       <div className="container mx-auto flex items-center justify-between h-16 px-4">
-        <Link to="/" className="flex items-center gap-2">
-          <Sparkles className="w-5 h-5 text-primary" />
-          <span className="text-lg font-bold tracking-tight text-foreground">
+        <Link to="/" className="flex items-center gap-2.5">
+          <img src="/logo.png" alt="Alterai.im" className="w-8 h-8" />
+          <span className="text-lg font-bold tracking-tight gradient-text">
             Alterai.im
           </span>
         </Link>
