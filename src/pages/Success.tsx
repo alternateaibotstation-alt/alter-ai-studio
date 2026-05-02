@@ -100,7 +100,7 @@ export default function Success() {
               </Link>
             </Button>
             <Button variant="secondary" asChild>
-              <Link to="/content-creator">Create Content</Link>
+              <Link to="/dashboard">Create Campaign</Link>
             </Button>
             <Button variant="outline" onClick={refreshStatus} disabled={refreshing || loading}>
               <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? "animate-spin" : ""}`} /> Refresh Status

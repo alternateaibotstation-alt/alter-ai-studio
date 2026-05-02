@@ -84,7 +84,7 @@ export async function generateFullCampaign(
       if (imageAds.length > 0) {
         creditLedger.push({ action: "image_generation", quantity: imageAds.length });
       }
-      totalCreditsUsed += getActionCreditCost("image_generation", imageAds.length);
+      totalCreditsUsed += imageAds.length > 0 ? getActionCreditCost("image_generation", imageAds.length) : 0;
     }
 
     if (input.includeVideo && isVideoAllowed(userPlan)) {
@@ -99,7 +99,7 @@ export async function generateFullCampaign(
       if (videoAds.length > 0) {
         creditLedger.push({ action: "video_generation", quantity: videoAds.length });
       }
-      totalCreditsUsed += getActionCreditCost("video_generation", videoAds.length);
+      totalCreditsUsed += videoAds.length > 0 ? getActionCreditCost("video_generation", videoAds.length) : 0;
     }
 
     campaign.creditsUsed = totalCreditsUsed;
