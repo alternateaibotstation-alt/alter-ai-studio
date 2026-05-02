@@ -208,7 +208,7 @@ async function generateImageAds(
         status: "completed",
       });
     } catch {
-      await refundCredits("image_generation", 1).catch(() => {});
+      // No refund needed — deductCredits only runs after success
     }
   }
 
@@ -254,7 +254,7 @@ async function generateVideoAds(
         status: "completed",
       });
     } catch {
-      await refundCredits("video_generation", 1).catch(() => {});
+      // No refund needed — deductCredits only runs after success
     }
   }
 

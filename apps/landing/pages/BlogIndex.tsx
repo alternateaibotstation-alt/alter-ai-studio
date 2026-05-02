@@ -83,7 +83,7 @@ export default function BlogIndex() {
                   {post.readTime}
                 </span>
                 <span className="text-xs text-muted-foreground">
-                  {new Date(post.date).toLocaleDateString("en-US", {
+                  {new Date(post.date + "T00:00:00").toLocaleDateString("en-US", {
                     month: "short",
                     day: "numeric",
                     year: "numeric",

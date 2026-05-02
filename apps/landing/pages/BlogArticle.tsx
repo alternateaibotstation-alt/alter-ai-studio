@@ -183,7 +183,7 @@ export default function BlogArticle() {
           {article.title}
         </h1>
         <p className="text-sm text-muted-foreground mb-8">
-          {new Date(article.date).toLocaleDateString("en-US", {
+          {new Date(article.date + "T00:00:00").toLocaleDateString("en-US", {
             month: "long",
             day: "numeric",
             year: "numeric",
