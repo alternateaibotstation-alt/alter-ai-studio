@@ -1,97 +1,79 @@
-/**
- * ONE-Stop AI Routing System
- * 
- * This module implements the intelligent routing logic between Google Gemini and OpenAI.
- * It considers user tiers, task types, and cost-optimization strategies.
- */
-
-export type UserTier = 'free' | 'pro' | 'power';
-export type TaskType = 'chat' | 'emotional_chat' | 'bulk_content' | 'image_gen' | 'video_script';
+export type UserTier = "free" | "starter" | "creator" | "pro" | "studio";
+export type TaskType =
+  | "text_generation"
+  | "image_generation"
+  | "voice_generation"
+  | "video_generation"
+  | "campaign_generation";
 
 export interface RoutingContext {
   tier: UserTier;
   taskType: TaskType;
-  hasOpenAIKey: boolean;
-  hasGeminiKey: boolean;
   preferHighQuality?: boolean;
 }
 
 export interface RouteResult {
-  provider: 'openai' | 'google' | 'byo_openai' | 'byo_google';
+  provider: "openai" | "google";
   model: string;
   reason: string;
 }
 
-/**
- * Routes an AI request based on the provided context.
- */
 export function routeAIRequest(context: RoutingContext): RouteResult {
-  const { tier, taskType, hasOpenAIKey, hasGeminiKey, preferHighQuality } = context;
+  const { tier, taskType, preferHighQuality } = context;
 
-  // 1. Check for Bring Your Own Key (BYOK) - Highest Priority
-  if (hasOpenAIKey && (preferHighQuality || taskType === 'emotional_chat')) {
+  if (tier === "free") {
     return {
-      provider: 'byo_openai',
-      model: 'gpt-4o',
-      reason: 'Using user-provided OpenAI key for high-quality/emotional task.'
+      provider: "google",
+      model: "gemini-1.5-flash",
+      reason: "Free tier: routing to Gemini for cost minimization.",
     };
   }
 
-  if (hasGeminiKey && taskType === 'bulk_content') {
+  if (tier === "starter") {
     return {
-      provider: 'byo_google',
-      model: 'gemini-1.5-flash',
-      reason: 'Using user-provided Gemini key for bulk content task.'
+      provider: "google",
+      model: "gemini-1.5-flash",
+      reason: "Starter tier: using Gemini for standard tasks.",
     };
   }
 
-  // 2. Tier-Based Routing Logic
-  
-  // FREE TIER: Always use Gemini for cost-efficiency
-  if (tier === 'free') {
-    return {
-      provider: 'google',
-      model: 'gemini-1.5-flash',
-      reason: 'Free tier: routing to Gemini for cost minimization.'
-    };
-  }
-
-  // PRO TIER: Hybrid routing
-  if (tier === 'pro') {
-    if (taskType === 'emotional_chat' || preferHighQuality) {
+  if (tier === "creator" || tier === "pro") {
+    if (
+      taskType === "video_generation" ||
+      taskType === "image_generation" ||
+      preferHighQuality
+    ) {
       return {
-        provider: 'openai',
-        model: 'gpt-4o-mini',
-        reason: 'Pro tier: using OpenAI for high-quality/emotional task.'
+        provider: "openai",
+        model: "gpt-4o",
+        reason: "Creator/Pro tier: using OpenAI for premium media generation.",
       };
     }
     return {
-      provider: 'google',
-      model: 'gemini-1.5-flash',
-      reason: 'Pro tier: using Gemini for standard/bulk tasks.'
+      provider: "google",
+      model: "gemini-1.5-flash",
+      reason: "Creator/Pro tier: using Gemini for text tasks.",
     };
   }
 
-  // POWER TIER: Prioritize OpenAI
-  if (tier === 'power') {
-    if (taskType === 'bulk_content') {
+  if (tier === "studio") {
+    if (taskType === "campaign_generation") {
       return {
-        provider: 'google',
-        model: 'gemini-1.5-flash',
-        reason: 'Power tier: using Gemini for high-volume bulk content.'
+        provider: "google",
+        model: "gemini-1.5-flash",
+        reason: "Studio tier: using Gemini for high-volume campaign generation.",
       };
     }
     return {
-      provider: 'openai',
-      model: 'gpt-4o',
-      reason: 'Power tier: prioritizing OpenAI for premium output.'
+      provider: "openai",
+      model: "gpt-4o",
+      reason: "Studio tier: prioritizing OpenAI for premium output.",
     };
   }
 
-  // Fallback
   return {
-    provider: 'google',
-    model: 'gemini-1.5-flash',
-    reason: 'Default fallback: routing to Gemini.'
+    provider: "google",
+    model: "gemini-1.5-flash",
+    reason: "Default fallback: routing to Gemini.",
   };
 }

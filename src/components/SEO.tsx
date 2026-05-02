@@ -3,7 +3,7 @@ import { Helmet } from "react-helmet-async";
 interface SEOProps {
   title: string;
   description: string;
-  path: string; // e.g. "/pricing"
+  path?: string; // e.g. "/pricing"
   image?: string;
   type?: "website" | "article";
   noindex?: boolean;
@@ -15,7 +15,7 @@ const DEFAULT_IMAGE = `${SITE_URL}/og-image.jpg`;
 export default function SEO({
   title,
   description,
-  path,
+  path = "/",
   image = DEFAULT_IMAGE,
   type = "website",
   noindex = false,

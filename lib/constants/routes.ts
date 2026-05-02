@@ -3,7 +3,6 @@ export const ROUTES = {
   pricing: "/pricing",
   blog: "/blog",
   dashboard: "/dashboard",
-  contentStudio: "/content-studio",
-  botBuilder: "/dashboard#bot-builder",
+  campaign: "/campaign",
   auth: "/auth",
 } as const;

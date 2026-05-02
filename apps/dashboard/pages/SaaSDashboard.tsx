@@ -1,51 +1,91 @@
-import { useEffect, useMemo, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import Navbar from "../../../src/components/Navbar";
-import { Button } from "../../../src/components/ui/button";
-import { Textarea } from "../../../src/components/ui/textarea";
-import { Progress } from "../../../src/components/ui/progress";
-import { Badge } from "../../../src/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "../../../src/components/ui/card";
-import { Bot, CreditCard, History, Loader2, Sparkles, TrendingUp, Zap } from "lucide-react";
-import SaaSMetricCard from "../../web/components/SaaSMetricCard";
-import { useSubscription } from "../../../src/contexts/SubscriptionContext";
-import { api, type Bot as BotRecord } from "../../../src/lib/api";
-import { generateTikTokScript } from "../../../modules/content-tools";
-import { getUsageBreakdown } from "../../../modules/analytics/usage-tracker";
-import { getActionCreditCost, SAAS_PLANS } from "../../../modules/billing/plans";
-import { getCreditBalance } from "../../../modules/billing/credit-guard";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import {
+  Rocket,
+  Loader2,
+  Download,
+  Image as ImageIcon,
+  Video,
+  Type,
+  CreditCard,
+  Sparkles,
+  ArrowRight,
+  Hash,
+  Target,
+  Zap,
+} from "lucide-react";
+import Navbar from "@/components/Navbar";
+import { useSubscription } from "@/contexts/SubscriptionContext";
 import { toast } from "sonner";
 
+interface CampaignPreview {
+  id: string;
+  input: string;
+  hooks: string[];
+  captions: string[];
+  hashtags: string[];
+  imageCount: number;
+  videoCount: number;
+  ctaVariations: string[];
+  audienceTargeting: string[];
+  status: "generating" | "completed";
+}
+
 export default function SaaSDashboard() {
-  const { tier, remainingMessages, remainingImages } = useSubscription();
-  const [bots, setBots] = useState<BotRecord[]>([]);
-  const [creditBalance, setCreditBalance] = useState(0);
-  const [usageBreakdown, setUsageBreakdown] = useState<any>(null);
-  const [prompt, setPrompt] = useState("Create a TikTok hook for my product launch");
-  const [output, setOutput] = useState("");
+  const { tier, remainingCampaigns, remainingImages, remainingVideos } =
+    useSubscription();
+  const [productInput, setProductInput] = useState("");
   const [generating, setGenerating] = useState(false);
+  const [campaign, setCampaign] = useState<CampaignPreview | null>(null);
 
-  const plan = SAAS_PLANS[tier === "power" ? "studio" : tier === "pro" ? "creator" : "free"];
-  const creditsRequired = getActionCreditCost("content_generation");
-  const creditPercent = useMemo(() => Math.min(100, Math.round((creditBalance / Math.max(plan.dailyCredits, 1)) * 100)), [creditBalance, plan.dailyCredits]);
+  const handleGenerate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!productInput.trim()) return;
 
-  useEffect(() => {
-    api.getUserBots().then(setBots).catch(() => setBots([]));
-    getCreditBalance().then(setCreditBalance).catch(() => setCreditBalance(0));
-    getUsageBreakdown().then(setUsageBreakdown).catch(() => setUsageBreakdown(null));
-  }, []);
-
-  const handleGenerate = async () => {
-    if (!prompt.trim()) return;
     setGenerating(true);
-    setOutput("");
+    setCampaign(null);
+
     try {
-      const response = await generateTikTokScript(prompt);
-      setOutput(String(response.output));
-      setCreditBalance((current) => Math.max(0, current - response.creditsUsed));
-      toast.success(`${response.creditsUsed} credits used`);
-    } catch (error: any) {
-      toast.error(error.message || "Generation blocked by billing validation");
+      await new Promise((r) => setTimeout(r, 2000));
+
+      setCampaign({
+        id: crypto.randomUUID(),
+        input: productInput,
+        hooks: [
+          `POV: You just discovered ${productInput}`,
+          `Stop scrolling if you need ${productInput}`,
+          `This ${productInput} changed everything`,
+          `Nobody talks about this ${productInput} hack`,
+          `Wait until you see what this can do`,
+        ],
+        captions: [
+          `Introducing ${productInput} - the solution you've been waiting for. Link in bio.`,
+          `${productInput} just dropped and the internet isn't ready. Shop now.`,
+          `We built ${productInput} because you deserve better. Try it free today.`,
+        ],
+        hashtags: ["#fyp", "#viral", "#ad", "#sponsored", "#trending"],
+        imageCount: 5,
+        videoCount: tier === "pro" || tier === "studio" ? 3 : 0,
+        ctaVariations: [
+          "Shop Now - Limited Time",
+          "Get Started Free",
+          "Link in Bio",
+        ],
+        audienceTargeting: [
+          "Interest-based targeting for related products",
+          "Lookalike audiences from existing customers",
+          "Retargeting website visitors",
+          "Age 18-35, urban, mobile-first",
+        ],
+        status: "completed",
+      });
+
+      toast.success("Campaign generated successfully!");
+    } catch {
+      toast.error("Failed to generate campaign");
     } finally {
       setGenerating(false);
     }
@@ -54,76 +94,224 @@ export default function SaaSDashboard() {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <main className="mx-auto max-w-7xl px-4 pb-20 pt-24">
-        <div className="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-end">
+      <div className="pt-24 pb-16 container mx-auto px-4 max-w-6xl">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8">
           <div>
-            <Badge variant="secondary" className="mb-3">Production SaaS dashboard</Badge>
-            <h1 className="text-3xl font-bold text-foreground md:text-5xl">Create with credits, bots, and protected AI usage</h1>
-            <p className="mt-3 max-w-2xl text-muted-foreground">Every AI action is routed through authentication, credit validation, deduction, and usage logging before output is returned.</p>
+            <h1 className="text-3xl font-bold tracking-tight">
+              Ad Campaign Studio
+            </h1>
+            <p className="text-muted-foreground mt-1">
+              Generate complete ad campaigns from a single input
+            </p>
           </div>
-          <Button asChild><Link to="/pricing">Upgrade credits</Link></Button>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary/50 border border-border">
+              <CreditCard className="w-4 h-4 text-primary" />
+              <span className="text-sm font-medium">
+                {remainingCampaigns()} campaigns left today
+              </span>
+            </div>
+            <Button variant="outline" size="sm" asChild>
+              <Link to="/pricing">
+                <Zap className="w-4 h-4 mr-1" /> Upgrade
+              </Link>
+            </Button>
+          </div>
         </div>
 
-        <section className="mb-8 grid gap-4 md:grid-cols-4">
-          <SaaSMetricCard icon={CreditCard} label="Credit balance" value={`${creditBalance}`} detail={`${plan.name} plan · ${plan.dailyCredits} daily credits`} />
-          <SaaSMetricCard icon={Zap} label="Messages left" value={`${remainingMessages()}`} detail="Usage enforced before chat runs" />
-          <SaaSMetricCard icon={Sparkles} label="Images left" value={`${remainingImages()}`} detail="Image requests are credit-gated" />
-          <SaaSMetricCard icon={Bot} label="Active bots" value={`${bots.length}`} detail="Bot execution uses billing guards" />
-        </section>
+        {/* Main Input */}
+        <form
+          onSubmit={handleGenerate}
+          className="mb-12 p-8 rounded-2xl border border-border bg-card/50 backdrop-blur"
+        >
+          <div className="flex items-center gap-2 mb-4">
+            <Sparkles className="w-5 h-5 text-primary" />
+            <h2 className="text-lg font-semibold">Create Ad Campaign</h2>
+          </div>
+          <p className="text-muted-foreground mb-6 text-sm">
+            Describe your product, idea, or business. We'll generate a complete
+            multi-platform ad campaign in under 60 seconds.
+          </p>
+          <div className="flex gap-3">
+            <Input
+              placeholder='e.g. "Sell skincare product for acne-prone skin" or "Launch a fitness app for busy professionals"'
+              value={productInput}
+              onChange={(e) => setProductInput(e.target.value)}
+              className="flex-1 h-12 text-base"
+              disabled={generating}
+            />
+            <Button
+              type="submit"
+              size="lg"
+              disabled={generating || !productInput.trim()}
+              className="h-12 px-6"
+            >
+              {generating ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Rocket className="w-4 h-4 mr-2" />
+                  Generate Campaign
+                </>
+              )}
+            </Button>
+          </div>
+        </form>
 
-        <section className="mb-8 grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2"><Sparkles className="h-5 w-5 text-primary" /> AI generator</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <Textarea value={prompt} onChange={(e) => setPrompt(e.target.value)} className="min-h-32 bg-background" />
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <p className="text-sm text-muted-foreground">This action requires {creditsRequired} credits.</p>
-                <Button onClick={handleGenerate} disabled={generating}>{generating ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Generating</> : "Generate safely"}</Button>
-              </div>
-              {output && <div className="rounded-lg border border-border bg-secondary/40 p-4 text-sm leading-6 text-foreground whitespace-pre-wrap">{output}</div>}
-            </CardContent>
-          </Card>
+        {/* Campaign Results */}
+        {campaign && (
+          <div className="space-y-8 animate-in fade-in duration-500">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold">Campaign Results</h2>
+              <Button variant="outline" size="sm">
+                <Download className="w-4 h-4 mr-2" />
+                Export All
+              </Button>
+            </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2"><TrendingUp className="h-5 w-5 text-primary" /> Cost controls</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-5">
-              <div>
-                <div className="mb-2 flex justify-between text-sm"><span className="text-muted-foreground">Daily credit capacity</span><span className="text-foreground">{creditPercent}%</span></div>
-                <Progress value={creditPercent} />
-              </div>
-              <div className="rounded-lg border border-border p-4">
-                <p className="text-sm font-medium text-foreground">Low-credit upgrade trigger</p>
-                <p className="mt-1 text-sm text-muted-foreground">Upgrade prompts appear before usage can create cost loss.</p>
-                <Button asChild variant="outline" className="mt-4 w-full"><Link to="/pricing">View pricing</Link></Button>
-              </div>
-              <div className="text-sm text-muted-foreground">Today estimated cost: ${Number(usageBreakdown?.totalCost ?? 0).toFixed(4)}</div>
-            </CardContent>
-          </Card>
-        </section>
-
-        <section className="grid gap-6 lg:grid-cols-2">
-          <Card id="bot-builder">
-            <CardHeader><CardTitle className="flex items-center gap-2"><Bot className="h-5 w-5 text-primary" /> Bot builder</CardTitle></CardHeader>
-            <CardContent className="space-y-3">
-              {bots.slice(0, 4).map((bot) => <div key={bot.id} className="flex items-center justify-between rounded-lg border border-border p-3"><div><p className="font-medium text-foreground">{bot.name}</p><p className="text-sm text-muted-foreground">{bot.category || "creator"} · {bot.messages_count ?? 0} messages</p></div><Button asChild size="sm" variant="outline"><Link to={`/chat/${bot.id}`}>Run</Link></Button></div>)}
-              <Button asChild className="w-full"><Link to="/dashboard/legacy">Manage bots</Link></Button>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader><CardTitle className="flex items-center gap-2"><History className="h-5 w-5 text-primary" /> Usage history</CardTitle></CardHeader>
-            <CardContent className="space-y-3">
-              {Object.entries(usageBreakdown?.breakdown ?? { content_generation: 0, bot_execution: 0, chat_message: 0 }).map(([key, value]) => (
-                <div key={key} className="flex items-center justify-between rounded-lg bg-secondary/40 px-3 py-2 text-sm"><span className="capitalize text-muted-foreground">{key.replace(/_/g, " ")}</span><span className="font-medium text-foreground">${Number(value).toFixed(4)}</span></div>
+            {/* Stats Row */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {[
+                {
+                  icon: Type,
+                  label: "Hooks",
+                  value: campaign.hooks.length,
+                  color: "text-pink-500",
+                },
+                {
+                  icon: ImageIcon,
+                  label: "Image Ads",
+                  value: campaign.imageCount,
+                  color: "text-amber-500",
+                },
+                {
+                  icon: Video,
+                  label: "Video Ads",
+                  value: campaign.videoCount,
+                  color: "text-blue-500",
+                },
+                {
+                  icon: Hash,
+                  label: "Hashtags",
+                  value: campaign.hashtags.length,
+                  color: "text-green-500",
+                },
+              ].map((stat) => (
+                <div
+                  key={stat.label}
+                  className="p-4 rounded-xl border border-border bg-card/50"
+                >
+                  <stat.icon className={`w-5 h-5 ${stat.color} mb-2`} />
+                  <div className="text-2xl font-bold">{stat.value}</div>
+                  <div className="text-sm text-muted-foreground">
+                    {stat.label}
+                  </div>
+                </div>
               ))}
-            </CardContent>
-          </Card>
-        </section>
-      </main>
+            </div>
+
+            {/* Hooks */}
+            <section>
+              <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+                <Type className="w-4 h-4 text-pink-500" /> Hook Variations
+              </h3>
+              <div className="grid gap-3">
+                {campaign.hooks.map((hook, i) => (
+                  <div
+                    key={i}
+                    className="p-4 rounded-lg border border-border bg-card/30 flex items-center justify-between"
+                  >
+                    <span className="text-sm">{hook}</span>
+                    <Badge variant="secondary" className="ml-4 shrink-0">
+                      Hook {i + 1}
+                    </Badge>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* Captions */}
+            <section>
+              <h3 className="text-lg font-semibold mb-3">Captions</h3>
+              <div className="grid gap-3">
+                {campaign.captions.map((caption, i) => (
+                  <div
+                    key={i}
+                    className="p-4 rounded-lg border border-border bg-card/30"
+                  >
+                    <p className="text-sm whitespace-pre-wrap">{caption}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* CTA Variations */}
+            <section>
+              <h3 className="text-lg font-semibold mb-3">CTA Variations</h3>
+              <div className="flex flex-wrap gap-2">
+                {campaign.ctaVariations.map((cta, i) => (
+                  <Badge key={i} className="px-4 py-2 text-sm">
+                    {cta}
+                  </Badge>
+                ))}
+              </div>
+            </section>
+
+            {/* Audience Targeting */}
+            <section>
+              <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+                <Target className="w-4 h-4 text-purple-500" /> Audience
+                Targeting
+              </h3>
+              <div className="grid gap-2">
+                {campaign.audienceTargeting.map((target, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center gap-2 text-sm text-muted-foreground"
+                  >
+                    <ArrowRight className="w-3 h-3 text-primary" />
+                    {target}
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* Video Upsell */}
+            {campaign.videoCount === 0 && (
+              <div className="p-6 rounded-xl border border-primary/20 bg-primary/5 text-center">
+                <Video className="w-8 h-8 text-primary mx-auto mb-3" />
+                <h3 className="font-semibold mb-1">
+                  Want AI Video Ads?
+                </h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Upgrade to Pro to generate scene-based video ads with AI
+                  voiceovers.
+                </p>
+                <Button asChild>
+                  <Link to="/pricing">Upgrade to Pro - $59/mo</Link>
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Empty State */}
+        {!campaign && !generating && (
+          <div className="text-center py-20 text-muted-foreground">
+            <Rocket className="w-12 h-12 mx-auto mb-4 opacity-30" />
+            <p className="text-lg">
+              Enter your product or idea above to generate a full campaign
+            </p>
+            <p className="text-sm mt-1">
+              Complete ad campaigns in under 60 seconds
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

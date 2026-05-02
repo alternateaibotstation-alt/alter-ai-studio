@@ -1,12 +1,19 @@
-import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+  type ReactNode,
+} from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { UserTier } from "@/lib/tiers";
 import { TIER_LIMITS } from "@/lib/tiers";
 
 interface Usage {
-  messages_used_today: number;
+  campaigns_used_today: number;
   images_used_today: number;
-  bonus_messages: number;
+  videos_used_today: number;
 }
 
 interface SubscriptionState {
@@ -15,15 +22,20 @@ interface SubscriptionState {
   subscriptionEnd: string | null;
   usage: Usage;
   loading: boolean;
-  hasApiKey: boolean;
   refresh: () => Promise<void>;
-  canSendMessage: () => boolean;
+  canGenerateCampaign: () => boolean;
   canGenerateImage: () => boolean;
-  remainingMessages: () => number;
+  canGenerateVideo: () => boolean;
+  remainingCampaigns: () => number;
   remainingImages: () => number;
+  remainingVideos: () => number;
 }
 
-const defaultUsage: Usage = { messages_used_today: 0, images_used_today: 0, bonus_messages: 0 };
+const defaultUsage: Usage = {
+  campaigns_used_today: 0,
+  images_used_today: 0,
+  videos_used_today: 0,
+};
 
 const SubscriptionContext = createContext<SubscriptionState>({
   tier: "free",
@@ -31,12 +43,13 @@ const SubscriptionContext = createContext<SubscriptionState>({
   subscriptionEnd: null,
   usage: defaultUsage,
   loading: true,
-  hasApiKey: false,
   refresh: async () => {},
-  canSendMessage: () => true,
-  canGenerateImage: () => true,
-  remainingMessages: () => 15,
-  remainingImages: () => 2,
+  canGenerateCampaign: () => true,
+  canGenerateImage: () => false,
+  canGenerateVideo: () => false,
+  remainingCampaigns: () => 3,
+  remainingImages: () => 0,
+  remainingVideos: () => 0,
 });
 
 export function SubscriptionProvider({ children }: { children: ReactNode }) {
@@ -45,21 +58,22 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
   const [subscriptionEnd, setSubscriptionEnd] = useState<string | null>(null);
   const [usage, setUsage] = useState<Usage>(defaultUsage);
   const [loading, setLoading] = useState(true);
-  const [hasApiKey, setHasApiKey] = useState(false);
 
   const refresh = useCallback(async () => {
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
       if (!session) {
         setTier("free");
         setSubscribed(false);
         setUsage(defaultUsage);
-        setHasApiKey(false);
         setLoading(false);
         return;
       }
 
-      const { data: subData, error: subError } = await supabase.functions.invoke("check-subscription");
+      const { data: subData, error: subError } =
+        await supabase.functions.invoke("check-subscription");
 
       if (subError) throw subError;
 
@@ -67,7 +81,6 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
       setSubscribed(subData.subscribed || false);
       setSubscriptionEnd(subData.subscription_end || null);
       setUsage(subData.usage || defaultUsage);
-      setHasApiKey(false);
     } catch (e) {
       console.error("Failed to check subscription:", e);
     } finally {
@@ -78,7 +91,9 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     refresh();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(() => {
       refresh();
     });
 
@@ -90,41 +105,53 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
     };
   }, [refresh]);
 
-  const canSendMessage = useCallback(() => {
-    if (hasApiKey) return true;
+  const canGenerateCampaign = useCallback(() => {
     const limits = TIER_LIMITS[tier];
-    if (limits.messages === Infinity) return true;
-    const totalAllowed = limits.messages + usage.bonus_messages;
-    return usage.messages_used_today < totalAllowed;
-  }, [tier, usage, hasApiKey]);
+    return usage.campaigns_used_today < limits.campaigns;
+  }, [tier, usage]);
 
   const canGenerateImage = useCallback(() => {
-    if (hasApiKey) return true;
     const limits = TIER_LIMITS[tier];
-    if (limits.images === Infinity) return true;
     return usage.images_used_today < limits.images;
-  }, [tier, usage, hasApiKey]);
+  }, [tier, usage]);
 
-  const remainingMessages = useCallback(() => {
-    if (hasApiKey) return Infinity;
+  const canGenerateVideo = useCallback(() => {
     const limits = TIER_LIMITS[tier];
-    if (limits.messages === Infinity) return Infinity;
-    const totalAllowed = limits.messages + usage.bonus_messages;
-    return Math.max(0, totalAllowed - usage.messages_used_today);
-  }, [tier, usage, hasApiKey]);
+    return usage.videos_used_today < limits.videos;
+  }, [tier, usage]);
+
+  const remainingCampaigns = useCallback(() => {
+    const limits = TIER_LIMITS[tier];
+    return Math.max(0, limits.campaigns - usage.campaigns_used_today);
+  }, [tier, usage]);
 
   const remainingImages = useCallback(() => {
-    if (hasApiKey) return Infinity;
     const limits = TIER_LIMITS[tier];
-    if (limits.images === Infinity) return Infinity;
     return Math.max(0, limits.images - usage.images_used_today);
-  }, [tier, usage, hasApiKey]);
+  }, [tier, usage]);
+
+  const remainingVideos = useCallback(() => {
+    const limits = TIER_LIMITS[tier];
+    return Math.max(0, limits.videos - usage.videos_used_today);
+  }, [tier, usage]);
 
   return (
-    <SubscriptionContext.Provider value={{
-      tier, subscribed, subscriptionEnd, usage, loading, hasApiKey,
-      refresh, canSendMessage, canGenerateImage, remainingMessages, remainingImages,
-    }}>
+    <SubscriptionContext.Provider
+      value={{
+        tier,
+        subscribed,
+        subscriptionEnd,
+        usage,
+        loading,
+        refresh,
+        canGenerateCampaign,
+        canGenerateImage,
+        canGenerateVideo,
+        remainingCampaigns,
+        remainingImages,
+        remainingVideos,
+      }}
+    >
       {children}
     </SubscriptionContext.Provider>
   );

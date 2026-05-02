@@ -18,7 +18,9 @@ export default function Navbar() {
 
   useEffect(() => {
     const fetchUser = async () => {
-      const { data: { user: u } } = await supabase.auth.getUser();
+      const {
+        data: { user: u },
+      } = await supabase.auth.getUser();
       setUser(u ? { id: u.id } : null);
       if (u) {
         const { data } = await supabase
@@ -31,7 +33,9 @@ export default function Navbar() {
     };
     fetchUser();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(() => {
       fetchUser();
     });
     return () => subscription.unsubscribe();
@@ -39,15 +43,9 @@ export default function Navbar() {
 
   const links = [
     { to: "/", label: "Home" },
-    { to: "/companions", label: "Companions" },
-    { to: "/marketplace", label: "Marketplace" },
-    { to: "/content-studio", label: "Content Studio" },
-    { to: "/tiktok-templates", label: "TikTok Templates" },
-    { to: "/my-creations", label: "My Creations" },
-    { to: "/art-studio", label: "Art Studio" },
-    
     { to: "/dashboard", label: "Dashboard" },
     { to: "/pricing", label: "Pricing" },
+    { to: "/blog", label: "Blog" },
   ];
 
   return (
@@ -55,7 +53,9 @@ export default function Navbar() {
       <div className="container mx-auto flex items-center justify-between h-16 px-4">
         <Link to="/" className="flex items-center gap-2">
           <Sparkles className="w-5 h-5 text-primary" />
-          <span className="text-lg font-bold tracking-tight text-foreground">Alterai.im</span>
+          <span className="text-lg font-bold tracking-tight text-foreground">
+            Alterai.im
+          </span>
         </Link>
 
         {/* Desktop */}
@@ -83,26 +83,42 @@ export default function Navbar() {
               className="w-9 h-9 rounded-full bg-secondary border border-border flex items-center justify-center overflow-hidden hover:border-primary/40 transition-colors"
             >
               {profile?.avatar_url ? (
-                <img src={profile.avatar_url} alt="Profile" className="w-full h-full object-cover" />
+                <img
+                  src={profile.avatar_url}
+                  alt="Profile"
+                  className="w-full h-full object-cover"
+                />
               ) : (
                 <User className="w-4 h-4 text-muted-foreground" />
               )}
             </Link>
           ) : (
             <>
-              <Button variant="ghost" size="sm" className="text-muted-foreground" asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-muted-foreground"
+                asChild
+              >
                 <Link to="/auth">Log in</Link>
               </Button>
               <Button size="sm" asChild>
-                <Link to="/auth">Get Started</Link>
+                <Link to="/auth">Get Started Free</Link>
               </Button>
             </>
           )}
         </div>
 
         {/* Mobile toggle */}
-        <button className="md:hidden text-foreground" onClick={() => setMobileOpen(!mobileOpen)}>
-          {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+        <button
+          className="md:hidden text-foreground"
+          onClick={() => setMobileOpen(!mobileOpen)}
+        >
+          {mobileOpen ? (
+            <X className="w-5 h-5" />
+          ) : (
+            <Menu className="w-5 h-5" />
+          )}
         </button>
       </div>
 
@@ -131,7 +147,7 @@ export default function Navbar() {
               </Link>
             ) : (
               <Button size="sm" className="w-full" asChild>
-                <Link to="/auth">Get Started</Link>
+                <Link to="/auth">Get Started Free</Link>
               </Button>
             )}
           </div>
