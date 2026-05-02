@@ -106,7 +106,7 @@ export default function Pricing() {
 
       const { data, error } = await supabase.functions.invoke(
         "create-checkout",
-        { body: { priceId: config.price_id } },
+        { body: { tier: planKey, priceId: config.price_id } },
       );
       if (error) throw error;
       if (data?.url) {
