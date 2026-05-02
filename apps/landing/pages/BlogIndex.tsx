@@ -1,55 +1,109 @@
 import { Link } from "react-router-dom";
-import Navbar from "../../../src/components/Navbar";
-import SiteFooter from "../../../src/components/SiteFooter";
-import SEO from "../../../src/components/SEO";
-import { Button } from "../../../src/components/ui/button";
-import { Badge } from "../../../src/components/ui/badge";
-import { ArrowRight, BookOpen, TrendingUp } from "lucide-react";
+import Navbar from "@/components/Navbar";
+import SEO from "@/components/SEO";
+import { ArrowRight, Clock } from "lucide-react";
+import SiteFooter from "@/components/SiteFooter";
 
-const posts = [
+const blogPosts = [
   {
-    slug: "tiktok-growth-ai-automation",
-    title: "TikTok Growth with AI Automation",
-    description: "Build repeatable hooks, scripts, captions, and posting workflows without losing creative control.",
-    category: "TikTok Growth",
+    slug: "ai-advertising-strategies-2025",
+    title: "AI Advertising Strategies That Actually Work in 2025",
+    excerpt:
+      "Discover how AI-powered ad generation is transforming paid social. From hook-first video ads to automated campaign variations.",
+    date: "2025-01-15",
+    readTime: "6 min",
+    category: "Strategy",
   },
   {
-    slug: "creator-automation-stack",
-    title: "The Creator Automation Stack",
-    description: "How creators combine AI bots, content templates, and usage analytics to publish faster.",
-    category: "Creator Automation",
+    slug: "tiktok-ad-creation-guide",
+    title: "The Complete Guide to TikTok Ad Creation with AI",
+    excerpt:
+      "Learn how to create scroll-stopping TikTok ads using AI-generated scripts, scene-based video structure, and viral hooks.",
+    date: "2025-01-10",
+    readTime: "8 min",
+    category: "TikTok",
   },
   {
-    slug: "ai-marketing-content-engine",
-    title: "AI Marketing Content Engine Guide",
-    description: "A practical system for turning offers into platform-ready content across TikTok, Instagram, YouTube, and blogs.",
-    category: "AI Marketing",
+    slug: "facebook-ad-automation",
+    title: "Facebook Ad Automation: Generate Campaigns in 60 Seconds",
+    excerpt:
+      "How AI ad generators are replacing creative teams by producing full Facebook campaigns from a single product description.",
+    date: "2025-01-05",
+    readTime: "5 min",
+    category: "Facebook",
+  },
+  {
+    slug: "ai-marketing-tools-comparison",
+    title: "Best AI Marketing Tools for Paid Social in 2025",
+    excerpt:
+      "A comparison of the top AI tools for ad campaign generation, image creation, voiceovers, and video production.",
+    date: "2024-12-28",
+    readTime: "7 min",
+    category: "Tools",
+  },
+  {
+    slug: "scene-based-video-ads",
+    title: "Why Scene-Based Video Ads Convert 3x Better",
+    excerpt:
+      "The Hook-Problem-Solution-CTA structure is the most effective format for short-form video ads. Here's the data.",
+    date: "2024-12-20",
+    readTime: "4 min",
+    category: "Video",
   },
 ];
 
 export default function BlogIndex() {
   return (
     <div className="min-h-screen bg-background">
-      <SEO title="AI Marketing Blog — TikTok Growth & Automation" description="Guides for AI marketing, TikTok growth, creator automation, and scalable content systems from Alterai.im." path="/blog" />
+      <SEO
+        title="Blog - Alterai.im | AI Advertising Insights"
+        description="Learn about AI advertising strategies, TikTok ad creation, Facebook ad automation, and the latest AI marketing tools."
+      />
       <Navbar />
-      <main className="mx-auto max-w-6xl px-4 pb-20 pt-28">
-        <section className="mb-10 max-w-3xl">
-          <Badge variant="secondary" className="mb-4"><BookOpen className="mr-2 h-3.5 w-3.5" /> Growth library</Badge>
-          <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl">AI marketing guides for creators who want scalable growth</h1>
-          <p className="mt-4 text-lg text-muted-foreground">Learn how to turn one idea into high-converting TikTok scripts, social content, blog posts, and reusable creator systems.</p>
-          <Button asChild className="mt-6"><Link to="/auth">Start creating <ArrowRight className="ml-2 h-4 w-4" /></Link></Button>
-        </section>
-        <section className="grid gap-4 md:grid-cols-3">
-          {posts.map((post) => (
-            <article key={post.slug} className="rounded-lg border border-border bg-card p-5">
-              <Badge variant="outline" className="mb-4"><TrendingUp className="mr-2 h-3.5 w-3.5" />{post.category}</Badge>
-              <h2 className="text-xl font-semibold text-foreground">{post.title}</h2>
-              <p className="mt-3 text-sm leading-6 text-muted-foreground">{post.description}</p>
-              <Link className="mt-5 inline-flex items-center text-sm font-medium text-primary" to={`/blog/${post.slug}`}>Read guide <ArrowRight className="ml-1 h-4 w-4" /></Link>
-            </article>
+
+      <div className="pt-28 pb-20 container mx-auto px-4 max-w-4xl">
+        <h1 className="text-4xl font-extrabold tracking-tight mb-4">Blog</h1>
+        <p className="text-lg text-muted-foreground mb-12">
+          AI advertising strategies, guides, and insights to grow your campaigns.
+        </p>
+
+        <div className="space-y-8">
+          {blogPosts.map((post) => (
+            <Link
+              key={post.slug}
+              to={`/blog/${post.slug}`}
+              className="block group p-6 rounded-xl border border-border/50 bg-card/30 hover:border-primary/20 transition-colors"
+            >
+              <div className="flex items-center gap-3 mb-3">
+                <span className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-primary/10 text-primary">
+                  {post.category}
+                </span>
+                <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                  <Clock className="w-3 h-3" />
+                  {post.readTime}
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  {new Date(post.date + "T00:00:00").toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
+                </span>
+              </div>
+              <h2 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors">
+                {post.title}
+              </h2>
+              <p className="text-sm text-muted-foreground mb-3">
+                {post.excerpt}
+              </p>
+              <span className="text-sm font-medium text-primary flex items-center gap-1">
+                Read more <ArrowRight className="w-3.5 h-3.5" />
+              </span>
+            </Link>
           ))}
-        </section>
-      </main>
+        </div>
+      </div>
+
       <SiteFooter />
     </div>
   );

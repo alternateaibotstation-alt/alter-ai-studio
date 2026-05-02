@@ -1,12 +1,12 @@
 export type UserTier = "free" | "starter" | "creator" | "pro" | "studio" | "power";
 
 export const TIER_LIMITS = {
-  free: { messages: 15, images: 0 },
-  starter: { messages: 150, images: 10 },
-  creator: { messages: 500, images: 50 },
-  pro: { messages: 1200, images: 125 },
-  studio: { messages: 2500, images: 300 },
-  power: { messages: 2500, images: 300 },
+  free: { campaigns: 3, images: 0, videos: 0 },
+  starter: { campaigns: 20, images: 10, videos: 0 },
+  creator: { campaigns: 80, images: 50, videos: 0 },
+  pro: { campaigns: 200, images: 125, videos: 30 },
+  studio: { campaigns: 500, images: 300, videos: 100 },
+  power: { campaigns: 500, images: 300, videos: 100 },
 } as const;
 
 export const TIER_MODELS = {
@@ -15,7 +15,6 @@ export const TIER_MODELS = {
   creator: "openai/gpt-4.1",
   pro: "openai/gpt-4.1",
   studio: "openai/gpt-4.1",
-  power: "openai/gpt-4.1",
 } as const;
 
 export const TIER_CONFIG = {
@@ -25,10 +24,10 @@ export const TIER_CONFIG = {
     price: 12,
     name: "Starter",
     features: [
-      "Limited image generation",
-      "Basic content tools",
-      "Text and caption generation",
-      "Profit-safe monthly credits",
+      "Limited image ad generation",
+      "Text & caption generation",
+      "Facebook & Instagram formats",
+      "1,200 credits/month",
     ],
   },
   creator: {
@@ -37,10 +36,10 @@ export const TIER_CONFIG = {
     price: 29,
     name: "Creator",
     features: [
-      "Images + captions",
-      "Light video usage",
-      "Creator workflow tools",
-      "Higher monthly credit pool",
+      "Full image generation",
+      "All ad formats (9:16, 1:1, 16:9)",
+      "Voice generation",
+      "Campaign variations",
     ],
   },
   pro: {
@@ -50,9 +49,9 @@ export const TIER_CONFIG = {
     name: "Pro",
     features: [
       "Full video generation",
-      "Limited high-value video credits",
-      "Priority AI processing",
-      "Advanced creator tools",
+      "AI voiceovers",
+      "Scene-based video ads",
+      "Priority processing",
     ],
   },
   studio: {
@@ -61,17 +60,10 @@ export const TIER_CONFIG = {
     price: 99,
     name: "Studio",
     features: [
-      "Bulk generation",
+      "Bulk campaign generation",
       "API access",
-      "Team features",
-      "Largest protected credit pool",
+      "Team workflows",
+      "White-label exports",
     ],
-  },
-  power: {
-    price_id: "price_1TR0G34NFqfF77IyvMKP0ggx",
-    product_id: "prod_UPpvkKvZISbXEs",
-    price: 99,
-    name: "Studio",
-    features: ["Bulk generation", "API access", "Team features", "Largest protected credit pool"],
   },
 } as const;

@@ -180,7 +180,7 @@ export default function ProfilePage() {
           <div className="rounded-xl border border-border bg-card p-4 space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-foreground flex items-center gap-2">
-                {tier === "power" ? <Crown className="w-4 h-4 text-primary" /> : tier === "pro" ? <Zap className="w-4 h-4 text-accent" /> : <Star className="w-4 h-4 text-muted-foreground" />}
+                {tier === "studio" ? <Crown className="w-4 h-4 text-primary" /> : tier === "pro" ? <Zap className="w-4 h-4 text-accent" /> : <Star className="w-4 h-4 text-muted-foreground" />}
                 {tier.charAt(0).toUpperCase() + tier.slice(1)} Plan
               </span>
               {tier === "free" && (
@@ -189,13 +189,11 @@ export default function ProfilePage() {
                 </Button>
               )}
             </div>
-            {tier !== "power" && (
-              <div className="space-y-1 text-xs text-muted-foreground">
-                <p>Messages: {usage.messages_used_today} / {TIER_LIMITS[tier].messages === Infinity ? "∞" : TIER_LIMITS[tier].messages + usage.bonus_messages} today</p>
-                <p>Images: {usage.images_used_today} / {TIER_LIMITS[tier].images === Infinity ? "∞" : TIER_LIMITS[tier].images} today</p>
-                {usage.bonus_messages > 0 && <p className="text-primary">+{usage.bonus_messages} bonus messages from referrals</p>}
-              </div>
-            )}
+            <div className="space-y-1 text-xs text-muted-foreground">
+              <p>Campaigns: {usage.campaigns_used_today} / {TIER_LIMITS[tier].campaigns} today</p>
+              <p>Images: {usage.images_used_today} / {TIER_LIMITS[tier].images} today</p>
+              <p>Videos: {usage.videos_used_today} / {TIER_LIMITS[tier].videos} today</p>
+            </div>
             {subscribed && subscriptionEnd && (
               <p className="text-xs text-muted-foreground">
                 Renews: {new Date(subscriptionEnd).toLocaleDateString()}
@@ -208,7 +206,7 @@ export default function ProfilePage() {
               <Gift className="w-4 h-4 text-primary" />
               <span className="text-sm font-medium text-foreground">Invite Friends</span>
             </div>
-            <p className="text-xs text-muted-foreground">Share your code. Both you and your friend get 20 bonus messages!</p>
+            <p className="text-xs text-muted-foreground">Share your code. Both you and your friend get bonus credits!</p>
             {referralCode ? (
               <div className="flex items-center gap-2">
                 <Input value={referralCode} readOnly className="bg-secondary border-border font-mono text-sm" />

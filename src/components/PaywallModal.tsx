@@ -11,7 +11,7 @@ import { toast } from "sonner";
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  reason?: "messages" | "images" | "premium_bot";
+  reason?: "campaigns" | "images" | "videos";
 }
 
 const getCheckoutErrorMessage = (error: unknown) => {
@@ -32,15 +32,15 @@ const getCheckoutErrorMessage = (error: unknown) => {
   return "Checkout could not be started right now. Please try again in a moment.";
 };
 
-export default function PaywallModal({ open, onOpenChange, reason = "messages" }: Props) {
+export default function PaywallModal({ open, onOpenChange, reason = "campaigns" }: Props) {
   const [loadingTier, setLoadingTier] = useState<string | null>(null);
   const { tier } = useSubscription();
   const isCreatingCheckout = loadingTier !== null;
 
   const reasonText = {
-    messages: "You've reached your daily message limit.",
+    campaigns: "You've reached your daily campaign generation limit.",
     images: "You've reached your daily image generation limit.",
-    premium_bot: "This bot requires a subscription to continue.",
+    videos: "Video ad generation requires a Pro or Studio plan.",
   };
 
   const handleUpgrade = async (selectedTier: "creator" | "pro" | "studio") => {
@@ -56,7 +56,7 @@ export default function PaywallModal({ open, onOpenChange, reason = "messages" }
       if (!data?.url) throw new Error("Missing checkout URL");
       toast.success("Checkout is ready. Opening Stripe…", { id: loadingToast });
       window.open(data.url, "_blank");
-    } catch (err: any) {
+    } catch (err: unknown) {
       toast.error(getCheckoutErrorMessage(err), { id: loadingToast });
     } finally {
       setLoadingTier(null);

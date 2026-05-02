@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Sparkles, Menu, X, User } from "lucide-react";
+import { Menu, X, User } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -18,7 +18,9 @@ export default function Navbar() {
 
   useEffect(() => {
     const fetchUser = async () => {
-      const { data: { user: u } } = await supabase.auth.getUser();
+      const {
+        data: { user: u },
+      } = await supabase.auth.getUser();
       setUser(u ? { id: u.id } : null);
       if (u) {
         const { data } = await supabase
@@ -31,7 +33,9 @@ export default function Navbar() {
     };
     fetchUser();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(() => {
       fetchUser();
     });
     return () => subscription.unsubscribe();
@@ -39,23 +43,19 @@ export default function Navbar() {
 
   const links = [
     { to: "/", label: "Home" },
-    { to: "/companions", label: "Companions" },
-    { to: "/marketplace", label: "Marketplace" },
-    { to: "/content-studio", label: "Content Studio" },
-    { to: "/tiktok-templates", label: "TikTok Templates" },
-    { to: "/my-creations", label: "My Creations" },
-    { to: "/art-studio", label: "Art Studio" },
-    
     { to: "/dashboard", label: "Dashboard" },
     { to: "/pricing", label: "Pricing" },
+    { to: "/blog", label: "Blog" },
   ];
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 glass-panel border-b border-border/50">
       <div className="container mx-auto flex items-center justify-between h-16 px-4">
-        <Link to="/" className="flex items-center gap-2">
-          <Sparkles className="w-5 h-5 text-primary" />
-          <span className="text-lg font-bold tracking-tight text-foreground">Alterai.im</span>
+        <Link to="/" className="flex items-center gap-2.5">
+          <img src="/logo.png" alt="Alterai.im" className="w-8 h-8" />
+          <span className="text-lg font-bold tracking-tight gradient-text">
+            Alterai.im
+          </span>
         </Link>
 
         {/* Desktop */}
@@ -83,26 +83,42 @@ export default function Navbar() {
               className="w-9 h-9 rounded-full bg-secondary border border-border flex items-center justify-center overflow-hidden hover:border-primary/40 transition-colors"
             >
               {profile?.avatar_url ? (
-                <img src={profile.avatar_url} alt="Profile" className="w-full h-full object-cover" />
+                <img
+                  src={profile.avatar_url}
+                  alt="Profile"
+                  className="w-full h-full object-cover"
+                />
               ) : (
                 <User className="w-4 h-4 text-muted-foreground" />
               )}
             </Link>
           ) : (
             <>
-              <Button variant="ghost" size="sm" className="text-muted-foreground" asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-muted-foreground"
+                asChild
+              >
                 <Link to="/auth">Log in</Link>
               </Button>
               <Button size="sm" asChild>
-                <Link to="/auth">Get Started</Link>
+                <Link to="/auth">Get Started Free</Link>
               </Button>
             </>
           )}
         </div>
 
         {/* Mobile toggle */}
-        <button className="md:hidden text-foreground" onClick={() => setMobileOpen(!mobileOpen)}>
-          {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+        <button
+          className="md:hidden text-foreground"
+          onClick={() => setMobileOpen(!mobileOpen)}
+        >
+          {mobileOpen ? (
+            <X className="w-5 h-5" />
+          ) : (
+            <Menu className="w-5 h-5" />
+          )}
         </button>
       </div>
 
@@ -131,7 +147,7 @@ export default function Navbar() {
               </Link>
             ) : (
               <Button size="sm" className="w-full" asChild>
-                <Link to="/auth">Get Started</Link>
+                <Link to="/auth">Get Started Free</Link>
               </Button>
             )}
           </div>
