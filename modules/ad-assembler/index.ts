@@ -1,7 +1,7 @@
 export {
   createAssemblyJob,
   calculateTotalDuration,
-  generateFFmpegCommand,
+  generateFFmpegArgs,
   getAssemblyStatus,
 } from "./assembler";
 export { DEFAULT_ASSEMBLY_CONFIG } from "./types";

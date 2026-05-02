@@ -5,7 +5,7 @@ import {
   type AdVariation,
 } from "@modules/ad-orchestrator";
 import { composeScenes } from "@modules/ad-composer";
-import { reserveCredits, deductCredits, refundCredits } from "@modules/billing";
+import { reserveCredits, deductCredits, refundCredits, getActionCreditCost, isVideoAllowed } from "@modules/billing";
 import type { BillableAction, SaaSPlan } from "@modules/billing";
 import { runMediaGeneration } from "@modules/ai-engine";
 import {
@@ -51,9 +51,10 @@ export async function generateFullCampaign(
   };
 
   try {
+    const estimatedCredits = estimateCampaignCost(input, userPlan);
     const creditCheck = await reserveCredits(
-      "campaign_generation",
-      1,
+      "text_generation",
+      estimatedCredits,
       userPlan,
     );
     if (!creditCheck.allowed) {
@@ -91,7 +92,7 @@ export async function generateFullCampaign(
       totalCreditsUsed += imageAds.length * 8;
     }
 
-    if (input.includeVideo && userPlan !== "free" && userPlan !== "starter") {
+    if (input.includeVideo && isVideoAllowed(userPlan)) {
       const videoCount =
         input.videoCount ?? DEFAULT_CAMPAIGN_CONFIG.videoCount;
       const videoAds = await generateVideoAds(
@@ -263,4 +264,20 @@ async function generateVideoAds(
   }
 
   return ads;
+}
+
+function estimateCampaignCost(input: CampaignInput, userPlan: SaaSPlan): number {
+  let cost = getActionCreditCost("text_generation", 1);
+
+  if (input.includeImages !== false) {
+    const imageCount = input.imageCount ?? DEFAULT_CAMPAIGN_CONFIG.imageCount;
+    cost += getActionCreditCost("image_generation", imageCount);
+  }
+
+  if (input.includeVideo && isVideoAllowed(userPlan)) {
+    const videoCount = input.videoCount ?? DEFAULT_CAMPAIGN_CONFIG.videoCount;
+    cost += getActionCreditCost("video_generation", videoCount);
+  }
+
+  return cost;
 }

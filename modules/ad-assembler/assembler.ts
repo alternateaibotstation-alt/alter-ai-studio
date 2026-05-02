@@ -26,24 +26,48 @@ export function calculateTotalDuration(scenes: ComposedScene[]): number {
   return scenes.reduce((total, scene) => total + scene.duration, 0);
 }
 
-export function generateFFmpegCommand(job: AssemblyJob): string {
-  const inputs = job.scenes
-    .map((scene, i) => {
-      if (scene.mediaUrl) {
-        return `-i "${scene.mediaUrl}"`;
-      }
-      return `-f lavfi -t ${scene.duration} -i color=c=black:s=${scene.outputWidth}x${scene.outputHeight}`;
-    })
-    .join(" ");
+const SAFE_URL_PATTERN = /^https?:\/\/[^\s"'`;|&$(){}]+$/;
+
+function validateMediaUrl(url: string): string {
+  if (!SAFE_URL_PATTERN.test(url)) {
+    throw new Error(`Invalid media URL: contains disallowed characters`);
+  }
+  return url;
+}
+
+export function generateFFmpegArgs(
+  job: AssemblyJob,
+  outputPath = "output.mp4",
+): string[] {
+  const args: string[] = [];
+
+  for (const scene of job.scenes) {
+    if (scene.mediaUrl) {
+      args.push("-i", validateMediaUrl(scene.mediaUrl));
+    } else {
+      args.push(
+        "-f", "lavfi",
+        "-t", String(scene.duration),
+        "-i", `color=c=black:s=${scene.outputWidth}x${scene.outputHeight}`,
+      );
+    }
+  }
 
   const filterParts = job.scenes.map((_, i) => `[${i}:v]`).join("");
   const concat = `${filterParts}concat=n=${job.scenes.length}:v=1:a=0[outv]`;
 
-  const voiceover = job.voiceoverUrl
-    ? `-i "${job.voiceoverUrl}" -map "[outv]" -map ${job.scenes.length}:a`
-    : `-map "[outv]"`;
+  args.push("-filter_complex", concat);
 
-  return `ffmpeg ${inputs} -filter_complex "${concat}" ${voiceover} -c:v libx264 -preset fast -crf 23 output.mp4`;
+  if (job.voiceoverUrl) {
+    args.push("-i", validateMediaUrl(job.voiceoverUrl));
+    args.push("-map", "[outv]", "-map", `${job.scenes.length}:a`);
+  } else {
+    args.push("-map", "[outv]");
+  }
+
+  args.push("-c:v", "libx264", "-preset", "fast", "-crf", "23", outputPath);
+
+  return args;
 }
 
 export function getAssemblyStatus(
