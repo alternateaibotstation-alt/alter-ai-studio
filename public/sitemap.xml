@@ -37,6 +37,18 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://alterai.im/blog/ai-marketing-tools-comparison</loc>
+    <lastmod>2024-12-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://alterai.im/blog/scene-based-video-ads</loc>
+    <lastmod>2024-12-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://alterai.im/marketplace</loc>
     <lastmod>2026-05-02</lastmod>
     <changefreq>daily</changefreq>
