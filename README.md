@@ -16,8 +16,9 @@ Alterai.im is a creator-first AI platform for building AI companions, generating
 - **Voiceover** — ElevenLabs-powered TTS for narration and TikTok scenes.
 - **Templates Marketplace** — Buy, sell, and remix high-converting templates. Bi-weekly official drops.
 - **My Creations** — Private, watermark-free storage of every video, image, and chat output.
-- **Subscriptions & One-off Purchases** — Stripe-powered Free / Pro / Power tiers plus pay-per-bot.
+- **Subscriptions & One-off Purchases** — Stripe-powered Free / Starter / Creator / Pro / Studio tiers plus pay-per-bot.
 - **Referrals** — Reward users with bonus messages for inviting friends.
+- **Blog** — SEO-optimized articles about AI advertising, ad strategy, and platform-specific guides at `/blog` (powered by `apps/landing/pages/BlogIndex.tsx` and `apps/landing/pages/BlogArticle.tsx`).
 - **Admin Dashboard** — Platform analytics, user management, and template moderation.
 
 ## 🏗 Architecture
@@ -81,6 +82,34 @@ Do **not** put `STRIPE_SECRET_KEY`, `OPENAI_API_KEY`, `ELEVENLABS_API_KEY`, `SUP
 The repo includes a `vercel.json` that:
 - Sets the build command (`npm run build`) and output directory (`dist`)
 - Adds an SPA rewrite so React Router deep links work on refresh
+- Sets `X-Robots-Tag: index, follow` on all routes for SEO
+
+## 🗺 Routes
+
+Public-facing pages exposed by the SPA (see `src/App.tsx`):
+
+| Route | Page |
+|---|---|
+| `/` | Landing page |
+| `/pricing` | Pricing plans |
+| `/blog` | Blog index |
+| `/blog/:slug` | Blog articles |
+| `/faq` | FAQ |
+| `/auth` | Authentication |
+| `/legal/:slug` | Legal pages (terms, privacy, cookies, acceptable-use, content-policy, community, dmca, disclaimer, payment-policy, api-usage) |
+
+Authenticated routes (guarded by `RequireAuth`): `/dashboard`, `/profile`, `/purchases`, `/success`.
+
+## 🔍 SEO
+
+- **Per-page meta tags** via `react-helmet-async` through `src/components/SEO.tsx` (used on Home, Pricing, Blog, FAQ, etc.).
+- **JSON-LD structured data** in `index.html` for `Organization`, `SoftwareApplication`, and `FAQPage` schemas.
+- **Open Graph and Twitter Card tags** for social previews (default OG image at `public/og-image.jpg`).
+- **Static SEO files** in `public/`: `sitemap.xml`, `robots.txt`, `favicon.ico`, `logo.png`, `og-image.jpg`.
+- **`X-Robots-Tag: index, follow`** header set on all routes via `vercel.json`.
+- **Google Search Console** verification, sitemap submission, and analytics linkage should be configured by the site owner once the domain is live.
+
+> **Brand assets:** `public/logo.png`, `public/favicon.ico`, and `public/og-image.jpg` are placeholder/working brand assets. Replace them with final brand artwork as it becomes available.
 
 ## 💻 Local Development
 

@@ -22,6 +22,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
+import SEO from "@/components/SEO";
 import SiteFooter from "@/components/SiteFooter";
 
 const fadeUp = {
@@ -134,6 +135,11 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
+      <SEO
+        title="Alterai.im — AI Ad Campaign Generator | Full Campaigns in 60 Seconds"
+        description="Generate complete paid social ad campaigns in under 60 seconds. Video ads, image ads, captions, hooks, and targeting for TikTok, Instagram, Facebook & YouTube."
+        path="/"
+      />
       <Navbar />
 
       {/* ─── Hero ─── */}
