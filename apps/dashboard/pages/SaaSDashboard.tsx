@@ -35,7 +35,7 @@ interface CampaignPreview {
 }
 
 export default function SaaSDashboard() {
-  const { tier, remainingCampaigns, remainingImages, remainingVideos } =
+  const { tier, remainingCampaigns, remainingImages, remainingVideos, canGenerateCampaign } =
     useSubscription();
   const [productInput, setProductInput] = useState("");
   const [generating, setGenerating] = useState(false);
@@ -44,6 +44,10 @@ export default function SaaSDashboard() {
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!productInput.trim()) return;
+    if (!canGenerateCampaign()) {
+      toast.error("Daily campaign limit reached. Upgrade for more.");
+      return;
+    }
 
     setGenerating(true);
     setCampaign(null);
@@ -68,7 +72,7 @@ export default function SaaSDashboard() {
         ],
         hashtags: ["#fyp", "#viral", "#ad", "#sponsored", "#trending"],
         imageCount: 5,
-        videoCount: tier === "pro" || tier === "studio" ? 3 : 0,
+        videoCount: tier === "pro" || tier === "studio" || tier === "power" ? 3 : 0,
         ctaVariations: [
           "Shop Now - Limited Time",
           "Get Started Free",
@@ -146,7 +150,7 @@ export default function SaaSDashboard() {
             <Button
               type="submit"
               size="lg"
-              disabled={generating || !productInput.trim()}
+              disabled={generating || !productInput.trim() || !canGenerateCampaign()}
               className="h-12 px-6 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 border-0 shadow-lg shadow-cyan-500/20"
             >
               {generating ? (
