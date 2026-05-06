@@ -6,6 +6,51 @@ import SiteFooter from "@/components/SiteFooter";
 
 const blogPosts = [
   {
+    slug: "instagram-reels-ads-ai",
+    title: "How to Create High-Converting Instagram Reels Ads with AI",
+    excerpt:
+      "Instagram Reels ads are one of the most effective placements on Meta. Learn how to create scroll-stopping Reels ads with AI in seconds.",
+    date: "2026-05-01",
+    readTime: "6 min",
+    category: "Instagram",
+  },
+  {
+    slug: "youtube-shorts-ad-guide",
+    title: "YouTube Shorts Ads: The Complete AI-Powered Creation Guide",
+    excerpt:
+      "YouTube Shorts gets 70 billion daily views. Here's how to create high-converting Shorts ads using AI-generated scripts and voiceovers.",
+    date: "2026-04-25",
+    readTime: "7 min",
+    category: "YouTube",
+  },
+  {
+    slug: "ai-ad-copywriting-hooks",
+    title: "AI Ad Copywriting: 50 Hook Formulas That Stop the Scroll",
+    excerpt:
+      "The hook determines whether someone engages or scrolls past. Here are the proven hook formulas AI uses to generate high-converting ad copy.",
+    date: "2026-04-18",
+    readTime: "8 min",
+    category: "Copywriting",
+  },
+  {
+    slug: "ai-voiceover-video-ads",
+    title: "AI Voiceovers for Video Ads: How to Add Professional Narration Instantly",
+    excerpt:
+      "Professional voiceovers used to take days. AI voice technology generates natural-sounding narration for video ads in seconds.",
+    date: "2026-04-10",
+    readTime: "5 min",
+    category: "Voiceover",
+  },
+  {
+    slug: "ab-testing-ai-generated-ads",
+    title: "How to A/B Test AI-Generated Ads for Maximum ROAS",
+    excerpt:
+      "AI can generate dozens of ad variations instantly. Here's the systematic testing strategy to find winners and maximize return on ad spend.",
+    date: "2026-04-03",
+    readTime: "7 min",
+    category: "Strategy",
+  },
+  {
     slug: "ai-advertising-strategies-2025",
     title: "AI Advertising Strategies That Actually Work in 2025",
     excerpt:
