@@ -25,7 +25,12 @@ serve(async (req) => {
       });
     }
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
+    if (!OPENAI_API_KEY) {
+      return new Response(JSON.stringify({ error: "OPENAI_API_KEY not configured" }), {
+        status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
@@ -83,39 +88,26 @@ serve(async (req) => {
       }
     }
 
-    // Model routing for image generation
-    // If user has their own key, we use dall-e-3
-    // Otherwise, we use Gemini for cost efficiency
-    const selectedModel = userApiKey ? "dall-e-3" : (userTier === "free" ? "google/gemini-2.5-flash-image" : (model || "google/gemini-2.5-flash-image"));
-
-    const userContent: any[] = [{ type: "text", text: prompt }];
+    // OpenAI Images: user's key if provided, otherwise platform key
+    const apiKey = userApiKey || OPENAI_API_KEY;
     if (editImageUrl) {
-      userContent.push({ type: "image_url", image_url: { url: editImageUrl } });
+      return new Response(JSON.stringify({ error: "Image editing is not available right now. Please use a fresh prompt." }), {
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
-    const fetchUrl = userApiKey ? "https://api.openai.com/v1/images/generations" : "https://ai.gateway.lovable.dev/v1/chat/completions";
-    const fetchHeaders: Record<string, string> = { "Content-Type": "application/json" };
-    if (userApiKey) fetchHeaders["Authorization"] = `Bearer ${userApiKey}`;
-    else fetchHeaders["Authorization"] = `Bearer ${LOVABLE_API_KEY}`;
-
-    const body = userApiKey ? {
-      model: "dall-e-3",
-      prompt: prompt,
-      n: 1,
-      size: "1024x1024",
-    } : {
-      model: selectedModel,
-      messages: [
-        { role: "system", content: "You are an expert AI artist. Generate high quality, creative images based on the user's description." },
-        { role: "user", content: userContent },
-      ],
-      modalities: ["image", "text"],
-    };
-
-    const response = await fetch(fetchUrl, {
+    const response = await fetch("https://api.openai.com/v1/images/generations", {
       method: "POST",
-      headers: fetchHeaders,
-      body: JSON.stringify(body),
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: model || "dall-e-3",
+        prompt,
+        n: 1,
+        size: "1024x1024",
+      }),
     });
 
     if (!response.ok) {
@@ -124,22 +116,17 @@ serve(async (req) => {
     }
 
     const data = await response.json();
-    
-    // Normalize OpenAI response format to match Lovable's for the frontend
-    if (userApiKey) {
-      const normalizedData = {
-        choices: [{
-          message: {
-            images: [{
-              image_url: { url: data.data[0].url }
-            }]
-          }
-        }]
-      };
-      return new Response(JSON.stringify(normalizedData), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
-    }
-
-    return new Response(JSON.stringify(data), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    // Normalize OpenAI Images response to the shape the frontend expects.
+    const normalizedData = {
+      choices: [{
+        message: {
+          images: [{
+            image_url: { url: data.data?.[0]?.url },
+          }],
+        },
+      }],
+    };
+    return new Response(JSON.stringify(normalizedData), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
   } catch (e) {
     return new Response(JSON.stringify({ error: e.message }), { status: 500, headers: corsHeaders });
   }
