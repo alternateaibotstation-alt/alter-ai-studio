@@ -25,6 +25,13 @@ serve(async (req) => {
       });
     }
 
+    // Fail fast before any auth/credit work: DALL-E 3 doesn't support edits.
+    if (editImageUrl) {
+      return new Response(JSON.stringify({ error: "Image editing is not available right now. Please use a fresh prompt." }), {
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
     if (!OPENAI_API_KEY) {
       return new Response(JSON.stringify({ error: "OPENAI_API_KEY not configured" }), {
@@ -90,11 +97,6 @@ serve(async (req) => {
 
     // OpenAI Images: user's key if provided, otherwise platform key
     const apiKey = userApiKey || OPENAI_API_KEY;
-    if (editImageUrl) {
-      return new Response(JSON.stringify({ error: "Image editing is not available right now. Please use a fresh prompt." }), {
-        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
 
     const response = await fetch("https://api.openai.com/v1/images/generations", {
       method: "POST",

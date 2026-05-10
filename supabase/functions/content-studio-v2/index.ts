@@ -152,7 +152,7 @@ serve(async (req) => {
           generated_content: generatedContent,
           platforms,
           output_format: "text",
-          model_used: "gpt-4.1-mini",
+          model_used: "gpt-4o-mini",
           tokens_used: Math.ceil(generatedContent.length / 4),
           cost: 0.001,
           status: "completed",
