@@ -59,7 +59,10 @@ async function generateContentWithAI(
   tone: string,
   style: string
 ): Promise<string> {
-  const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+  const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
+  if (!OPENAI_API_KEY) {
+    throw new Error("OPENAI_API_KEY is not configured");
+  }
 
   const systemPrompt = `You are a professional content creator. Generate high-quality content with the following characteristics:
 - Tone: ${tone}
@@ -67,14 +70,14 @@ async function generateContentWithAI(
 - Engaging and platform-ready
 - Include relevant hashtags where appropriate`;
 
-  const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+  const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${LOVABLE_API_KEY}`,
+      Authorization: `Bearer ${OPENAI_API_KEY}`,
     },
     body: JSON.stringify({
-      model: "gpt-4.1-mini",
+      model: "gpt-4o-mini",
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: prompt },
@@ -149,7 +152,7 @@ serve(async (req) => {
           generated_content: generatedContent,
           platforms,
           output_format: "text",
-          model_used: "gpt-4.1-mini",
+          model_used: "gpt-4o-mini",
           tokens_used: Math.ceil(generatedContent.length / 4),
           cost: 0.001,
           status: "completed",

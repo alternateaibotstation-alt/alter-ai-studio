@@ -19,12 +19,12 @@ function isImageRequest(content: string): boolean {
   return IMAGE_GEN_KEYWORDS.some((kw) => lower.includes(kw));
 }
 
-// Multi-model routing configuration
+// Multi-model routing configuration (OpenAI direct)
 const MODELS = {
-  GEMINI_CHEAP: "google/gemini-2.5-flash-lite",
-  GEMINI_PRO: "google/gemini-3-flash-preview",
-  OPENAI_HIGH: "openai/gpt-4.1",
-  OPENAI_MINI: "openai/gpt-4.1-mini",
+  CHEAP: "gpt-4o-mini",
+  PRO: "gpt-4o-mini",
+  HIGH: "gpt-4o",
+  MINI: "gpt-4o-mini",
 };
 
 const TIER_LIMITS: Record<string, { messages: number; images: number }> = {
@@ -37,17 +37,17 @@ function routeRequest(prompt: string, userTier: string, taskType: 'chat' | 'cont
   const isEmotional = /love|feel|sad|happy|girlfriend|boyfriend|friend|relationship|lonely/i.test(prompt);
   const isComplex = prompt.length > 1000 || /analyze|debug|solve|complex|reason/i.test(prompt);
 
-  if (userTier === "free") return MODELS.GEMINI_CHEAP;
-  
+  if (userTier === "free") return MODELS.CHEAP;
+
   if (userTier === "power") {
-    if (isEmotional || isComplex) return MODELS.OPENAI_HIGH;
-    return MODELS.OPENAI_MINI;
+    if (isEmotional || isComplex) return MODELS.HIGH;
+    return MODELS.MINI;
   }
 
   // Pro tier hybrid routing
-  if (isEmotional) return MODELS.OPENAI_MINI;
-  if (taskType === 'content') return MODELS.GEMINI_PRO;
-  return MODELS.GEMINI_PRO;
+  if (isEmotional) return MODELS.MINI;
+  if (taskType === 'content') return MODELS.PRO;
+  return MODELS.PRO;
 }
 
 serve(async (req) => {
@@ -63,8 +63,12 @@ serve(async (req) => {
       });
     }
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
+    if (!OPENAI_API_KEY) {
+      return new Response(JSON.stringify({ error: "OPENAI_API_KEY not configured" }), {
+        status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
@@ -143,11 +147,13 @@ serve(async (req) => {
     const systemPrompt = bot?.persona || `You are ${bot?.name || 'AI'}, a helpful assistant.`;
     const apiMessages = [{ role: "system", content: systemPrompt }, ...messages];
 
-    // Use user's key if available, otherwise platform key via gateway
-    const fetchUrl = userApiKey ? "https://api.openai.com/v1/chat/completions" : "https://ai.gateway.lovable.dev/v1/chat/completions";
-    const fetchHeaders: Record<string, string> = { "Content-Type": "application/json" };
-    if (userApiKey) fetchHeaders["Authorization"] = `Bearer ${userApiKey}`;
-    else fetchHeaders["Authorization"] = `Bearer ${LOVABLE_API_KEY}`;
+    // OpenAI direct: user's key if provided, otherwise platform key
+    const apiKey = userApiKey || OPENAI_API_KEY;
+    const fetchUrl = "https://api.openai.com/v1/chat/completions";
+    const fetchHeaders: Record<string, string> = {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${apiKey}`,
+    };
 
     const response = await fetch(fetchUrl, {
       method: "POST",

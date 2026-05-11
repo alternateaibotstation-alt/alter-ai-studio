@@ -30,9 +30,9 @@ interface AIRequest {
 }
 
 const MODEL_BY_COMPLEXITY = {
-  low: "google/gemini-2.5-flash-lite",
-  medium: "google/gemini-2.5-flash",
-  high: "google/gemini-3-flash-preview",
+  low: "gpt-4o-mini",
+  medium: "gpt-4o-mini",
+  high: "gpt-4o",
 };
 
 function jsonResponse(body: Record<string, unknown>, status = 200) {
@@ -146,18 +146,18 @@ async function resolveMessages(supabaseClient: any, request: AIRequest) {
 }
 
 async function callAIModel(request: AIRequest, messages: Array<{ role: ChatRole; content: string }>, stream: boolean) {
-  const lovableApiKey = Deno.env.get("LOVABLE_API_KEY");
-  if (!lovableApiKey) throw new Error("AI gateway is not configured");
+  const openaiApiKey = Deno.env.get("OPENAI_API_KEY");
+  if (!openaiApiKey) throw new Error("OPENAI_API_KEY is not configured");
 
   const prompt = messages.map((message) => message.content).join("\n");
   const complexity = analyzeComplexity(prompt);
   const model = request.model || MODEL_BY_COMPLEXITY[complexity];
 
-  const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+  const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${lovableApiKey}`,
+      Authorization: `Bearer ${openaiApiKey}`,
     },
     body: JSON.stringify({
       model,
