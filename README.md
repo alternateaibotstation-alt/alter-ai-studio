@@ -27,7 +27,7 @@ Alterai.im is a creator-first AI platform for building AI companions, generating
 Browser (Vite + React SPA, hosted on Vercel)
         │
         ▼
-Lovable Cloud (Supabase)
+Supabase
   ├── Auth (email/password + Google)
   ├── Postgres + Row-Level Security
   ├── Storage (private user-creations bucket)
@@ -53,29 +53,24 @@ All third-party secrets (OpenAI, Gemini, ElevenLabs, Stripe) live **only** insid
 - **Backend:** Supabase (Postgres, Auth, Storage, Edge Functions / Deno)
 - **AI:** OpenAI GPT-5 family, Google Gemini 2.5 / 3.x, ElevenLabs TTS — routed internally by tier
 - **Payments:** Stripe (Checkout + Customer Portal + Webhooks)
-- **Hosting:** Vercel (frontend) + Lovable Cloud (backend)
+- **Hosting:** Vercel (frontend) + Supabase (backend)
 - **Domain:** alterai.im
 
 ## 🚀 Deployment
 
-The project is deployed two ways:
-
-| Environment | URL | Notes |
-|---|---|---|
-| **Production (custom domain)** | [alterai.im](https://alterai.im) | Vercel-hosted, auto-deploys from `main` |
-| **Lovable preview** | `*.lovable.app` | Auto-deploys on every Lovable edit |
+The project is deployed via Vercel — every push to `main` auto-deploys the frontend at [alterai.im](https://alterai.im). Supabase Edge Functions are deployed separately by the `.github/workflows/deploy-supabase-functions.yml` GitHub Action (also triggered on push to `main`).
 
 ### Required Vercel Environment Variables
 
-Only **3** variables are needed on Vercel — everything else lives in Lovable Cloud / Supabase:
+Only the `VITE_SUPABASE_*` vars are needed on Vercel — everything else lives in Supabase Edge Function Secrets:
 
 ```
-VITE_SUPABASE_URL=https://celvxwiympkuceitdgxo.supabase.co
-VITE_SUPABASE_PUBLISHABLE_KEY=<anon key>
-VITE_SUPABASE_PROJECT_ID=celvxwiympkuceitdgxo
+VITE_SUPABASE_URL=https://xmlgrdytoolipnqumwvy.supabase.co
+VITE_SUPABASE_PUBLISHABLE_KEY=<publishable key — starts with sb_publishable_>
+VITE_SUPABASE_PROJECT_ID=xmlgrdytoolipnqumwvy
 ```
 
-Do **not** put `STRIPE_SECRET_KEY`, `OPENAI_API_KEY`, `ELEVENLABS_API_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, or `DATABASE_URL` on Vercel — they belong in Lovable Cloud's Edge Function secrets only.
+Do **not** put `STRIPE_SECRET_KEY`, `OPENAI_API_KEY`, `ELEVENLABS_API_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, or `DATABASE_URL` on Vercel — they belong in Supabase's Edge Function Secrets only (https://supabase.com/dashboard/project/xmlgrdytoolipnqumwvy/settings/functions).
 
 ### `vercel.json`
 
@@ -120,7 +115,7 @@ npm install
 npm run dev
 ```
 
-Create a `.env.local` with the same 3 `VITE_SUPABASE_*` vars listed above (also auto-provided by Lovable).
+Create a `.env.local` with the same `VITE_SUPABASE_*` vars listed above.
 
 ## 📜 Legal & Policies
 
