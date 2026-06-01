@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Content Studio Backend
  * Manages content creation workflows, templates, and generation

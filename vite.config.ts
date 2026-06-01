@@ -1,15 +1,12 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
-import { componentTagger } from "lovable-tagger";
 
 // https://vitejs.dev/config/
-export default defineConfig(({ mode }) => ({
-  // Lovable hosting (preview, *.lovable.app, custom domains) always serves
-  // the app from the site root. Pinning base to "/" guarantees that built
-  // asset URLs (/assets/*.js, /assets/*.css) and client-side routes resolve
-  // correctly in production. Do NOT change this unless deploying under a
-  // sub-path (e.g. https://example.com/app/), which Lovable does not do.
+export default defineConfig(() => ({
+  // The app is served from the site root. Pinning base to "/" guarantees that
+  // built asset URLs (/assets/*.js, /assets/*.css) and client-side routes
+  // resolve correctly in production.
   base: "/",
   server: {
     host: "::",
@@ -18,7 +15,7 @@ export default defineConfig(({ mode }) => ({
       overlay: false,
     },
   },
-  plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
+  plugins: [react()].filter(Boolean),
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

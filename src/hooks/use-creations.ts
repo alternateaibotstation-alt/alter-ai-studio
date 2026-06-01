@@ -8,7 +8,7 @@ export interface Creation {
   type: string;
   file_url: string;
   thumbnail_url: string | null;
-  metadata: Record<string, any>;
+  metadata: Record<string, unknown>;
   created_at: string;
 }
 
@@ -25,6 +25,7 @@ export function useCreations() {
       else setLoading(false);
     };
     init();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchCreations = useCallback(async () => {
@@ -41,7 +42,7 @@ export function useCreations() {
     blob: Blob,
     title: string,
     type: "video" | "image",
-    metadata: Record<string, any> = {}
+    metadata: Record<string, unknown> = {}
   ): Promise<boolean> => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {

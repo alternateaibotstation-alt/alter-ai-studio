@@ -43,8 +43,8 @@ export default function HookGenerator() {
       } else {
         throw new Error("No content generated");
       }
-    } catch (err: any) {
-      toast.error(err.message || "Failed to generate hooks");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to generate hooks");
     } finally {
       setLoading(false);
     }
