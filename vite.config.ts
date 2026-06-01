@@ -31,10 +31,26 @@ export default defineConfig(() => ({
     // to spot in CI logs.
     rollupOptions: {
       output: {
-        // Keep asset paths predictable and root-relative.
         assetFileNames: "assets/[name]-[hash][extname]",
         chunkFileNames: "assets/[name]-[hash].js",
         entryFileNames: "assets/[name]-[hash].js",
+        manualChunks: {
+          vendor: [
+            "react",
+            "react-dom",
+            "react-router-dom",
+            "@tanstack/react-query",
+            "framer-motion",
+          ],
+          ui: [
+            "@radix-ui/react-dialog",
+            "@radix-ui/react-popover",
+            "@radix-ui/react-tooltip",
+            "@radix-ui/react-tabs",
+            "@radix-ui/react-accordion",
+            "@radix-ui/react-dropdown-menu",
+          ],
+        },
       },
     },
   },

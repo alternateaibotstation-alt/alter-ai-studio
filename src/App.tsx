@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
@@ -10,22 +11,33 @@ import { verifyDeploymentBase } from "@/lib/base-check";
 
 verifyDeploymentBase();
 
+// Eagerly loaded (landing critical path)
 import Home from "./pages/Home";
 import Auth from "./pages/Auth";
-import Success from "./pages/Success";
-import Purchases from "./pages/Purchases";
-import Profile from "./pages/Profile";
-import Pricing from "./pages/Pricing";
-import Privacy from "./pages/Privacy";
-import Terms from "./pages/Terms";
-import LegalPage from "./pages/LegalPage";
-import FAQ from "./pages/FAQ";
 import NotFound from "./pages/NotFound";
-import SaaSDashboard from "@apps/dashboard/pages/SaaSDashboard";
-import BlogIndex from "@apps/landing/pages/BlogIndex";
-import BlogArticle from "@apps/landing/pages/BlogArticle";
+
+// Lazy-loaded routes (split into separate chunks)
+const SaaSDashboard = lazy(() => import("@apps/dashboard/pages/SaaSDashboard"));
+const BlogIndex = lazy(() => import("@apps/landing/pages/BlogIndex"));
+const BlogArticle = lazy(() => import("@apps/landing/pages/BlogArticle"));
+const Pricing = lazy(() => import("./pages/Pricing"));
+const Profile = lazy(() => import("./pages/Profile"));
+const Purchases = lazy(() => import("./pages/Purchases"));
+const Success = lazy(() => import("./pages/Success"));
+const FAQ = lazy(() => import("./pages/FAQ"));
+const LegalPage = lazy(() => import("./pages/LegalPage"));
+const Privacy = lazy(() => import("./pages/Privacy"));
+const Terms = lazy(() => import("./pages/Terms"));
 
 const queryClient = new QueryClient();
+
+function PageLoader() {
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+    </div>
+  );
+}
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -34,31 +46,33 @@ const App = () => (
         <BrowserRouter>
           <SubscriptionProvider>
             <ErrorBoundary>
-              <Routes>
-                <Route element={<AppLayout />}>
-                  <Route path="/" element={<Home />} />
-                  <Route
-                    path="/dashboard"
-                    element={
-                      <RequireAuth>
-                        <SaaSDashboard />
-                      </RequireAuth>
-                    }
-                  />
-                  <Route path="/blog" element={<BlogIndex />} />
-                  <Route path="/blog/:slug" element={<BlogArticle />} />
-                  <Route path="/auth" element={<Auth />} />
-                  <Route path="/purchases" element={<Purchases />} />
-                  <Route path="/profile" element={<Profile />} />
-                  <Route path="/success" element={<Success />} />
-                  <Route path="/pricing" element={<Pricing />} />
-                  <Route path="/privacy" element={<Privacy />} />
-                  <Route path="/terms" element={<Terms />} />
-                  <Route path="/faq" element={<FAQ />} />
-                  <Route path="/legal/:slug" element={<LegalPage />} />
-                  <Route path="*" element={<NotFound />} />
-                </Route>
-              </Routes>
+              <Suspense fallback={<PageLoader />}>
+                <Routes>
+                  <Route element={<AppLayout />}>
+                    <Route path="/" element={<Home />} />
+                    <Route
+                      path="/dashboard"
+                      element={
+                        <RequireAuth>
+                          <SaaSDashboard />
+                        </RequireAuth>
+                      }
+                    />
+                    <Route path="/blog" element={<BlogIndex />} />
+                    <Route path="/blog/:slug" element={<BlogArticle />} />
+                    <Route path="/auth" element={<Auth />} />
+                    <Route path="/purchases" element={<Purchases />} />
+                    <Route path="/profile" element={<Profile />} />
+                    <Route path="/success" element={<Success />} />
+                    <Route path="/pricing" element={<Pricing />} />
+                    <Route path="/privacy" element={<Privacy />} />
+                    <Route path="/terms" element={<Terms />} />
+                    <Route path="/faq" element={<FAQ />} />
+                    <Route path="/legal/:slug" element={<LegalPage />} />
+                    <Route path="*" element={<NotFound />} />
+                  </Route>
+                </Routes>
+              </Suspense>
             </ErrorBoundary>
           </SubscriptionProvider>
         </BrowserRouter>
