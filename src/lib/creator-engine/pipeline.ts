@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Content Creator Engine - Pipeline System
  * Manages content generation workflows from input to output

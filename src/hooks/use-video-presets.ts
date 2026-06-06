@@ -26,18 +26,20 @@ export function useVideoPresets() {
   const fetchPresets = useCallback(async () => {
     if (!userId) return;
     setLoading(true);
-    const { data, error } = await supabase
-      .from("video_style_presets" as any)
+    // video_style_presets is not in the auto-generated Supabase types
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (supabase as any)
+      .from("video_style_presets")
       .select("*")
       .eq("user_id", userId)
       .order("created_at", { ascending: false });
 
     if (!error && data) {
       setPresets(
-        (data as any[]).map((d) => ({
+        (data as Array<{ id: string; name: string; style: VideoStyle; created_at: string }>).map((d) => ({
           id: d.id,
           name: d.name,
-          style: d.style as VideoStyle,
+          style: d.style,
           created_at: d.created_at,
         }))
       );
@@ -54,11 +56,12 @@ export function useVideoPresets() {
       toast.error("Sign in to save presets");
       return;
     }
-    const { error } = await supabase.from("video_style_presets" as any).insert({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (supabase as any).from("video_style_presets").insert({
       user_id: userId,
       name,
-      style: style as any,
-    } as any);
+      style,
+    });
 
     if (error) {
       toast.error("Failed to save preset");
@@ -69,8 +72,9 @@ export function useVideoPresets() {
   };
 
   const deletePreset = async (id: string) => {
-    const { error } = await supabase
-      .from("video_style_presets" as any)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (supabase as any)
+      .from("video_style_presets")
       .delete()
       .eq("id", id);
 

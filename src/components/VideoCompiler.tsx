@@ -28,10 +28,13 @@ interface Props {
 
 type Phase = "idle" | "generating-images" | "compiling" | "done" | "error";
 
-function extractImageUrl(data: any): string | null {
-  const images = data?.choices?.[0]?.message?.images;
-  if (images?.[0]?.image_url?.url) return images[0].image_url.url;
-  if (data?.image) return data.image;
+function extractImageUrl(data: Record<string, unknown>): string | null {
+  const choices = data?.choices as Array<Record<string, unknown>> | undefined;
+  const message = choices?.[0]?.message as Record<string, unknown> | undefined;
+  const images = message?.images as Array<Record<string, unknown>> | undefined;
+  const imageUrl = images?.[0]?.image_url as Record<string, unknown> | undefined;
+  if (typeof imageUrl?.url === "string") return imageUrl.url;
+  if (typeof data?.image === "string") return data.image;
   return null;
 }
 
@@ -73,7 +76,7 @@ export default function VideoCompiler({ scenes, imagePrompts, hook, existingImag
             if (error) throw error;
             imageUrl = extractImageUrl(data);
             if (!imageUrl) throw new Error("No image returned");
-          } catch (err: any) {
+          } catch (err) {
             console.error(`Failed to generate image for scene ${ip.scene_number}:`, err);
             imageUrl = null;
           }
@@ -282,8 +285,8 @@ export default function VideoCompiler({ scenes, imagePrompts, hook, existingImag
 
       recorder.stop();
       // Stop audio
-      if (audioSource) { try { audioSource.stop(); } catch {} }
-      if (audioCtx) { try { audioCtx.close(); } catch {} }
+      if (audioSource) { try { audioSource.stop(); } catch (_) { /* already stopped */ } }
+      if (audioCtx) { try { audioCtx.close(); } catch (_) { /* already closed */ } }
 
       const url = await videoReady;
       setVideoUrl(url);
@@ -319,10 +322,10 @@ export default function VideoCompiler({ scenes, imagePrompts, hook, existingImag
         console.warn("Auto-save failed:", saveErr);
         toast.success("Video generated! Download it below.");
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error("Video generation error:", err);
       setPhase("error");
-      setStatusText(err.message || "Failed to generate video");
+      setStatusText(err instanceof Error ? err.message : "Failed to generate video");
       toast.error("Video generation failed");
     }
   }, [scenes, imagePrompts, hook, existingImages, style, music]);
