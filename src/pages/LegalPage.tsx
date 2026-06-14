@@ -65,8 +65,8 @@ const LegalPage = () => {
         <h1 className="text-3xl md:text-4xl font-bold text-foreground mt-4 mb-2">{title}</h1>
         <p className="text-sm text-muted-foreground mb-8">
           Owner: Carley Lenon · Contact:{" "}
-          <a className="hover:text-foreground underline" href="mailto:alternateaibotstation@gmail.com">
-            alternateaibotstation@gmail.com
+          <a className="hover:text-foreground underline" href="mailto:carleylenon@gmail.com">
+            carleylenon@gmail.com
           </a>
         </p>
         <Card className="p-6 md:p-8">

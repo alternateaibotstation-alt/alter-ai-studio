@@ -1,8 +1,8 @@
-# Acceptable Use Policy for ONE-Stop AI Platform
+# Acceptable Use Policy for Alterai.im AI Platform
 
 **Last Updated: April 5, 2026**
 
-This Acceptable Use Policy ("AUP") outlines the types of conduct and content that are prohibited when using the ONE-Stop AI Platform (the "Service"). This AUP is incorporated by reference into our Terms of Service. By using the Service, you agree to comply with this AUP. Violation of this AUP may result in the suspension or termination of your account and access to the Service.
+This Acceptable Use Policy ("AUP") outlines the types of conduct and content that are prohibited when using the Alterai.im AI Platform (the "Service"). This AUP is incorporated by reference into our Terms of Service. By using the Service, you agree to comply with this AUP. Violation of this AUP may result in the suspension or termination of your account and access to the Service.
 
 ## 1. Prohibited Content
 

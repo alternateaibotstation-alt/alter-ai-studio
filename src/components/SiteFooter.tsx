@@ -64,6 +64,12 @@ export default function SiteFooter() {
               >
                 TikTok Ad Guide
               </Link>
+              <Link
+                to="/blog/stripe-subscriptions-ai-ads"
+                className="block text-sm text-muted-foreground hover:text-foreground"
+              >
+                Agency Scaling
+              </Link>
             </nav>
           </div>
 
@@ -73,13 +79,13 @@ export default function SiteFooter() {
             </h4>
             <nav className="space-y-2">
               <Link
-                to="/terms"
+                to="/legal/terms"
                 className="block text-sm text-muted-foreground hover:text-foreground"
               >
                 Terms of Service
               </Link>
               <Link
-                to="/privacy"
+                to="/legal/privacy"
                 className="block text-sm text-muted-foreground hover:text-foreground"
               >
                 Privacy Policy

@@ -1,12 +1,12 @@
-# Content Policy for ONE-Stop AI Platform
+# Content Policy for Alterai.im AI Platform
 
 **Last Updated: April 5, 2026**
 
-This Content Policy outlines the guidelines and restrictions for content created, uploaded, or shared on the ONE-Stop AI Platform (the "Service"). This policy is an integral part of our Terms of Service and Acceptable Use Policy. By using the Service, you agree to adhere to these content standards. Violations may lead to content removal, account suspension, or termination.
+This Content Policy outlines the guidelines and restrictions for content created, uploaded, or shared on the Alterai.im AI Platform (the "Service"). This policy is an integral part of our Terms of Service and Acceptable Use Policy. By using the Service, you agree to adhere to these content standards. Violations may lead to content removal, account suspension, or termination.
 
 ## 1. General Principles
 
-Our goal is to foster a creative and safe environment. All content on ONE-Stop should be:
+Our goal is to foster a creative and safe environment. All content on Alterai.im should be:
 
 *   **Respectful:** Treat all users and subjects with respect. Avoid content that is hateful, discriminatory, or promotes harm.
 *   **Lawful:** Comply with all applicable local, state, national, and international laws and regulations.
@@ -15,7 +15,7 @@ Our goal is to foster a creative and safe environment. All content on ONE-Stop s
 
 ## 2. Prohibited Content Categories
 
-The following types of content are strictly prohibited on ONE-Stop:
+The following types of content are strictly prohibited on Alterai.im:
 
 ### 2.1. Illegal Content
 
@@ -63,7 +63,7 @@ Given the nature of an AI platform, specific considerations apply to AI-generate
 
 ## 4. User-Generated Templates
 
-If you create and offer templates on the ONE-Stop marketplace:
+If you create and offer templates on the Alterai.im marketplace:
 
 *   Your templates must comply with all aspects of this Content Policy.
 *   You must ensure that your templates do not infringe on any intellectual property rights.

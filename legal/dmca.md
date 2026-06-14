@@ -1,8 +1,8 @@
-# Copyright & DMCA Policy for ONE-Stop AI Platform
+# Copyright & DMCA Policy for Alterai.im AI Platform
 
 **Last Updated: April 5, 2026**
 
-This Copyright & DMCA Policy outlines the procedures for reporting alleged copyright infringement on the ONE-Stop AI Platform (the "Service") and our response to such reports. This policy is in accordance with the Digital Millennium Copyright Act ("DMCA") and is an integral part of our Terms of Service.
+This Copyright & DMCA Policy outlines the procedures for reporting alleged copyright infringement on the Alterai.im AI Platform (the "Service") and our response to such reports. This policy is in accordance with the Digital Millennium Copyright Act ("DMCA") and is an integral part of our Terms of Service.
 
 ## 1. Our Commitment to Copyright Protection
 

@@ -1,8 +1,8 @@
-# Terms of Service for ONE-Stop AI Platform
+# Terms of Service for Alterai.im AI Platform
 
 **Last Updated: April 5, 2026**
 
-Welcome to ONE-Stop, an AI-powered content creation platform (the "Service"). These Terms of Service ("Terms") govern your access to and use of the Service, provided by Carley B. Lenon ("Company," "we," "us," or "our"). By accessing or using the Service, you agree to be bound by these Terms and our Privacy Policy. If you do not agree to these Terms, you may not access or use the Service.
+Welcome to Alterai.im, an AI-powered content creation platform (the "Service"). These Terms of Service ("Terms") govern your access to and use of the Service, provided by Carley Lenon ("Company," "we," "us," or "our"). By accessing or using the Service, you agree to be bound by these Terms and our Privacy Policy. If you do not agree to these Terms, you may not access or use the Service.
 
 ## 1. Acceptance of Terms
 
@@ -69,7 +69,7 @@ You retain all intellectual property rights in the content you create using the 
 
 ### 5.3. User-Generated Templates
 
-If you create and sell templates on the ONE-Stop marketplace, you grant us a license to host, display, and distribute your templates. You represent and warrant that your templates do not infringe upon any third-party rights.
+If you create and sell templates on the Alterai.im marketplace, you grant us a license to host, display, and distribute your templates. You represent and warrant that your templates do not infringe upon any third-party rights.
 
 ## 6. Monetization and Earnings
 

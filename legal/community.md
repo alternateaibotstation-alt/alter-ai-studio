@@ -1,8 +1,8 @@
-# Community Guidelines for ONE-Stop AI Platform
+# Community Guidelines for Alterai.im AI Platform
 
 **Last Updated: April 5, 2026**
 
-These Community Guidelines outline the expectations for behavior and content within the ONE-Stop AI Platform (the "Service"), including our forums, marketplaces, and any other interactive areas. These guidelines are an extension of our Terms of Service and Acceptable Use Policy. By participating in the ONE-Stop community, you agree to abide by these rules.
+These Community Guidelines outline the expectations for behavior and content within the Alterai.im AI Platform (the "Service"), including our forums, marketplaces, and any other interactive areas. These guidelines are an extension of our Terms of Service and Acceptable Use Policy. By participating in the Alterai.im community, you agree to abide by these rules.
 
 ## 1. Be Respectful and Inclusive
 
@@ -13,12 +13,12 @@ These Community Guidelines outline the expectations for behavior and content wit
 ## 2. Share Constructively
 
 *   **Provide Helpful Feedback:** When reviewing templates, bots, or other creations, offer constructive criticism that helps others improve. Focus on the content, not the creator.
-*   **Stay On-Topic:** Keep discussions relevant to the ONE-Stop platform, AI, content creation, or related topics.
+*   **Stay On-Topic:** Keep discussions relevant to the Alterai.im platform, AI, content creation, or related topics.
 *   **No Spam or Self-Promotion:** Avoid excessive self-promotion, unsolicited advertising, or spamming the community with irrelevant content.
 
 ## 3. Uphold Content Standards
 
-All content you create, upload, or share within the ONE-Stop community must comply with our Content Policy. Specifically, this means:
+All content you create, upload, or share within the Alterai.im community must comply with our Content Policy. Specifically, this means:
 
 *   **No Illegal Content:** Do not post or promote anything illegal.
 *   **No Harmful or Hateful Content:** This includes hate speech, glorification of violence, or misinformation.

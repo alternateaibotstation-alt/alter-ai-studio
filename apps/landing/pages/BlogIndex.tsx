@@ -6,6 +6,15 @@ import SiteFooter from "@/components/SiteFooter";
 
 const blogPosts = [
   {
+    slug: "stripe-subscriptions-ai-ads",
+    title: "How to Scale Your Ad Agency with AI Subscriptions",
+    excerpt:
+      "Learn how to scale your revenue with AI-powered ad generation and a recurring subscription model.",
+    date: "2026-06-14",
+    readTime: "5 min",
+    category: "Strategy",
+  },
+  {
     slug: "instagram-reels-ads-ai",
     title: "How to Create High-Converting Instagram Reels Ads with AI",
     excerpt:

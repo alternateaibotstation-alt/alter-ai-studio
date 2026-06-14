@@ -139,19 +139,21 @@ export default function SaaSDashboard() {
             Describe your product, idea, or business. We'll generate a complete
             multi-platform ad campaign in under 60 seconds.
           </p>
-          <div className="flex gap-3">
-            <Input
-              placeholder='e.g. "Sell skincare product for acne-prone skin" or "Launch a fitness app for busy professionals"'
-              value={productInput}
-              onChange={(e) => setProductInput(e.target.value)}
-              className="flex-1 h-12 text-base"
-              disabled={generating}
-            />
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex-1">
+              <textarea
+                placeholder='e.g. "Sell skincare product for acne-prone skin" or "Launch a fitness app for busy professionals"'
+                value={productInput}
+                onChange={(e) => setProductInput(e.target.value)}
+                disabled={generating}
+                className="w-full min-h-[120px] p-4 text-base rounded-xl border border-border bg-background/50 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all resize-none"
+              />
+            </div>
             <Button
               type="submit"
               size="lg"
               disabled={generating || !productInput.trim() || !canGenerateCampaign()}
-              className="h-12 px-6 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 border-0 shadow-lg shadow-cyan-500/20"
+              className="h-12 sm:h-auto px-8 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 border-0 shadow-lg shadow-cyan-500/20 sm:min-w-[200px]"
             >
               {generating ? (
                 <>

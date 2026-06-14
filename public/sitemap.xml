@@ -33,6 +33,12 @@
 
   <!-- Blog articles -->
   <url>
+    <loc>https://alterai.im/blog/stripe-subscriptions-ai-ads</loc>
+    <lastmod>2026-06-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://alterai.im/blog/instagram-reels-ads-ai</loc>
     <lastmod>2026-05-01</lastmod>
     <changefreq>monthly</changefreq>

@@ -1,8 +1,8 @@
-# Privacy Policy for ONE-Stop AI Platform
+# Privacy Policy for Alterai.im AI Platform
 
 **Last Updated: April 5, 2026**
 
-This Privacy Policy describes how Carley B. Lenon ("Company," "we," "us," or "our") collects, uses, and discloses your information when you use the ONE-Stop AI Platform (the "Service"). By accessing or using the Service, you agree to the collection and use of information in accordance with this Privacy Policy. If you do not agree with the terms of this Privacy Policy, please do not access or use the Service.
+This Privacy Policy describes how Carley Lenon ("Company," "we," "us," or "our") collects, uses, and discloses your information when you use the Alterai.im AI Platform (the "Service"). By accessing or using the Service, you agree to the collection and use of information in accordance with this Privacy Policy. If you do not agree with the terms of this Privacy Policy, please do not access or use the Service.
 
 ## 1. Information We Collect
 

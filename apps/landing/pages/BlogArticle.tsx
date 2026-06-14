@@ -184,6 +184,41 @@ With Alterai.im, you can generate complete Instagram Reels ad campaigns — incl
 
 [Create your first Reels ad campaign](/auth)`,
   },
+  "stripe-subscriptions-ai-ads": {
+    title: "How to Scale Your Ad Agency with AI Subscriptions",
+    date: "2026-06-14",
+    content: `Scaling an ad agency often means hiring more people. But with AI-powered ad generation and a recurring subscription model, you can scale your revenue without scaling your headcount.
+
+## The Power of Recurring Revenue
+
+For agencies and creators, the traditional "per-project" model is feast or famine. By switching to a subscription-based model, you provide ongoing value to your clients while ensuring predictable cash flow for your business.
+
+## How Alterai.im Powers Your Subscription
+
+Alterai.im is built with a tiered subscription model that fits every stage of your growth:
+
+### 1. Starter Tier: For New Creators
+Perfect for those just starting with image ads and text generation. It provides enough credits to test multiple campaigns without a large upfront investment.
+
+### 2. Creator Tier: The Sweet Spot
+Our most popular plan. It unlocks full image generation, all ad formats, and voice generation. Ideal for creators running active campaigns across TikTok and Instagram.
+
+### 3. Pro Tier: Video-First Advertising
+Unlocks full video generation with AI voiceovers. This tier is for those who want to dominate short-form video platforms with high-converting, scene-based ads.
+
+### 4. Studio Tier: For Agencies
+The ultimate agency tool. Bulk campaign generation, team workflows, and API access. Scale your output to hundreds of campaigns per month.
+
+## Managing Subscriptions with Stripe
+
+We've integrated Stripe to make managing your subscription effortless. You can upgrade, downgrade, or cancel at any time through our customer portal. No hidden fees, no long-term contracts.
+
+## Start Scaling Today
+
+AI is the ultimate leverage. By combining AI ad generation with a simple, transparent subscription model, you can deliver more value to your clients in less time.
+
+[Explore our subscription plans](/pricing)`,
+  },
   "youtube-shorts-ad-guide": {
     title: "YouTube Shorts Ads: The Complete AI-Powered Creation Guide",
     date: "2026-04-25",

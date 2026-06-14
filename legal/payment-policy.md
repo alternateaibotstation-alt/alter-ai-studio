@@ -1,8 +1,8 @@
-# Payment & Refund Policy for ONE-Stop AI Platform
+# Payment & Refund Policy for Alterai.im AI Platform
 
 **Last Updated: April 5, 2026**
 
-This Payment & Refund Policy outlines the terms and conditions related to payments, subscriptions, credit purchases, and refunds for the ONE-Stop AI Platform (the "Service"). This policy is an integral part of our Terms of Service. By making any purchase or subscription on the Service, you agree to this policy.
+This Payment & Refund Policy outlines the terms and conditions related to payments, subscriptions, credit purchases, and refunds for the Alterai.im AI Platform (the "Service"). This policy is an integral part of our Terms of Service. By making any purchase or subscription on the Service, you agree to this policy.
 
 ## 1. General Payment Terms
 
