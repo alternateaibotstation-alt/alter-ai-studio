@@ -109,9 +109,9 @@ export default function Pricing() {
         { body: { tier: planKey, priceId: config.price_id } },
       );
       if (error) throw error;
-      if (data?.url) {
-        window.location.href = data.url;
-      }
+      if (data?.error) throw new Error(data.error);
+      if (!data?.url) throw new Error("No checkout URL received");
+      window.location.href = data.url;
     } catch {
       toast.error("Failed to start checkout. Please try again.");
     } finally {

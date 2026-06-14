@@ -7,7 +7,7 @@ export default function SiteFooter() {
         <div className="grid md:grid-cols-4 gap-8 mb-8">
           <div>
             <Link to="/" className="flex items-center gap-2 mb-3">
-              <img src="/logo.png" alt="Alterai.im" className="w-6 h-6" />
+              <img src="/logo.svg" alt="Alterai.im" className="w-6 h-6" />
               <span className="font-bold gradient-text">Alterai.im</span>
             </Link>
             <p className="text-sm text-muted-foreground">
