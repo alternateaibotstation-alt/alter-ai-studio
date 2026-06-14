@@ -161,9 +161,9 @@ export default function Home() {
             custom={0}
           >
             <img
-              src="/logo.png"
+              src="/logo.svg"
               alt="Alterai.im"
-              className="w-20 h-20 mx-auto mb-6 drop-shadow-lg"
+              className="w-16 h-16 mx-auto mb-6 drop-shadow-lg"
             />
           </motion.div>
 

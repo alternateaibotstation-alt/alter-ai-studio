@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Camera, Loader2, User, LogOut, Copy, Zap, Crown, Star, Gift } from "lucide-react";
+import { Camera, Loader2, User, LogOut, Copy, Zap, Crown, Star, Gift, CreditCard } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -24,6 +24,7 @@ export default function ProfilePage() {
   const [username, setUsername] = useState("");
   const [referralCode, setReferralCode] = useState<string | null>(null);
   const [totalReferred, setTotalReferred] = useState(0);
+  const [openingPortal, setOpeningPortal] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
   const { tier, usage, subscribed, subscriptionEnd } = useSubscription();
@@ -106,6 +107,21 @@ export default function ProfilePage() {
       toast.error("Save failed");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleManageSubscription = async () => {
+    setOpeningPortal(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("customer-portal");
+      if (error) throw error;
+      if (data?.url) {
+        window.location.href = data.url;
+      }
+    } catch {
+      toast.error("Unable to open billing portal. Please try again.");
+    } finally {
+      setOpeningPortal(false);
     }
   };
 
@@ -198,6 +214,22 @@ export default function ProfilePage() {
               <p className="text-xs text-muted-foreground">
                 Renews: {new Date(subscriptionEnd).toLocaleDateString()}
               </p>
+            )}
+            {subscribed && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="w-full"
+                disabled={openingPortal}
+                onClick={handleManageSubscription}
+              >
+                {openingPortal ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <CreditCard className="w-4 h-4 mr-2" />
+                )}
+                Manage Subscription
+              </Button>
             )}
           </div>
 
