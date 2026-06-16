@@ -19,8 +19,8 @@ export const TIER_MODELS = {
 
 export const TIER_CONFIG = {
   starter: {
-    price_id: "price_1TR0AG4NFqfF77Iy6XvkH0pQ",
-    product_id: "prod_UPppL11VbgtS7Y",
+    price_id: "price_1TivwUBL5gimElYfebqRqPb7",
+    product_id: "prod_UiMrXaLZz2YTH8",
     price: 12,
     name: "Starter",
     features: [
@@ -31,8 +31,8 @@ export const TIER_CONFIG = {
     ],
   },
   creator: {
-    price_id: "price_1TR0E94NFqfF77IyqlUOxmkc",
-    product_id: "prod_UPptYZrD81LoLZ",
+    price_id: "price_1Tiw2TBL5gimElYf2LNMzpKg",
+    product_id: "prod_UiMmsmsGxoXQMZ",
     price: 29,
     name: "Creator",
     features: [
@@ -43,8 +43,8 @@ export const TIER_CONFIG = {
     ],
   },
   pro: {
-    price_id: "price_1TR0Fb4NFqfF77IygzdnqHji",
-    product_id: "prod_UPpvzCc8g4hOwA",
+    price_id: "price_1Tiw5CBL5gimElYfucxheKp2",
+    product_id: "prod_UiMoKro8tXhYDG",
     price: 59,
     name: "Pro",
     features: [
@@ -55,8 +55,8 @@ export const TIER_CONFIG = {
     ],
   },
   studio: {
-    price_id: "price_1TR0G34NFqfF77IyvMKP0ggx",
-    product_id: "prod_UPpvkKvZISbXEs",
+    price_id: "price_1Tiw8ABL5gimElYf8TlKEeZ2",
+    product_id: "prod_UiMrXaLZz2YTH8",
     price: 99,
     name: "Studio",
     features: [

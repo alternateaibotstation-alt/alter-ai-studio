@@ -9,10 +9,10 @@ const corsHeaders = {
 
 const PLAN_TO_STRIPE_PRICE = {
   free: null,
-  starter: "price_1TR0AG4NFqfF77Iy6XvkH0pQ",
-  creator: "price_1TR0E94NFqfF77IyqlUOxmkc",
-  pro: "price_1TR0Fb4NFqfF77IygzdnqHji",
-  studio: "price_1TR0G34NFqfF77IyvMKP0ggx",
+  starter: "price_1TivwUBL5gimElYfebqRqPb7",
+  creator: "price_1Tiw2TBL5gimElYf2LNMzpKg",
+  pro: "price_1Tiw5CBL5gimElYfucxheKp2",
+  studio: "price_1Tiw8ABL5gimElYf8TlKEeZ2",
 } as const;
 
 type CheckoutPlan = keyof typeof PLAN_TO_STRIPE_PRICE;

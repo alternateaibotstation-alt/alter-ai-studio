@@ -75,7 +75,7 @@ const plans = [
     icon: Rocket,
     config: TIER_CONFIG.studio,
     features: TIER_CONFIG.studio.features,
-    cta: "Contact Sales",
+    cta: "Upgrade Now",
   },
 ];
 
