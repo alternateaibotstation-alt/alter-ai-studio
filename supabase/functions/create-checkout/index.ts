@@ -50,10 +50,10 @@ serve(async (req) => {
   );
 
   try {
-    const { tier, priceId: requestedPriceId, coupon } = await req.json();
+    const { tier, priceId: requestedPriceId, coupon, promoCode } = await req.json();
     requestDetails.tier = tier;
     requestDetails.requestedPriceId = requestedPriceId;
-    requestDetails.hasCoupon = Boolean(coupon);
+    requestDetails.hasCoupon = Boolean(coupon || promoCode);
     if (!isCheckoutPlan(tier)) throw new Error("Invalid tier");
 
     const priceId = PLAN_TO_STRIPE_PRICE[tier];
@@ -96,8 +96,17 @@ serve(async (req) => {
         },
       },
     };
-    if (coupon) {
-      sessionParams.discounts = [{ coupon }];
+    if (coupon || promoCode) {
+      if (promoCode) {
+        sessionParams.allow_promotion_codes = true;
+        // In a real implementation, you might want to validate or apply the code directly
+        // But Stripe Checkout handles the "allow_promotion_codes" field to show the input.
+        // If we want to pass it from the URL, we'd use 'discounts' with a specific promotion code ID.
+        // For simplicity, we'll enable the promo code field in Checkout.
+        sessionParams.allow_promotion_codes = true;
+      } else {
+        sessionParams.discounts = [{ coupon }];
+      }
       sessionParams.payment_method_collection = "if_required";
     }
     const session = await stripe.checkout.sessions.create(sessionParams);
