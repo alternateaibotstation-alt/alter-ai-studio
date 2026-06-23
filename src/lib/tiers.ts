@@ -1,7 +1,7 @@
 export type UserTier = "free" | "starter" | "creator" | "pro" | "studio" | "power";
 
 export const TIER_LIMITS = {
-  free: { campaigns: 3, images: 0, videos: 0 },
+  free: { campaigns: 5, images: 0, videos: 0 },
   starter: { campaigns: 20, images: 10, videos: 0 },
   creator: { campaigns: 80, images: 50, videos: 0 },
   pro: { campaigns: 200, images: 125, videos: 30 },
@@ -56,7 +56,7 @@ export const TIER_CONFIG = {
   },
   studio: {
     price_id: "price_1Tiw8ABL5gimElYf8TlKEeZ2",
-    product_id: "prod_UiMrXaLZz2YTH8",
+    product_id: "prod_UPpvkKvZISbXEs",
     price: 99,
     name: "Studio",
     features: [

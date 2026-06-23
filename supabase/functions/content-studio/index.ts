@@ -41,7 +41,7 @@ function buildSystemPrompt(platform: string, trendMode: string | null, storyProf
     }\nStart numbering from ${previousScenes.length + 1}.`;
   }
 
-  const isPro = tier === "pro" || tier === "power";
+  const isPro = tier === "creator" || tier === "pro" || tier === "studio" || tier === "power";
 
   if (!isPro) {
     // FREE tier: limited output
@@ -116,10 +116,18 @@ serve(async (req) => {
           .eq("status", "active")
           .maybeSingle();
         if (subData) {
-          const proProductId = "prod_UBEIVHEtYoy7QP";
-          const powerProductId = "prod_UBEJiRN7lDcB4u";
-          if (subData.product_id === powerProductId) tier = "power";
-          else if (subData.product_id === proProductId) tier = "pro";
+          const PRODUCT_TO_TIER: Record<string, string> = {
+            prod_UiMrXaLZz2YTH8: "starter",
+            prod_UiMmsmsGxoXQMZ: "creator",
+            prod_UiMoKro8tXhYDG: "pro",
+            prod_UPppL11VbgtS7Y: "starter",
+            prod_UPptYZrD81LoLZ: "creator",
+            prod_UPpvzCc8g4hOwA: "pro",
+            prod_UPpvkKvZISbXEs: "studio",
+            prod_UBEIVHEtYoy7QP: "creator",
+            prod_UBEJiRN7lDcB4u: "studio",
+          };
+          tier = PRODUCT_TO_TIER[subData.product_id] || "free";
         }
       }
     }

@@ -45,7 +45,7 @@ serve(async (req) => {
       active_subscribers: 0,
       mrr: 0,
       total_revenue: 0,
-      subscribers_by_tier: { pro: 0, power: 0 },
+      subscribers_by_tier: { starter: 0, creator: 0, pro: 0, studio: 0 } as Record<string, number>,
       recent_charges: [] as any[],
     };
 
@@ -60,9 +60,16 @@ serve(async (req) => {
       for (const sub of subs.data) {
         const amount = sub.items.data[0]?.price?.unit_amount || 0;
         mrr += amount;
-        const productId = sub.items.data[0]?.price?.product;
-        if (productId === "prod_UBEJiRN7lDcB4u") stripeStats.subscribers_by_tier.power++;
-        else if (productId === "prod_UBEIVHEtYoy7QP") stripeStats.subscribers_by_tier.pro++;
+        const productId = sub.items.data[0]?.price?.product as string;
+        const PRODUCT_TO_TIER: Record<string, string> = {
+          prod_UiMrXaLZz2YTH8: "starter", prod_UiMmsmsGxoXQMZ: "creator",
+          prod_UiMoKro8tXhYDG: "pro", prod_UPppL11VbgtS7Y: "starter",
+          prod_UPptYZrD81LoLZ: "creator", prod_UPpvzCc8g4hOwA: "pro",
+          prod_UPpvkKvZISbXEs: "studio", prod_UBEIVHEtYoy7QP: "creator",
+          prod_UBEJiRN7lDcB4u: "studio",
+        };
+        const tierName = PRODUCT_TO_TIER[productId] || "unknown";
+        if (tierName in stripeStats.subscribers_by_tier) stripeStats.subscribers_by_tier[tierName]++;
       }
       stripeStats.mrr = mrr / 100; // Convert cents to dollars
 

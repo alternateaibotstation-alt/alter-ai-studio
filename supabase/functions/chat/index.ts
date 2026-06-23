@@ -29,22 +29,37 @@ const MODELS = {
 
 const TIER_LIMITS: Record<string, { messages: number; images: number }> = {
   free: { messages: 15, images: 2 },
+  starter: { messages: 40, images: 10 },
+  creator: { messages: 140, images: 50 },
   pro: { messages: Infinity, images: 20 },
+  studio: { messages: Infinity, images: Infinity },
   power: { messages: Infinity, images: Infinity },
+};
+
+const PRODUCT_TO_TIER: Record<string, string> = {
+  prod_UiMrXaLZz2YTH8: "starter",
+  prod_UiMmsmsGxoXQMZ: "creator",
+  prod_UiMoKro8tXhYDG: "pro",
+  prod_UPppL11VbgtS7Y: "starter",
+  prod_UPptYZrD81LoLZ: "creator",
+  prod_UPpvzCc8g4hOwA: "pro",
+  prod_UPpvkKvZISbXEs: "studio",
+  prod_UBEIVHEtYoy7QP: "creator",
+  prod_UBEJiRN7lDcB4u: "studio",
 };
 
 function routeRequest(prompt: string, userTier: string, taskType: 'chat' | 'content'): string {
   const isEmotional = /love|feel|sad|happy|girlfriend|boyfriend|friend|relationship|lonely/i.test(prompt);
   const isComplex = prompt.length > 1000 || /analyze|debug|solve|complex|reason/i.test(prompt);
 
-  if (userTier === "free") return MODELS.CHEAP;
+  if (userTier === "free" || userTier === "starter") return MODELS.CHEAP;
 
-  if (userTier === "power") {
+  if (userTier === "studio" || userTier === "power") {
     if (isEmotional || isComplex) return MODELS.HIGH;
     return MODELS.MINI;
   }
 
-  // Pro tier hybrid routing
+  // Creator/Pro tier hybrid routing
   if (isEmotional) return MODELS.MINI;
   if (taskType === 'content') return MODELS.PRO;
   return MODELS.PRO;
@@ -101,9 +116,8 @@ serve(async (req) => {
               if (customers.data.length > 0) {
                 const subs = await stripe.subscriptions.list({ customer: customers.data[0].id, status: "active", limit: 1 });
                 if (subs.data.length > 0) {
-                  const productId = subs.data[0].items.data[0].price.product;
-                  if (productId === "prod_UBEJiRN7lDcB4u") userTier = "power";
-                  else if (productId === "prod_UBEIVHEtYoy7QP") userTier = "pro";
+                  const productId = subs.data[0].items.data[0].price.product as string;
+                  userTier = PRODUCT_TO_TIER[productId] || "free";
                 }
               }
             } catch (e) { console.error("Stripe error:", e); }

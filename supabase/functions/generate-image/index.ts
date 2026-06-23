@@ -8,8 +8,23 @@ const corsHeaders = {
 
 const TIER_LIMITS: Record<string, number> = {
   free: 2,
-  pro: 20,
+  starter: 10,
+  creator: 50,
+  pro: 125,
+  studio: 300,
   power: Infinity,
+};
+
+const PRODUCT_TO_TIER: Record<string, string> = {
+  prod_UiMrXaLZz2YTH8: "starter",
+  prod_UiMmsmsGxoXQMZ: "creator",
+  prod_UiMoKro8tXhYDG: "pro",
+  prod_UPppL11VbgtS7Y: "starter",
+  prod_UPptYZrD81LoLZ: "creator",
+  prod_UPpvzCc8g4hOwA: "pro",
+  prod_UPpvkKvZISbXEs: "studio",
+  prod_UBEIVHEtYoy7QP: "creator",
+  prod_UBEJiRN7lDcB4u: "studio",
 };
 
 serve(async (req) => {
@@ -70,9 +85,8 @@ serve(async (req) => {
               if (customers.data.length > 0) {
                 const subs = await stripe.subscriptions.list({ customer: customers.data[0].id, status: "active", limit: 1 });
                 if (subs.data.length > 0) {
-                  const productId = subs.data[0].items.data[0].price.product;
-                  if (productId === "prod_UBEJiRN7lDcB4u") userTier = "power";
-                  else if (productId === "prod_UBEIVHEtYoy7QP") userTier = "pro";
+                  const productId = subs.data[0].items.data[0].price.product as string;
+                  userTier = PRODUCT_TO_TIER[productId] || "free";
                 }
               }
             } catch (e) { console.error("Stripe check error:", e); }
