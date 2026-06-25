@@ -1,24 +1,17 @@
-import { useRef, useState, FormEvent } from "react";
+import { useRef } from "react";
 import { Link } from "react-router-dom";
 import { motion, useInView } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/hooks/use-toast";
 import {
   ArrowRight,
   Video,
   Image as ImageIcon,
   Zap,
-  Check,
   Star,
   Play,
   Target,
   Film,
   Mic,
-  Loader2,
-  CheckCircle2,
-  Mail,
   Sparkles,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
@@ -110,28 +103,6 @@ export default function Home() {
   const featuresRef = useRef(null);
   const heroInView = useInView(heroRef, { once: true });
   const featuresInView = useInView(featuresRef, { once: true });
-
-  const [email, setEmail] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-
-  const handleEarlyAccess = async (e: FormEvent) => {
-    e.preventDefault();
-    if (!email.trim()) return;
-    setSubmitting(true);
-    try {
-      const { error } = await supabase
-        .from("early_access_leads")
-        .insert({ email: email.trim() });
-      if (error && error.code !== "23505") throw error;
-      setSubmitted(true);
-      toast({ title: "You're on the list!", description: "We'll notify you when we launch." });
-    } catch {
-      toast({ title: "Something went wrong", description: "Please try again.", variant: "destructive" });
-    } finally {
-      setSubmitting(false);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
@@ -425,7 +396,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ─── Early Access CTA ─── */}
+      {/* ─── CTA ─── */}
       <section className="relative py-24 px-4">
         <OrnateDecoration className="mb-16" />
         <div className="container mx-auto max-w-xl text-center relative z-10">
@@ -433,41 +404,30 @@ export default function Home() {
             <div className="w-14 h-14 mx-auto mb-5 rounded-2xl bg-gradient-to-br from-cyan-400 via-purple-500 to-pink-500 flex items-center justify-center shadow-lg">
               <Sparkles className="w-7 h-7 text-white" />
             </div>
-            <h2 className="text-3xl font-bold mb-3 font-display">Get Early Access</h2>
+            <h2 className="text-3xl font-bold mb-3 font-display">Start Creating Ads Today</h2>
             <p className="text-muted-foreground mb-6">
-              Join the waitlist to be first in line when we launch.
+              Sign up free and generate your first campaign in under 60 seconds.
             </p>
-            {submitted ? (
-              <div className="flex items-center justify-center gap-2 text-cyan-600 dark:text-cyan-400">
-                <CheckCircle2 className="w-5 h-5" />
-                <span className="font-medium">You're on the list!</span>
-              </div>
-            ) : (
-              <form onSubmit={handleEarlyAccess} className="flex gap-2">
-                <Input
-                  type="email"
-                  placeholder="you@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="flex-1 border-border/60 focus:border-cyan-400/50"
-                  required
-                />
-                <Button
-                  type="submit"
-                  disabled={submitting}
-                  className="bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-400 hover:to-purple-500 border-0"
-                >
-                  {submitting ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <>
-                      <Mail className="w-4 h-4 mr-2" />
-                      Join
-                    </>
-                  )}
-                </Button>
-              </form>
-            )}
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Button
+                size="lg"
+                className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 border-0 shadow-lg shadow-cyan-500/25"
+                asChild
+              >
+                <Link to="/auth">
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  Get Started Free
+                </Link>
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-border/60 hover:border-primary/40"
+                asChild
+              >
+                <Link to="/pricing">View Plans</Link>
+              </Button>
+            </div>
           </div>
         </div>
       </section>

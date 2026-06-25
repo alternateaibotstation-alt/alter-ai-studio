@@ -33,9 +33,23 @@ export const PLAN_ECONOMICS: Record<SaaSPlan, PlanEconomics> = {
 };
 
 export const PRODUCT_TO_PLAN: Record<string, SaaSPlan> = {
+  // Current products (from latest Stripe price config)
+  prod_UiMrXaLZz2YTH8: "starter",
+  prod_UiMmsmsGxoXQMZ: "creator",
+  prod_UiMoKro8tXhYDG: "pro",
+  // Legacy products (honor existing subscriptions)
+  prod_UPppL11VbgtS7Y: "starter",
+  prod_UPptYZrD81LoLZ: "creator",
+  prod_UPpvzCc8g4hOwA: "pro",
+  prod_UPpvkKvZISbXEs: "studio",
   prod_UBEIVHEtYoy7QP: "creator",
   prod_UBEJiRN7lDcB4u: "studio",
 };
+
+export function resolveTierFromProduct(productId: string | null): SaaSPlan {
+  if (!productId) return "free";
+  return PRODUCT_TO_PLAN[productId] ?? "free";
+}
 
 export function getActionCreditCost(action: string, quantity = 1): number {
   const base = ACTION_CREDIT_COST[action as BillableAction] ?? ACTION_CREDIT_COST.api_call;

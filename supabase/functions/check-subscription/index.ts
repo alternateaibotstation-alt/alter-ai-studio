@@ -20,7 +20,27 @@ const toIsoOrNull = (value: unknown) => {
   return null;
 };
 
+// Map Stripe price IDs to tiers (primary — always unique and correct)
+const PRICE_TO_TIER: Record<string, string> = {
+  // Current price IDs (from create-checkout)
+  "price_1TivwUBL5gimElYfebqRqPb7": "starter",
+  "price_1Tiw2TBL5gimElYf2LNMzpKg": "creator",
+  "price_1Tiw5CBL5gimElYfucxheKp2": "pro",
+  "price_1Tiw8ABL5gimElYf8TlKEeZ2": "studio",
+  // Legacy price IDs (honor existing subscriptions)
+  "price_1TR0AG4NFqfF77Iy6XvkH0pQ": "starter",
+  "price_1TR0E94NFqfF77IyqlUOxmkc": "creator",
+  "price_1TR0Fb4NFqfF77IygzdnqHji": "pro",
+  "price_1TR0G34NFqfF77IyvMKP0ggx": "studio",
+};
+
+// Map Stripe product IDs to tiers (fallback — includes all known products)
 const PRODUCT_TO_TIER: Record<string, string> = {
+  // Current products
+  prod_UiMrXaLZz2YTH8: "starter",
+  prod_UiMmsmsGxoXQMZ: "creator",
+  prod_UiMoKro8tXhYDG: "pro",
+  // Legacy products
   prod_UPppL11VbgtS7Y: "starter",
   prod_UPptYZrD81LoLZ: "creator",
   prod_UPpvzCc8g4hOwA: "pro",
@@ -28,6 +48,12 @@ const PRODUCT_TO_TIER: Record<string, string> = {
   prod_UBEIVHEtYoy7QP: "creator",
   prod_UBEJiRN7lDcB4u: "studio",
 };
+
+function resolveTier(priceId: string | null, productId: string | null): string {
+  if (priceId && PRICE_TO_TIER[priceId]) return PRICE_TO_TIER[priceId];
+  if (productId && PRODUCT_TO_TIER[productId]) return PRODUCT_TO_TIER[productId];
+  return "free";
+}
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
@@ -67,7 +93,7 @@ serve(async (req) => {
       subscribed = true;
       subscriptionEnd = sub.current_period_end;
       productId = sub.product_id;
-      tier = PRODUCT_TO_TIER[productId] || "free";
+      tier = resolveTier(sub.price_id, productId);
     } else {
       // Fallback: query Stripe directly
       const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
@@ -83,7 +109,8 @@ serve(async (req) => {
             const stripeSub = subs.data[0] as any;
             subscribed = true;
             productId = stripeSub.items.data[0].price.product as string;
-            tier = PRODUCT_TO_TIER[productId] || "free";
+            const priceId = stripeSub.items.data[0].price.id as string;
+            tier = resolveTier(priceId, productId);
 
             const periodEnd = stripeSub.current_period_end;
             const periodStart = stripeSub.current_period_start;
@@ -115,7 +142,13 @@ serve(async (req) => {
       tier,
       product_id: productId,
       subscription_end: subscriptionEnd,
-      usage: usage || { messages_used_today: 0, images_used_today: 0, bonus_messages: 0 },
+      usage: usage
+        ? {
+            campaigns_used_today: usage.messages_used_today ?? 0,
+            images_used_today: usage.images_used_today ?? 0,
+            videos_used_today: 0,
+          }
+        : { campaigns_used_today: 0, images_used_today: 0, videos_used_today: 0 },
     }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error);
