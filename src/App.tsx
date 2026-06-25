@@ -28,6 +28,7 @@ const FAQ = lazy(() => import("./pages/FAQ"));
 const LegalPage = lazy(() => import("./pages/LegalPage"));
 const Privacy = lazy(() => import("./pages/Privacy"));
 const Terms = lazy(() => import("./pages/Terms"));
+const Admin = lazy(() => import("./pages/Admin"));
 
 const queryClient = new QueryClient();
 
@@ -68,6 +69,7 @@ const App = () => (
                     <Route path="/privacy" element={<Privacy />} />
                     <Route path="/terms" element={<Terms />} />
                     <Route path="/faq" element={<FAQ />} />
+                    <Route path="/admin" element={<RequireAuth><Admin /></RequireAuth>} />
                     <Route path="/legal/:slug" element={<LegalPage />} />
                     <Route path="*" element={<NotFound />} />
                   </Route>
