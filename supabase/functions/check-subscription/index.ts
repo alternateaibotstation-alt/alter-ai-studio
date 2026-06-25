@@ -74,6 +74,31 @@ serve(async (req) => {
     const user = userData.user;
     if (!user?.email) throw new Error("Not authenticated");
 
+    // Check for admin tier override first
+    const { data: override } = await supabase
+      .from("tier_overrides")
+      .select("tier, expires_at")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (override && (!override.expires_at || new Date(override.expires_at) > new Date())) {
+      const { data: usage } = await supabase.rpc("get_or_reset_usage", { p_user_id: user.id });
+      return new Response(JSON.stringify({
+        subscribed: override.tier !== "free",
+        tier: override.tier,
+        product_id: null,
+        subscription_end: override.expires_at,
+        override: true,
+        usage: usage
+          ? {
+              campaigns_used_today: usage.messages_used_today ?? 0,
+              images_used_today: usage.images_used_today ?? 0,
+              videos_used_today: 0,
+            }
+          : { campaigns_used_today: 0, images_used_today: 0, videos_used_today: 0 },
+      }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
     // Try DB first (fast path)
     const { data: sub } = await supabase
       .from("subscriptions")
