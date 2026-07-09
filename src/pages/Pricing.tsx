@@ -83,7 +83,6 @@ export default function Pricing() {
   const { tier } = useSubscription();
   const navigate = useNavigate();
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
-  const [promoCode, setPromoCode] = useState("");
 
   const handleSubscribe = async (planKey: string) => {
     if (planKey === "free") {
@@ -110,8 +109,7 @@ export default function Pricing() {
         {
           body: {
             tier: planKey,
-            priceId: config.price_id,
-            promoCode: promoCode.trim() || undefined
+            priceId: config.price_id
           }
         },
       );
@@ -141,21 +139,6 @@ export default function Pricing() {
           </h1>
           <p className="text-lg text-muted-foreground max-w-xl mx-auto">
             Start free. Upgrade when you need more power. Cancel anytime.
-          </p>
-        </div>
-
-        <div className="max-w-md mx-auto mb-12">
-          <div className="flex gap-2">
-            <input
-              type="text"
-              placeholder="Promo Code (e.g. TESTFREE)"
-              value={promoCode}
-              onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
-              className="flex-1 h-10 px-4 text-sm rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary/50"
-            />
-          </div>
-          <p className="text-[10px] text-muted-foreground mt-1.5 text-center">
-            Have a code? Enter it above before selecting a plan.
           </p>
         </div>
 
