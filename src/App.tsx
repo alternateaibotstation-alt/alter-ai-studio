@@ -1,4 +1,5 @@
 import { lazy, Suspense } from "react";
+import { Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
@@ -66,8 +67,8 @@ const App = () => (
                     <Route path="/profile" element={<Profile />} />
                     <Route path="/success" element={<Success />} />
                     <Route path="/pricing" element={<Pricing />} />
-                    <Route path="/privacy" element={<Privacy />} />
-                    <Route path="/terms" element={<Terms />} />
+                    <Route path="/privacy" element={<Navigate to="/legal/privacy" replace />} />
+                    <Route path="/terms" element={<Navigate to="/legal/terms" replace />} />
                     <Route path="/faq" element={<FAQ />} />
                     <Route path="/admin" element={<RequireAuth><Admin /></RequireAuth>} />
                     <Route path="/legal/:slug" element={<LegalPage />} />

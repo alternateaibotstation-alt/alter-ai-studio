@@ -26,10 +26,10 @@ export const ACTION_CREDIT_COST: Record<BillableAction, number> = {
 
 export const PLAN_ECONOMICS: Record<SaaSPlan, PlanEconomics> = {
   free: { id: "free", monthlyPriceUsd: 0, advertisedMonthlyCredits: 150, advertisedDailyCredits: 5, fixedMonthlyCostUsd: 0 },
-  starter: { id: "starter", monthlyPriceUsd: 9, advertisedMonthlyCredits: 1200, advertisedDailyCredits: 40, fixedMonthlyCostUsd: 0.75 },
-  creator: { id: "creator", monthlyPriceUsd: 19, advertisedMonthlyCredits: 3500, advertisedDailyCredits: 140, fixedMonthlyCostUsd: 1.25 },
-  pro: { id: "pro", monthlyPriceUsd: 49, advertisedMonthlyCredits: 10000, advertisedDailyCredits: 400, fixedMonthlyCostUsd: 2.5 },
-  studio: { id: "studio", monthlyPriceUsd: 149, advertisedMonthlyCredits: 40000, advertisedDailyCredits: 1600, fixedMonthlyCostUsd: 8 },
+  starter: { id: "starter", monthlyPriceUsd: 12, advertisedMonthlyCredits: 1200, advertisedDailyCredits: 40, fixedMonthlyCostUsd: 0.75 },
+  creator: { id: "creator", monthlyPriceUsd: 29, advertisedMonthlyCredits: 3500, advertisedDailyCredits: 140, fixedMonthlyCostUsd: 1.25 },
+  pro: { id: "pro", monthlyPriceUsd: 59, advertisedMonthlyCredits: 10000, advertisedDailyCredits: 400, fixedMonthlyCostUsd: 2.5 },
+  studio: { id: "studio", monthlyPriceUsd: 99, advertisedMonthlyCredits: 40000, advertisedDailyCredits: 1600, fixedMonthlyCostUsd: 8 },
 };
 
 export const PRODUCT_TO_PLAN: Record<string, SaaSPlan> = {

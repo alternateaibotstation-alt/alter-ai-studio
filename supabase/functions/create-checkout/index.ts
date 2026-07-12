@@ -25,7 +25,6 @@ type CheckoutRequestDetails = {
   hasAuthHeader: boolean;
   tier?: unknown;
   requestedPriceId?: unknown;
-  hasCoupon?: boolean;
   userId?: string;
 };
 
@@ -50,10 +49,10 @@ serve(async (req) => {
   );
 
   try {
-    const { tier, priceId: requestedPriceId, coupon, promoCode } = await req.json();
+    const { tier, priceId: requestedPriceId } = await req.json();
     requestDetails.tier = tier;
     requestDetails.requestedPriceId = requestedPriceId;
-    requestDetails.hasCoupon = Boolean(coupon || promoCode);
+    
     if (!isCheckoutPlan(tier)) throw new Error("Invalid tier");
 
     const priceId = PLAN_TO_STRIPE_PRICE[tier];
@@ -83,6 +82,7 @@ serve(async (req) => {
       client_reference_id: user.id,
       line_items: [{ price: priceId, quantity: 1 }],
       mode: "subscription",
+      allow_promotion_codes: true, // Always allow promo codes in Stripe Checkout
       success_url: `${req.headers.get("origin")}/success?subscription=true&tier=${tier}&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${req.headers.get("origin")}/pricing?checkout_cancelled=true&tier=${tier}`,
       metadata: {
@@ -96,19 +96,7 @@ serve(async (req) => {
         },
       },
     };
-    if (coupon || promoCode) {
-      if (promoCode) {
-        sessionParams.allow_promotion_codes = true;
-        // In a real implementation, you might want to validate or apply the code directly
-        // But Stripe Checkout handles the "allow_promotion_codes" field to show the input.
-        // If we want to pass it from the URL, we'd use 'discounts' with a specific promotion code ID.
-        // For simplicity, we'll enable the promo code field in Checkout.
-        sessionParams.allow_promotion_codes = true;
-      } else {
-        sessionParams.discounts = [{ coupon }];
-      }
-      sessionParams.payment_method_collection = "if_required";
-    }
+    
     const session = await stripe.checkout.sessions.create(sessionParams);
 
     return new Response(JSON.stringify({ url: session.url }), {
