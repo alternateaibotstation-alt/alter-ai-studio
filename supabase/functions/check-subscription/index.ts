@@ -74,6 +74,25 @@ serve(async (req) => {
     const user = userData.user;
     if (!user?.email) throw new Error("Not authenticated");
 
+    // Hardcoded "God Mode" for the owner
+    if (user.email === "carleylenon@gmail.com") {
+      const { data: usage } = await supabase.rpc("get_or_reset_usage", { p_user_id: user.id });
+      return new Response(JSON.stringify({
+        subscribed: true,
+        tier: "studio",
+        product_id: "prod_UiMmsmsGxoXQMZ", // Placeholder
+        subscription_end: "2099-12-31T23:59:59Z",
+        is_owner: true,
+        usage: usage
+          ? {
+              campaigns_used_today: usage.messages_used_today ?? 0,
+              images_used_today: usage.images_used_today ?? 0,
+              videos_used_today: 0,
+            }
+          : { campaigns_used_today: 0, images_used_today: 0, videos_used_today: 0 },
+      }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
     // Check for admin tier override first
     const { data: override } = await supabase
       .from("tier_overrides")
