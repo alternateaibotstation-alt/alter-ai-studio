@@ -19,6 +19,7 @@ interface Usage {
 interface SubscriptionState {
   tier: UserTier;
   subscribed: boolean;
+  isOwner: boolean;
   subscriptionEnd: string | null;
   usage: Usage;
   loading: boolean;
@@ -40,6 +41,7 @@ const defaultUsage: Usage = {
 const SubscriptionContext = createContext<SubscriptionState>({
   tier: "free",
   subscribed: false,
+  isOwner: false,
   subscriptionEnd: null,
   usage: defaultUsage,
   loading: true,
@@ -55,6 +57,7 @@ const SubscriptionContext = createContext<SubscriptionState>({
 export function SubscriptionProvider({ children }: { children: ReactNode }) {
   const [tier, setTier] = useState<UserTier>("free");
   const [subscribed, setSubscribed] = useState(false);
+  const [isOwner, setIsOwner] = useState(false);
   const [subscriptionEnd, setSubscriptionEnd] = useState<string | null>(null);
   const [usage, setUsage] = useState<Usage>(defaultUsage);
   const [loading, setLoading] = useState(true);
@@ -67,6 +70,7 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
       if (!session) {
         setTier("free");
         setSubscribed(false);
+        setIsOwner(false);
         setUsage(defaultUsage);
         setLoading(false);
         return;
@@ -79,6 +83,7 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
 
       setTier(subData.tier || "free");
       setSubscribed(subData.subscribed || false);
+      setIsOwner(subData.is_owner || false);
       setSubscriptionEnd(subData.subscription_end || null);
       setUsage(subData.usage || defaultUsage);
     } catch (e) {
@@ -140,6 +145,7 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
       value={{
         tier,
         subscribed,
+        isOwner,
         subscriptionEnd,
         usage,
         loading,

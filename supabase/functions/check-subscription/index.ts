@@ -83,6 +83,7 @@ serve(async (req) => {
         product_id: "prod_UiMmsmsGxoXQMZ", // Placeholder
         subscription_end: "2099-12-31T23:59:59Z",
         is_owner: true,
+        is_god_mode: true,
         usage: usage
           ? {
               campaigns_used_today: usage.messages_used_today ?? 0,
