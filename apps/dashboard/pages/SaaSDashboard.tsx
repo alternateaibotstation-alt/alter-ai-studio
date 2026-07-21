@@ -48,17 +48,6 @@ interface CampaignPreview {
   audienceTargeting: string[];
   status: "generating" | "completed";
 }
-  id: string;
-  input: string;
-  hooks: string[];
-  captions: string[];
-  hashtags: string[];
-  imageCount: number;
-  videoCount: number;
-  ctaVariations: string[];
-  audienceTargeting: string[];
-  status: "generating" | "completed";
-}
 
 export default function SaaSDashboard() {
   const { tier, isOwner, remainingCampaigns, remainingImages, remainingVideos, canGenerateCampaign } =
