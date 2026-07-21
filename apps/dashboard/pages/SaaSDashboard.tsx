@@ -50,8 +50,14 @@ interface CampaignPreview {
 }
 
 export default function SaaSDashboard() {
-  const { tier, isOwner, remainingCampaigns, remainingImages, remainingVideos, canGenerateCampaign } =
-    useSubscription();
+  const {
+    tier,
+    isOwner,
+    remainingCampaigns,
+    remainingImages,
+    remainingVideos,
+    canGenerateCampaign,
+  } = useSubscription();
   const [productInput, setProductInput] = useState("");
   const [generating, setGenerating] = useState(false);
   const [campaign, setCampaign] = useState<CampaignPreview | null>(null);
@@ -87,20 +93,56 @@ export default function SaaSDashboard() {
         ],
         hashtags: ["#fyp", "#viral", "#ad", "#sponsored", "#trending"],
         imageCount: 5,
-        videoCount: tier === "pro" || tier === "studio" || tier === "power" ? 3 : 0,
+        videoCount:
+          tier === "pro" || tier === "studio" || tier === "power" ? 3 : 0,
         scenes: [
-          { number: 1, text: `Stop scrolling! Discover the future of ${productInput}.`, duration_seconds: 4 },
-          { number: 2, text: `Tired of the old way? ${productInput} is the solution you need.`, duration_seconds: 4 },
-          { number: 3, text: `High quality, affordable, and built for creators like you.`, duration_seconds: 4 },
-          { number: 4, text: `Join thousands of happy customers using ${productInput} today.`, duration_seconds: 4 },
-          { number: 5, text: `Click the link in bio to get started with ${productInput}!`, duration_seconds: 5 },
+          {
+            number: 1,
+            text: `Stop scrolling! Discover the future of ${productInput}.`,
+            duration_seconds: 4,
+          },
+          {
+            number: 2,
+            text: `Tired of the old way? ${productInput} is the solution you need.`,
+            duration_seconds: 4,
+          },
+          {
+            number: 3,
+            text: `High quality, affordable, and built for creators like you.`,
+            duration_seconds: 4,
+          },
+          {
+            number: 4,
+            text: `Join thousands of happy customers using ${productInput} today.`,
+            duration_seconds: 4,
+          },
+          {
+            number: 5,
+            text: `Click the link in bio to get started with ${productInput}!`,
+            duration_seconds: 5,
+          },
         ],
         imagePrompts: [
-          { scene_number: 1, prompt: `High quality cinematic product shot of ${productInput}, trending on instagram, 4k` },
-          { scene_number: 2, prompt: `Person using ${productInput} in a modern studio setting, happy expression, 4k` },
-          { scene_number: 3, prompt: `Close up detail of ${productInput} features, sleek design, professional lighting` },
-          { scene_number: 4, prompt: `A group of diverse creators collaborating, ${productInput} on the table, vibrant energy` },
-          { scene_number: 5, prompt: `Final call to action shot of ${productInput} with a "Shop Now" button overlay feel, 4k` },
+          {
+            scene_number: 1,
+            prompt: `High quality cinematic product shot of ${productInput}, trending on instagram, 4k`,
+          },
+          {
+            scene_number: 2,
+            prompt: `Person using ${productInput} in a modern studio setting, happy expression, 4k`,
+          },
+          {
+            scene_number: 3,
+            prompt: `Close up detail of ${productInput} features, sleek design, professional lighting`,
+          },
+          {
+            scene_number: 4,
+            prompt: `A group of diverse creators collaborating, ${productInput} on the table, vibrant energy`,
+          },
+          {
+            scene_number: 5,
+            prompt: `Final call to action shot of ${productInput} with a "Shop Now" button overlay feel, 4k`,
+          },
         ],
         ctaVariations: [
           "Shop Now - Limited Time",
@@ -145,7 +187,12 @@ export default function SaaSDashboard() {
                 {remainingCampaigns()} campaigns left today
               </span>
             </div>
-            <Button variant="outline" size="sm" className="border-border/60 hover:border-cyan-400/40" asChild>
+            <Button
+              variant="outline"
+              size="sm"
+              className="border-border/60 hover:border-cyan-400/40"
+              asChild
+            >
               <Link to="/pricing">
                 <Zap className="w-4 h-4 mr-1" /> Upgrade
               </Link>
@@ -181,7 +228,9 @@ export default function SaaSDashboard() {
             <Button
               type="submit"
               size="lg"
-              disabled={generating || !productInput.trim() || !canGenerateCampaign()}
+              disabled={
+                generating || !productInput.trim() || !canGenerateCampaign()
+              }
               className="h-12 sm:h-auto px-8 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 border-0 shadow-lg shadow-cyan-500/20 sm:min-w-[200px]"
             >
               {generating ? (
@@ -318,7 +367,10 @@ export default function SaaSDashboard() {
             </section>
 
             {/* Video Ads Section */}
-            {(tier === "pro" || tier === "studio" || tier === "power" || isOwner) ? (
+            {tier === "pro" ||
+            tier === "studio" ||
+            tier === "power" ||
+            isOwner ? (
               <section className="animate-in fade-in slide-in-from-bottom-4 duration-700">
                 <div className="flex items-center gap-2 mb-6">
                   <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
@@ -326,12 +378,14 @@ export default function SaaSDashboard() {
                   </div>
                   <div>
                     <h3 className="text-xl font-bold">Video Ad Studio</h3>
-                    <p className="text-sm text-muted-foreground">Customize and generate your video ads</p>
+                    <p className="text-sm text-muted-foreground">
+                      Customize and generate your video ads
+                    </p>
                   </div>
                 </div>
-                
-                <VideoCompiler 
-                  scenes={campaign.scenes} 
+
+                <VideoCompiler
+                  scenes={campaign.scenes}
                   imagePrompts={campaign.imagePrompts}
                   hook={campaign.hooks[0]}
                   existingImages={[]}
@@ -340,13 +394,17 @@ export default function SaaSDashboard() {
             ) : (
               <div className="p-8 rounded-2xl border border-primary/20 bg-primary/5 text-center">
                 <Video className="w-10 h-10 text-primary mx-auto mb-4" />
-                <h3 className="text-xl font-bold mb-2">
-                  Unlock AI Video Ads
-                </h3>
+                <h3 className="text-xl font-bold mb-2">Unlock AI Video Ads</h3>
                 <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                  Your current plan includes text and image ads. Upgrade to Pro or Studio to generate high-converting video ads with AI voiceovers and custom music.
+                  Your current plan includes text and image ads. Upgrade to Pro
+                  or Studio to generate high-converting video ads with AI
+                  voiceovers and custom music.
                 </p>
-                <Button size="lg" asChild className="bg-primary hover:bg-primary/90">
+                <Button
+                  size="lg"
+                  asChild
+                  className="bg-primary hover:bg-primary/90"
+                >
                   <Link to="/pricing">Upgrade to Pro - $59/mo</Link>
                 </Button>
               </div>
