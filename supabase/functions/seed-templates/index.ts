@@ -201,7 +201,7 @@ Deno.serve(async (req) => {
 
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const serviceRoleKey = JSON.parse(Deno.env.get("SUPABASE_SECRET_KEYS")!)["default"];
     const supabase = createClient(supabaseUrl, serviceRoleKey);
 
     const { action } = await req.json().catch(() => ({ action: "seed" }));

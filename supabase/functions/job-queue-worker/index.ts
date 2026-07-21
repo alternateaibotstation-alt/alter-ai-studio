@@ -135,7 +135,7 @@ serve(async (req) => {
 
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+      JSON.parse(Deno.env.get("SUPABASE_SECRET_KEYS")!)["default"]
     );
 
     // Extract user ID from auth header
